@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "license": "ISC",
   "main": "src/index",
+  "author": {
+    "name": "Observable, Inc."
+  },
   "scripts": {
     "test": "tape -r @std/esm 'test/**/*-test.js'",
     "precommit": "eslint . && yarn test"
