@@ -1,5 +1,5 @@
 import {resolve as resolveDefault, requireFrom} from "d3-require";
-import constant from "../constant";
+import constant from "./constant";
 import DOM from "./dom/index";
 import Files from "./files/index";
 import Generators from "./generators/index";
