@@ -1,0 +1,25 @@
+{
+  "name": "@observablehq/notebook-stdlib",
+  "version": "0.0.0",
+  "license": "ISC",
+  "module": "src/index",
+  "scripts": {
+    "test": "tape -r @std/esm 'test/**/*-test.js'",
+    "precommit": "eslint . && yarn test"
+  },
+  "@std/esm": {
+    "esm": "js",
+    "cjs": true
+  },
+  "dependencies": {
+    "@std/esm": "^0.16.0",
+    "d3-require": "^0.6.2"
+  },
+  "devDependencies": {
+    "eslint": "^4.12.1",
+    "husky": "^0.14.3",
+    "jsdom": "^11.5.1",
+    "tape": "^4.8.0",
+    "tape-await": "0.1.0"
+  }
+}
