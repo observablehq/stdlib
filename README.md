@@ -1,6 +1,6 @@
 # @observablehq/notebook-stdlib
 
-This library implements the standard library for Observable notebooks.
+The Observable notebook standard library.
 
 ## Installing
 
