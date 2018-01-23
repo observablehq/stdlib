@@ -2,7 +2,7 @@
   "name": "@observablehq/notebook-stdlib",
   "version": "0.0.0",
   "license": "ISC",
-  "module": "src/index",
+  "main": "src/index",
   "scripts": {
     "test": "tape -r @std/esm 'test/**/*-test.js'",
     "precommit": "eslint . && yarn test"
