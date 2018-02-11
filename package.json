@@ -6,6 +6,10 @@
   "author": {
     "name": "Observable, Inc."
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/observablehq/notebook-stdlib.git"
+  },
   "scripts": {
     "test": "tape -r @std/esm 'test/**/*-test.js'",
     "precommit": "eslint . && yarn test"
