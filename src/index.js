@@ -20,7 +20,7 @@ export function runtimeLibrary(resolve) {
     Promises: Promises,
     require: constant(require),
     resolve: constant(resolve),
-    html: html,
+    html: constant(html),
     md: md(require, resolve),
     tex: tex(require, resolve),
     now: now,
