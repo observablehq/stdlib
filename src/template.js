@@ -4,7 +4,7 @@ export default function template(compile) {
         parts = [], part,
         node,
         template = document.createElement("template"),
-        fragment = template.content,
+        fragment,
         walker,
         i, n, j, m;
 
@@ -28,6 +28,7 @@ export default function template(compile) {
 
     // Compile the template.
     template.innerHTML = compile(string);
+    fragment = template.content;
 
     // Walk the template, replacing comment placeholders.
     walker = document.createTreeWalker(fragment, NodeFilter.SHOW_COMMENT, null, false);
