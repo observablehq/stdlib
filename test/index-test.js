@@ -12,6 +12,7 @@ tape("runtimeLibrary() returns a library with the expected keys", async test => 
     "now",
     "require",
     "resolve",
+    "svg",
     "tex",
     "width"
   ]);

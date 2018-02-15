@@ -7,6 +7,7 @@ import html from "./html";
 import md from "./md";
 import now from "./now";
 import Promises from "./promises/index";
+import svg from "./svg";
 import tex from "./tex";
 import width from "./width";
 
@@ -22,6 +23,7 @@ export function runtimeLibrary(resolve) {
     resolve: constant(resolve),
     html: constant(html),
     md: md(require, resolve),
+    svg: constant(svg),
     tex: tex(require, resolve),
     now: now,
     width: width

@@ -1,14 +1,13 @@
-export default function template(compile) {
+export default function template(render) {
   return function(strings) {
     var string = strings[0],
         parts = [], part,
         node,
-        template = document.createElement("template"),
         fragment,
         walker,
         i, n, j, m;
 
-    // Concatenate the template contents, using comments as placeholders.
+    // Concatenate the text using comments as placeholders.
     for (i = 1, n = arguments.length; i < n; ++i) {
       part = arguments[i];
       if (Array.isArray(part)) {
@@ -26,11 +25,10 @@ export default function template(compile) {
       string += part + strings[i];
     }
 
-    // Compile the template.
-    template.innerHTML = compile(string);
-    fragment = template.content;
+    // Render the document fragment.
+    fragment = render(string);
 
-    // Walk the template, replacing comment placeholders.
+    // Walk the document fragment to replace comment placeholders.
     walker = document.createTreeWalker(fragment, NodeFilter.SHOW_COMMENT, null, false);
     while (walker.nextNode()) {
       node = walker.currentNode;
