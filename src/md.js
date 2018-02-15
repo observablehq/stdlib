@@ -2,7 +2,7 @@ import template from "./template";
 
 export default function(require) {
   return function() {
-    return require("marked@0.3.9/marked.min.js").then(function(marked) {
+    return require("marked@0.3.12/marked.min.js").then(function(marked) {
       return template(function(string) {
         var template = document.createElement("template");
         template.innerHTML = marked(string, {langPrefix: ""}).trim();
