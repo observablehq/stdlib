@@ -3,7 +3,7 @@ export default function template(render) {
     var string = strings[0],
         parts = [], part,
         fragment = null,
-        node,
+        node, nodes,
         walker,
         i, n, j, m, k = -1;
 
@@ -40,12 +40,18 @@ export default function template(render) {
     fragment = render(string);
 
     // Walk the document fragment to replace comment placeholders.
-    if (k >= 0) {
+    if (++k > 0) {
+      nodes = new Array(k);
       walker = document.createTreeWalker(fragment, NodeFilter.SHOW_COMMENT, null, false);
       while (walker.nextNode()) {
         node = walker.currentNode;
         if (/^o:/.test(node.nodeValue)) {
-          node.parentNode.replaceChild(parts[node.nodeValue.slice(2)], node);
+          nodes[+node.nodeValue.slice(2)] = node;
+        }
+      }
+      for (i = 0; i < k; ++i) {
+        if (node = nodes[i]) {
+          node.parentNode.replaceChild(parts[i], node);
         }
       }
     }
