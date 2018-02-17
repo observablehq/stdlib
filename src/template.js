@@ -2,7 +2,7 @@ export default function template(render) {
   return function(strings) {
     var string = strings[0],
         parts = [], part,
-        fragment = null,
+        root = null,
         node, nodes,
         walker,
         i, n, j, m, k = -1;
@@ -17,32 +17,30 @@ export default function template(render) {
         for (j = 0, m = part.length; j < m; ++j) {
           node = part[j];
           if (node instanceof Node) {
-            if (!fragment) {
-              parts[++k] = fragment = document.createDocumentFragment();
+            if (root === null) {
+              parts[++k] = root = document.createDocumentFragment();
               string += "<!--o:" + k + "-->";
             }
-            fragment.appendChild(node);
+            root.appendChild(node);
           } else {
-            if (fragment) {
-              fragment = null;
-            }
+            root = null;
             string += node;
           }
         }
-        fragment = null;
+        root = null;
       } else {
         string += part;
       }
       string += strings[i];
     }
 
-    // Render the document fragment.
-    fragment = render(string);
+    // Render the text.
+    root = render(string);
 
-    // Walk the document fragment to replace comment placeholders.
+    // Walk the rendered content to replace comment placeholders.
     if (++k > 0) {
       nodes = new Array(k);
-      walker = document.createTreeWalker(fragment, NodeFilter.SHOW_COMMENT, null, false);
+      walker = document.createTreeWalker(root, NodeFilter.SHOW_COMMENT, null, false);
       while (walker.nextNode()) {
         node = walker.currentNode;
         if (/^o:/.test(node.nodeValue)) {
@@ -56,9 +54,9 @@ export default function template(render) {
       }
     }
 
-    // If the document fragment is a single node, detach and return the node.
-    return fragment.childNodes.length === 1
-        ? fragment.removeChild(fragment.firstChild)
-        : fragment;
+    // If the rendered content is a single node, detach and return the node.
+    return root.childNodes.length === 1
+        ? root.removeChild(root.firstChild)
+        : root;
   };
 }
