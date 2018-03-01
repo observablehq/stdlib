@@ -1,3 +1,5 @@
+var raw = String.raw;
+
 function style(href) {
   return new Promise(function(resolve, reject) {
     var link = document.createElement("link");
@@ -18,11 +20,9 @@ export default function(require, resource) {
       var katex = values[0], tex = renderer();
 
       function renderer(options) {
-        return function(strings) {
-          var string = strings[0] + "", i = 0, n = arguments.length;
-          while (++i < n) string += arguments[i] + "" + strings[i];
+        return function() {
           var root = document.createElement("div");
-          katex.render(string, root, options);
+          katex.render(raw.apply(String, arguments), root, options);
           return root.removeChild(root.firstChild);
         };
       }
