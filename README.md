@@ -330,6 +330,22 @@ Is equivalent to this expression:
 html`<div>Hello, <b>world</b>!</div>`
 ```
 
+If an embedded expression is a DOM element, it is embedded in generated HTML. For example, to embed [TeX](#tex) within HTML:
+
+```js
+html`I like ${tex`\KaTeX`} for math.`
+```
+
+If an embedded expression is an array, the elements of the array are embedded in the generated HTML. For example, to create a table from an array of values:
+
+```js
+html`<table>
+  <tbody>${["zero", "one", "two"].map((name, i) => html`<tr>
+    <td>${name}</td><td>${i}</td>
+  </tr>`)}</tbody>
+</table>`
+```
+
 <a href="#svg" name="svg">#</a> <b>svg</b>(<i>strings</i>, <i>values…</i>)
 
 Returns the SVG element represented by the specified *strings* and *values*. This function is intended to be used as a [tagged template literal](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals#Tagged_template_literals_and_escape_sequences). For example, to create an SVG element whose content is a circle:
@@ -358,6 +374,8 @@ svg`<g>
 </g>`
 ```
 
+If an embedded expression is a DOM element, it is embedded in generated SVG. If an embedded expression is an array, the elements of the array are embedded in the generated SVG.
+
 ### Markdown
 
 <a href="#md" name="md">#</a> <b>md</b>(<i>strings</i>, <i>values…</i>)
@@ -365,6 +383,8 @@ svg`<g>
 ```js
 md`Hello, *world*!`
 ```
+
+If an embedded expression is a DOM element, it is embedded in generated HTML. If an embedded expression is an array, the elements of the array are embedded in the generated HTML.
 
 ### TeX
 
