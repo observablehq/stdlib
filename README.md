@@ -19,6 +19,7 @@ Returns a new standard library object, defining the following properties:
 * [require](#require) - load third-party libraries.
 * [html](#html) - render HTML.
 * [md](#markdown) - render Markdown.
+* [svg](#svg) - render SVG.
 * [tex](#tex) - render TeX.
 * [now](#now) - the current value of Date.now.
 * [width](#width) - the current page width.
@@ -32,15 +33,18 @@ If *resolve* is specified, it is a function that returns the URL of the module w
 Returns a new canvas element with the specified *width* and *height*. For example, to create a 960×500 canvas:
 
 ```js
-var canvas = DOM.canvas(960, 500);
+DOM.canvas(960, 500)
 ```
 
 This is equivalent to:
 
 ```js
-var canvas = document.createElement("canvas");
-canvas.width = 960;
-canvas.height = 500;
+{
+  let canvas = document.createElement("canvas");
+  canvas.width = 960;
+  canvas.height = 500;
+  return canvas;
+}
 ```
 
 <a href="#DOM_context2d" name="DOM_context2d">#</a> DOM.<b>context2d</b>(<i>width</i>, <i>height</i>[, <i>dpi</i>])
@@ -48,18 +52,24 @@ canvas.height = 500;
 Returns a new canvas context with the specified *width* and *height* and the specified device pixel ratio *dpi*. If *dpi* is not specified, it defaults to [*window*.devicePixelRatio](https://developer.mozilla.org/docs/Web/API/Window/devicePixelRatio). For example, to create a 960×500 canvas:
 
 ```js
-var context = DOM.context2d(960, 500);
+{
+  let context = DOM.context2d(960, 500);
+  return context.canvas;
+}
 ```
 
 If the device pixel ratio is two, this is equivalent to:
 
 ```js
-var canvas = document.createElement("canvas");
-canvas.width = 1920;
-canvas.height = 1000;
-canvas.style.width = "960px";
-var context = canvas.getContext("2d");
-context.scale(2, 2);
+{
+  let canvas = document.createElement("canvas");
+  canvas.width = 1920;
+  canvas.height = 1000;
+  canvas.style.width = "960px";
+  let context = canvas.getContext("2d");
+  context.scale(2, 2);
+  return canvas;
+}
 ```
 
 To access the context’s canvas, use [*context*.canvas](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/canvas).
@@ -73,25 +83,25 @@ Returns an anchor element containing a button that when clicked will download a 
 Returns a new element with the specified *name*. For example, to create an empty H1 element:
 
 ```js
-var h1 = DOM.element("h1");
+DOM.element("h1")
 ```
 
 This is equivalent to:
 
 ```js
-var h1 = document.createElement("h1");
+document.createElement("h1")
 ```
 
 If the *name* has the prefix `svg:`, `math:` or `xhtml:`, uses [*document*.createElementNS](https://developer.mozilla.org/docs/Web/API/Document/createElementNS) instead of [*document*.createElement](https://developer.mozilla.org/docs/Web/API/Document/createElement). For example, to create an empty SVG element (see also [DOM.svg](#DOM_svg)):
 
 ```js
-var svg = DOM.element("svg:svg");
+DOM.element("svg:svg")
 ```
 
 This is equivalent to:
 
 ```js
-var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+document.createElementNS("http://www.w3.org/2000/svg", "svg")
 ```
 
 If *attributes* is specified, sets any attributes in the specified object before returning the new element.
@@ -101,14 +111,17 @@ If *attributes* is specified, sets any attributes in the specified object before
 Returns a new input element with the specified *type*. If *type* is not specified or null, a text input is created. For example, to create a new file input:
 
 ```js
-var input = DOM.input("file");
+DOM.input("file")
 ```
 
 This is equivalent to:
 
 ```js
-var input = document.createElement("input");
-input.type = "file";
+{
+  let input = document.createElement("input");
+  input.type = "file";
+  return input;
+}
 ```
 
 <a href="#DOM_range" name="DOM_range">#</a> DOM.<b>range</b>(\[<i>min</i>, \]\[<i>max</i>\]\[, <i>step</i>\])
@@ -116,17 +129,26 @@ input.type = "file";
 Returns a new range input element. (See also [DOM.input](#input).) If *max* is specified, sets the maximum value of the range to the specified number; if *max* is not specified or null, sets the maximum value of the range to 1. If *min* is specified, sets the minimum value of the range to the specified number; if *min* is not specified or null, sets the minimum value of the range to 0. If *step* is specified, sets the step value of the range to the specified number; if *step* is not specified or null, sets the step value of the range to `any`. For example, to create a slider that ranges the integers from -180 to +180, inclusive:
 
 ```js
-var input = DOM.range(-180, 180, 1);
+DOM.range(-180, 180, 1)
 ```
 
 This is equivalent to:
 
 ```js
-var input = document.createElement("input");
-input.min = -180;
-input.max = 180;
-input.step = 1;
-input.type = "range";
+{
+  let input = document.createElement("input");
+  input.min = -180;
+  input.max = 180;
+  input.step = 1;
+  input.type = "range";
+  return input;
+}
+```
+
+Or using [html](#html):
+
+```js
+html`<input type=range min=-180 max=180 step=1>`
 ```
 
 <a href="#DOM_select" name="DOM_select">#</a> DOM.<b>select</b>(<i>values</i>)
@@ -134,29 +156,32 @@ input.type = "range";
 Returns a new select element with an option for each string in the specified *values* array. For example, to create a drop-down menu of three colors:
 
 ```js
-var select = DOM.select(["red", "green", "blue"]);
+DOM.select(["red", "green", "blue"])
 ```
 
 This is equivalent to:
 
 ```js
-var select = document.createElement("select");
-var optionRed = select.appendChild(document.createElement("option"));
-optionRed.value = optionRed.textContent = "red";
-var optionGreen = select.appendChild(document.createElement("option"));
-optionGreen.value = optionGreen.textContent = "green";
-var optionBlue = select.appendChild(document.createElement("option"));
-optionBlue.value = optionBlue.textContent = "blue";
+{
+  let select = document.createElement("select");
+  let optionRed = select.appendChild(document.createElement("option"));
+  optionRed.value = optionRed.textContent = "red";
+  let optionGreen = select.appendChild(document.createElement("option"));
+  optionGreen.value = optionGreen.textContent = "green";
+  let optionBlue = select.appendChild(document.createElement("option"));
+  optionBlue.value = optionBlue.textContent = "blue";
+  return select;
+}
 ```
 
 For greater control, consider using [html](#html) instead. For example, here is an equivalent way to define the above drop-down menu:
 
 ```js
-var select = html`<select>
+html`<select>
   <option value="red">red</option>
   <option value="green">green</option>
   <option value="blue">blue</option>
-</select>`;
+</select>`
 ```
 
 <a href="#DOM_svg" name="DOM_svg">#</a> DOM.<b>svg</b>(<i>width</i>, <i>height</i>)
@@ -164,16 +189,19 @@ var select = html`<select>
 Returns a new SVG element with the specified *width* and *height*. For example, to create a 960×500 blank SVG:
 
 ```js
-var svg = DOM.svg(960, 500);
+DOM.svg(960, 500)
 ```
 
 This is equivalent to:
 
 ```js
-var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-set.setAttribute("viewBox", "0,0,960,500")
-svg.setAttribute("width", "960");
-svg.setAttribute("height", "500");
+{
+  let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  set.setAttribute("viewBox", "0,0,960,500")
+  svg.setAttribute("width", "960");
+  svg.setAttribute("height", "500");
+  return svg;
+}
 ```
 
 <a href="#DOM_text" name="DOM_text">#</a> DOM.<b>text</b>(<i>string</i>)
@@ -181,13 +209,13 @@ svg.setAttribute("height", "500");
 Returns a new text node with the specified *string* value. For example, to say hello:
 
 ```js
-var hello = DOM.text("Hello, world!");
+DOM.text("Hello, world!")
 ```
 
 This is equivalent to:
 
 ```js
-var hello = document.createTextNode("Hello, world!");
+document.createTextNode("Hello, world!")
 ```
 
 ### Files
@@ -215,9 +243,11 @@ Files.url(file).then(url => {
 However, note that it may be more efficient to use the synchronous [URL.createObjectURL](https://developer.mozilla.org/docs/Web/API/URL/createObjectURL) method instead, such as:
 
 ```js
-var image = new Image;
-image.src = URL.createObjectURL(file);
-return image;
+{
+  let image = new Image;
+  image.src = URL.createObjectURL(file);
+  return image;
+}
 ```
 
 ### Generators
@@ -254,7 +284,7 @@ return image;
 
 <a href="#Promises_delay" name="Promises_delay">#</a> Promises.<b>delay</b>(<i>duration</i>[, <i>value</i>])
 
-…
+Returns a promise that resolves with the specified *value* after the specified *duration* in milliseconds.
 
 <a href="#Promises_never" name="Promises_never">#</a> Promises.<b>never</b>
 
@@ -282,22 +312,50 @@ The current width of cells.
 
 <a href="#html" name="html">#</a> <b>html</b>(<i>strings</i>, <i>values…</i>)
 
-Returns the HTML element or node represented by the specified *strings* and *values*. This function is intended to be used as a [tagged template literal](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals#Tagged_template_literals_and_escape_sequences). For example, to create an H1 element whose content is “Hello, world!”:
+Returns the HTML element represented by the specified *strings* and *values*. This function is intended to be used as a [tagged template literal](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals#Tagged_template_literals_and_escape_sequences). For example, to create an H1 element whose content is “Hello, world!”:
 
 ```js
-var hello = html`<h1>Hello, world!</h1>`;
+html`<h1>Hello, world!</h1>`
 ```
 
 If the resulting HTML fragment is not a single HTML element or node, is it wrapped in a DIV element. For example, this expression:
 
 ```js
-var hello = html`Hello, <b>world</b>!`;
+html`Hello, <b>world</b>!`
 ```
 
 Is equivalent to this expression:
 
 ```js
-var hello = html`<div>Hello, <b>world</b>!</div>`;
+html`<div>Hello, <b>world</b>!</div>`
+```
+
+<a href="#svg" name="svg">#</a> <b>svg</b>(<i>strings</i>, <i>values…</i>)
+
+Returns the SVG element represented by the specified *strings* and *values*. This function is intended to be used as a [tagged template literal](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals#Tagged_template_literals_and_escape_sequences). For example, to create an SVG element whose content is a circle:
+
+```js
+svg`<svg width=16 height=16>
+  <circle cx=8 cy=8 r=4></circle>
+</svg>`
+```
+
+If the resulting SVG fragment is not a single SVG element, is it wrapped in a G element. For example, this expression:
+
+```js
+svg`
+<circle cx=8 cy=4 r=4></circle>
+<circle cx=8 cy=8 r=4></circle>
+`
+```
+
+Is equivalent to this expression:
+
+```js
+svg`<g>
+  <circle cx=8 cy=4 r=4></circle>
+  <circle cx=8 cy=8 r=4></circle>
+</g>`
 ```
 
 ### Markdown
@@ -305,7 +363,7 @@ var hello = html`<div>Hello, <b>world</b>!</div>`;
 <a href="#md" name="md">#</a> <b>md</b>(<i>strings</i>, <i>values…</i>)
 
 ```js
-var hello = md`Hello, *world*!`;
+md`Hello, *world*!`
 ```
 
 ### TeX
