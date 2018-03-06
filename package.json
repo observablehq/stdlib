@@ -20,13 +20,13 @@
   },
   "dependencies": {
     "@std/esm": "^0.16.0",
-    "d3-require": "^0.6.2"
+    "d3-require": "^0.6.4"
   },
   "devDependencies": {
     "eslint": "^4.12.1",
     "husky": "^0.14.3",
-    "jsdom": "^11.5.1",
-    "tape": "^4.8.0",
+    "jsdom": "^11.6.2",
+    "tape": "^4.9.0",
     "tape-await": "0.1.0"
   }
 }
