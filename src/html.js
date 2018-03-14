@@ -1,9 +1,7 @@
 import template from "./template";
 
 export default template(function(string) {
-  var template = document.createElement("template");
-  template.innerHTML = string.trim();
-  var content = template.content;
+  var content = document.createRange().createContextualFragment(string.trim());
   if (content.childNodes.length === 1) return content;
   var div = document.createElement("div");
   div.appendChild(content);
