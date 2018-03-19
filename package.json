@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@std/esm": "^0.16.0",
-    "d3-require": "^0.6.4"
+    "d3-require": "^0.6.6"
   },
   "devDependencies": {
     "eslint": "^4.12.1",
