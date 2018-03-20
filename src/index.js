@@ -28,6 +28,6 @@ export function runtimeLibrary(resolve) {
     tex: tex(require, resolve),
     now: now,
     width: width,
-    _loadFile: _loadFile
+    _loadFile: _loadFile(require)
   };
 }
