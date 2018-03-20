@@ -10,6 +10,7 @@ import Promises from "./promises/index";
 import svg from "./svg";
 import tex from "./tex";
 import width from "./width";
+import _loadFile from "./load_file";
 
 export function runtimeLibrary(resolve) {
   if (resolve == null) resolve = resolveDefault;
@@ -26,6 +27,7 @@ export function runtimeLibrary(resolve) {
     svg: constant(svg),
     tex: tex(require, resolve),
     now: now,
-    width: width
+    width: width,
+    _loadFile: _loadFile
   };
 }
