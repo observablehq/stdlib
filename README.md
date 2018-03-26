@@ -286,10 +286,6 @@ However, note that it may be more efficient to use the synchronous [URL.createOb
 
 Returns a promise that resolves with the specified *value* after the specified *duration* in milliseconds.
 
-<a href="#Promises_never" name="Promises_never">#</a> Promises.<b>never</b>
-
-A promise that never resolves. Equivalent to `new Promise(() => {})`.
-
 <a href="#Promises_tick" name="Promises_tick">#</a> Promises.<b>tick</b>(<i>duration</i>[, <i>value</i>])
 
 Returns a promise that resolves with the specified *value* at the next integer multiple of *milliseconds* since the UNIX epoch. This is much like [Promises.delay](#Promises_delay), except it allows promises to be synchronized.
@@ -298,7 +294,20 @@ Returns a promise that resolves with the specified *value* at the next integer m
 
 … Note: the current implementation relies on [setTimeout](https://developer.mozilla.org/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout), and thus the specified *date* must be no longer than 2,147,483,647 milliseconds (24.9 days) from now.
 
-### Live Values
+### Specials
+
+<a href="#invalidation" name="invalidation">#</a> <b>invalidation</b>
+
+A promise that resolves when the current cell is re-evaluated: when the cell’s code changes, when it is re-run using Shift-Enter, or when a referenced input changes. This promise is typically used to dispose of resources that were allocated by the cell. For example, to abort a fetch if the cell is invalidated:
+
+```js
+{
+  const controller = new AbortController;
+  invalidation.then(() => controller.abort());
+  const response = await fetch(url, {signal: controller.signal});
+  return response.json();
+}
+```
 
 <a href="#now" name="now">#</a> <b>now</b>
 
