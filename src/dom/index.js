@@ -7,6 +7,7 @@ import range from "./range";
 import select from "./select";
 import svg from "./svg";
 import text from "./text";
+import uid from "./uid";
 
 export default {
   canvas: canvas,
@@ -17,5 +18,6 @@ export default {
   range: range,
   select: select,
   svg: svg,
-  text: text
+  text: text,
+  uid: uid
 };

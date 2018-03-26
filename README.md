@@ -218,6 +218,33 @@ This is equivalent to:
 document.createTextNode("Hello, world!")
 ```
 
+<a href="#DOM_uid" name="DOM_uid">#</a> DOM.<b>uid</b>([<i>name</i>])
+
+Returns a new unique *identifier*. If *name* is specified, the *identifier*.id will be derived from the specified *name*, which may be useful for debugging. If DOM.uid is called repeatedly with the same *name*, every returned *identifier* is still unique (that is, different). Identifiers are useful in SVG: use *identifier*.href for IRI references, such as the [xlink:href](https://www.w3.org/TR/SVG/animate.html#HrefAttribute) attribute; use *identifier*.toString for functional notation, such as the [clip-path](https://www.w3.org/TR/SVG/masking.html#ClipPathProperty) presentation attribute.
+
+For example, to clip the Mona Lisa to a circle of radius 320px:
+
+```js
+{
+  const clip = uid("clip");
+  return svg`<svg width="640" height="640">
+  <defs>
+    <clipPath id="${clip.id}">
+      <circle cx="320" cy="320" r="320"></circle>
+    </clipPath>
+  </defs>
+  <image
+    clip-path="${clip}"
+    width="640" height="640"
+    preserveAspectRatio="xMidYMin slice"
+    xlink:href="https://raw.githubusercontent.com/mbostock/9511ae067889eefa5537eedcbbf87dab/raw/98449954e2eea4ef96c177759635de49a970e8c6/mona-lisa.jpg"
+  ></image>
+</svg>`;
+}
+```
+
+The use of DOM.uid is strongly recommended over hand-coding as it ensures that your identifiers are still unique if your code is imported into another notebook. Because *identifier*.href and *identifier*.toString return absolute rather than local IRIs, it also works well in conjunction with a notebook’s [base URL](https://developer.mozilla.org/docs/Web/HTML/Element/base).
+
 ### Files
 
 <a href="#Files_buffer" name="Files_buffer">#</a> Files.<b>buffer</b>(<i>file</i>)
