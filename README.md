@@ -298,7 +298,7 @@ Returns a promise that resolves with the specified *value* at the next integer m
 
 <a href="#invalidation" name="invalidation">#</a> <b>invalidation</b>
 
-A promise that resolves when the current cell is re-evaluated: when the cell’s code changes, when it is re-run using Shift-Enter, or when a referenced input changes. This promise is typically used to dispose of resources that were allocated by the cell. For example, to abort a fetch if the cell is invalidated:
+A promise that resolves when the current cell is re-evaluated: when the cell’s code changes, when it is run using Shift-Enter, or when a referenced input changes. This promise is typically used to dispose of resources that were allocated by the cell. For example, to abort a fetch if the cell is invalidated:
 
 ```js
 {
