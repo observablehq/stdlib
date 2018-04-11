@@ -1,8 +1,8 @@
 import tape from "tape-await";
-import {runtimeLibrary} from "../src/";
+import {Library} from "../src/";
 
-tape("runtimeLibrary() returns a library with the expected keys", async test => {
-  test.deepEqual(Object.keys(runtimeLibrary()).sort(), [
+tape("new Library returns a library with the expected keys", async test => {
+  test.deepEqual(Object.keys(new Library()).sort(), [
     "DOM",
     "Files",
     "Generators",

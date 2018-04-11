@@ -8,7 +8,7 @@ If you use NPM, `npm install @observablehq/notebook-stdlib`.
 
 ## API Reference
 
-<a href="#runtimeLibrary" name="runtimeLibrary">#</a> <b>runtimeLibrary</b>([<i>resolve</i>])
+<a href="#Library" name="Library">#</a> <b>Library</b>([<i>resolve</i>])
 
 Returns a new standard library object, defining the following properties:
 
@@ -25,6 +25,10 @@ Returns a new standard library object, defining the following properties:
 * [width](#width) - the current page width.
 
 If *resolve* is specified, it is a function that returns the URL of the module with the specified *name*; this is used internally by [require](#require).
+
+```js
+let standardLibrary = new Library();
+```
 
 ### DOM
 
