@@ -11,7 +11,7 @@ import svg from "./svg";
 import tex from "./tex";
 import width from "./width";
 
-export function Library(resolve) {
+export default function Library(resolve) {
   if (resolve == null) resolve = resolveDefault;
   var require = requireFrom(resolve);
   Object.defineProperties(this, {

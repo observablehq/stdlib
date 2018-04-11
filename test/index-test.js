@@ -1,5 +1,5 @@
 import tape from "tape-await";
-import {Library} from "../src/";
+import Library from "../src/";
 
 tape("new Library returns a library with the expected keys", async test => {
   test.deepEqual(Object.keys(new Library()).sort(), [
