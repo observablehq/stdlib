@@ -29,3 +29,5 @@ export default function Library(resolve) {
     width: {value: width, enumerable: true}
   });
 }
+
+export {DOM, Files, Generators, Promises};
