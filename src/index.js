@@ -11,21 +11,21 @@ import svg from "./svg";
 import tex from "./tex";
 import width from "./width";
 
-export function runtimeLibrary(resolve) {
+export default function Library(resolve) {
   if (resolve == null) resolve = resolveDefault;
   var require = requireFrom(resolve);
-  return {
-    DOM: DOM,
-    Files: Files,
-    Generators: Generators,
-    Promises: Promises,
-    require: constant(require),
-    resolve: constant(resolve),
-    html: constant(html),
-    md: md(require, resolve),
-    svg: constant(svg),
-    tex: tex(require, resolve),
-    now: now,
-    width: width
-  };
+  Object.defineProperties(this, {
+    DOM: {value: DOM, enumerable: true},
+    Files: {value: Files, enumerable: true},
+    Generators: {value: Generators, enumerable: true},
+    Promises: {value: Promises, enumerable: true},
+    require: {value: constant(require), enumerable: true},
+    resolve: {value: constant(resolve), enumerable: true},
+    html: {value: constant(html), enumerable: true},
+    md: {value: md(require, resolve), enumerable: true},
+    svg: {value: constant(svg), enumerable: true},
+    tex: {value: tex(require, resolve), enumerable: true},
+    now: {value: now, enumerable: true},
+    width: {value: width, enumerable: true}
+  });
 }
