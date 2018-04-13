@@ -1,5 +1,5 @@
+import dispose from "./dispose";
 import filter from "./filter";
-import finalize from "./finalize";
 import input from "./input";
 import map from "./map";
 import observe from "./observe";
@@ -9,8 +9,8 @@ import valueAt from "./valueAt";
 import worker from "./worker";
 
 export default {
+  dispose: dispose,
   filter: filter,
-  finalize: finalize,
   input: input,
   map: map,
   observe: observe,
