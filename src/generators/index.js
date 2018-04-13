@@ -1,4 +1,4 @@
-import dispose from "./dispose";
+import disposable from "./disposable";
 import filter from "./filter";
 import input from "./input";
 import map from "./map";
@@ -9,7 +9,7 @@ import valueAt from "./valueAt";
 import worker from "./worker";
 
 export default {
-  dispose: dispose,
+  disposable: disposable,
   filter: filter,
   input: input,
   map: map,
