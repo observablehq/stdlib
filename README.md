@@ -283,13 +283,15 @@ However, note that it may be more efficient to use the synchronous [URL.createOb
 
 …
 
-<a href="#Generators_dispose" name="Generators_dispose">#</a> Generators.<b>dispose</b>(<i>value</i>, <i>disposer</i>)
+<a href="#Generators_disposable" name="Generators_disposable">#</a> Generators.<b>disposable</b>(<i>value</i>, <i>dispose</i>)
 
-Returns a new generator that yields the specified *value* exactly once. The [*generator*.return](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Generator/return) method of the generator will call the specified *disposer* function, passing in the specified *value*. When this generator is the return value of a cell, this allows resources associated with the specified *value* to be disposed automatically when a cell is re-evaluated: *generator*.return is called by the Observable runtime on invalidation.  For example, to define a cell that creates a self-disposing [Tensor](https://js.tensorflow.org/):
+Returns a new generator that yields the specified *value* exactly once. The [*generator*.return](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Generator/return) method of the generator will call the specified *dispose* function, passing in the specified *value*. When this generator is the return value of a cell, this allows resources associated with the specified *value* to be disposed automatically when a cell is re-evaluated: *generator*.return is called by the Observable runtime on invalidation.  For example, to define a cell that creates a self-disposing [Tensor](https://js.tensorflow.org/):
 
 ```js
-x = Generators.dispose(tf.tensor2d([[0.0, 2.0], [4.0, 6.0]]), x => x.dispose())
+x = Generators.disposable(tf.tensor2d([[0.0, 2.0], [4.0, 6.0]]), x => x.dispose())
 ```
+
+See also [invalidation](#invalidation).
 
 <a href="#Generators_input" name="Generators_input">#</a> Generators.<b>input</b>(<i>input</i>)
 
@@ -317,7 +319,7 @@ x = Generators.dispose(tf.tensor2d([[0.0, 2.0], [4.0, 6.0]]), x => x.dispose())
 
 <a href="#Generators_worker" name="Generators_worker">#</a> Generators.<b>worker</b>(<i>source</i>)
 
-Returns a new [self-disposing generator](#Generators_dispose) that yields a [dedicated Worker](https://developer.mozilla.org/docs/Web/API/Web_Workers_API) running the specified JavaScript *source*. For example, to create a worker that echos messages sent to it:
+Returns a new [disposable generator](#Generators_disposable) that yields a [dedicated Worker](https://developer.mozilla.org/docs/Web/API/Web_Workers_API) running the specified JavaScript *source*. For example, to create a worker that echos messages sent to it:
 
 ```js
 worker = Generators.worker(`
@@ -357,6 +359,8 @@ A promise that resolves when the current cell is re-evaluated: when the cell’s
   return response.json();
 }
 ```
+
+See also [Generators.disposable](#Generators_disposable).
 
 <a href="#now" name="now">#</a> <b>now</b>
 
