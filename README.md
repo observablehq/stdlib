@@ -287,6 +287,14 @@ However, note that it may be more efficient to use the synchronous [URL.createOb
 
 …
 
+<a href="#Generators_finalize" name="Generators_finalize">#</a> Generators.<b>finalize</b>(<i>value</i>, <i>finalizer</i>)
+
+Returns a new generator that yields the specified *value* exactly once. The [*generator*.return](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Generator/return) method of the generator will call the specified *finalizer* function, passing in the specified *value*. When this generator is the return value of a cell, this allows resources associated with the specified *value* to be disposed automatically when a cell is re-evaluated: *generator*.return is called by the Observable runtime on invalidation.  For example, to define a cell that creates a self-disposing [Tensor](https://js.tensorflow.org/):
+
+```js
+x = Generators.finalize(tf.tensor2d([[0.0, 2.0], [4.0, 6.0]]), x => x.dispose())
+```
+
 <a href="#Generators_input" name="Generators_input">#</a> Generators.<b>input</b>(<i>input</i>)
 
 …
@@ -310,6 +318,20 @@ However, note that it may be more efficient to use the synchronous [URL.createOb
 <a href="#Generators_valueAt" name="Generators_valueAt">#</a> Generators.<b>valueAt</b>(<i>iterator</i>, <i>index</i>)
 
 …
+
+<a href="#Generators_worker" name="Generators_worker">#</a> Generators.<b>worker</b>(<i>source</i>)
+
+Returns a new [finalizing generator](#Generators_finalize) that yields a [dedicated Worker](https://developer.mozilla.org/docs/Web/API/Web_Workers_API) running the specified JavaScript *source*. For example, to create a worker that echos messages sent to it:
+
+```js
+worker = Generators.worker(`
+onmessage = function({data}) {
+  postMessage({echo: data});
+};
+`)
+```
+
+The worker will be automatically [terminated](https://developer.mozilla.org/docs/Web/API/Worker/terminate) when [*generator*.return](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Generator/return) is called.
 
 ### Promises
 
