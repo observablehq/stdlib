@@ -2,33 +2,22 @@
 
 The Observable notebook standard library.
 
-## Installing
-
-If you use NPM, `npm install @observablehq/notebook-stdlib`.
+For examples, see https://beta.observablehq.com/@mbostock/standard-library.
 
 ## API Reference
-
-<a href="#Library" name="Library">#</a> <b>Library</b>([<i>resolve</i>])
-
-Returns a new standard library object, defining the following properties:
 
 * [DOM](#dom) - create HTML and SVG elements.
 * [Files](#files) - read local files into memory.
 * [Generators](#generators) - utilities for generators and iterators.
 * [Promises](#promises) - utilities for promises.
 * [require](#require) - load third-party libraries.
+* [resolve](#resolve) - find third-party resources.
 * [html](#html) - render HTML.
 * [md](#markdown) - render Markdown.
 * [svg](#svg) - render SVG.
-* [tex](#tex) - render TeX.
+* [tex](#tex) - render LaTeX.
 * [now](#now) - the current value of Date.now.
 * [width](#width) - the current page width.
-
-If *resolve* is specified, it is a function that returns the URL of the module with the specified *name*; this is used internally by [require](#require).
-
-```js
-let standardLibrary = new Library();
-```
 
 ### DOM
 
@@ -501,3 +490,20 @@ See [d3-require](https://github.com/d3/d3-require) for more information.
 <a href="#resolve" name="resolve">#</a> <b>resolve</b>(<i>name</i>)
 
 Returns the resolved URL to require the module with the specified *name*.
+
+## Installing
+
+The Observable notebook standard library is built-in to Observable, so you don’t normally need to install or instantiate it directly. If you use NPM, `npm install @observablehq/notebook-stdlib`.
+
+<a href="#Library" name="Library">#</a> <b>Library</b>([<i>resolve</i>])
+
+Returns a new standard library object. If a *resolve* function is specified, it is a function that returns the URL of the module with the specified *name*; this is used internally by [require](#require) (and by extension, [md](#md) and [tex](#tex)). See [d3.resolve](https://github.com/d3/d3-require/blob/master/README.md#resolve) for the default implementation.
+
+For example, to create the default standard library, and then use it to create a [canvas](#DOM_canvas):
+
+```js
+let library = new Library();
+let canvas = library.DOM.canvas(960, 500);
+```
+
+The properties on the returned *library* instance correspond to the symbols (documented above) that are available in Observable notebook cells. However, note that the library fields (such as *library*.now) are *definitions*, not values: the values may be wrapped in a function which, when invoked, returns the corresponding value.
