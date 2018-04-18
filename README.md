@@ -365,9 +365,9 @@ html`<svg width=${width} height=200>
 
 ### HTML
 
-<a href="#html" name="html">#</a> <b>html</b>(<i>strings</i>, <i>values…</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/html.js "Source")
+<a href="#html" name="html">#</a> <b>html</b>\`<i>string</i>\` [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/html.js "Source")
 
-Returns the HTML element represented by the specified *strings* and *values*. This function is intended to be used as a [tagged template literal](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals#Tagged_template_literals_and_escape_sequences). For example, to create an H1 element whose content is “Hello, world!”:
+Returns the HTML element represented by the specified HTML *string* literal. This function is intended to be used as a [tagged template literal](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals#Tagged_template_literals_and_escape_sequences). For example, to create an H1 element whose content is “Hello, world!”:
 
 ```js
 html`<h1>Hello, world!`
@@ -401,9 +401,9 @@ html`<table>
 </table>`
 ```
 
-<a href="#svg" name="svg">#</a> <b>svg</b>(<i>strings</i>, <i>values…</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/svg.js "Source")
+<a href="#svg" name="svg">#</a> <b>svg</b>\`<i>string</i>\` [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/svg.js "Source")
 
-Returns the SVG element represented by the specified *strings* and *values*. This function is intended to be used as a [tagged template literal](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals#Tagged_template_literals_and_escape_sequences). For example, to create an SVG element whose content is a circle:
+Returns the SVG element represented by the specified SVG *string* literal. This function is intended to be used as a [tagged template literal](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals#Tagged_template_literals_and_escape_sequences). For example, to create an SVG element whose content is a circle:
 
 ```js
 svg`<svg width=16 height=16>
@@ -433,23 +433,52 @@ If an embedded expression is a DOM element, it is embedded in generated SVG. If 
 
 ### Markdown
 
-<a href="#md" name="md">#</a> <b>md</b>(<i>strings</i>, <i>values…</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/md.js "Source")
+<a href="#md" name="md">#</a> <b>md</b>\`<i>string</i>\` [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/md.js "Source")
+
+Returns the HTML element represented by the specified Markdown *string* literal. Implemented by [Marked](https://github.com/markedjs/marked).
 
 ```js
 md`Hello, *world*!`
 ```
 
-If an embedded expression is a DOM element, it is embedded in generated HTML. If an embedded expression is an array, the elements of the array are embedded in the generated HTML.
+If an embedded expression is a DOM element, it is embedded in generated HTML. For example, to embed [LaTeX](#tex) within Markdown:
+
+```js
+md`My favorite number is ${tex`\tau`}.`
+```
+
+If an embedded expression is an array, the elements of the array are embedded in the generated HTML. The elements may either be strings, which are interpreted as Markdown, or DOM elements. For example, given an array of data:
+
+```js
+elements = [
+  {symbol: "Co", name: "Cobalt", number: 27},
+  {symbol: "Cu", name: "Copper", number: 29},
+  {symbol: "Sn", name: "Tin", number: 50},
+  {symbol: "Pb", name: "Lead", number: 82}
+]
+```
+
+To create a table:
+
+```js
+md`
+| Name      | Symbol      | Atomic number |
+|-----------|-------------|---------------|${elements.map(e => `
+| ${e.name} | ${e.symbol} | ${e.number}   |`)}
+`
+```
 
 ### TeX
 
-<a href="#tex" name="tex">#</a> <b>tex</b>(<i>strings</i>, <i>values…</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/tex.js "Source")
+<a href="#tex" name="tex">#</a> <b>tex</b>\`<i>string</i>\` [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/tex.js "Source")
+
+Returns the HTML element represented by the specified LaTeX *string* literal. Implemented by [KaTeX](https://github.com/Khan/KaTeX).
 
 ```js
 tex`E = mc^2`
 ```
 
-<a href="#tex_block" name="tex_block">#</a> tex.<b>block</b>(<i>strings</i>, <i>values…</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/tex.js "Source")
+<a href="#tex_block" name="tex_block">#</a> tex.<b>block</b>\`<i>string</i>\` [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/tex.js "Source")
 
 Equivalent to [tex](#tex), but uses KaTeX’s display mode to produce a bigger block element rather than a smaller inline element.
 
@@ -464,25 +493,19 @@ tex.block`E = mc^2`
 Returns a promise of the [asynchronous module definition](https://github.com/amdjs/amdjs-api/blob/master/AMD.md) (AMD) with the specified *names*, loaded from [unpkg](https://unpkg.com/). Each module *name* can be a package (or scoped package) name optionally followed by the at sign (`@`) and a semver range. For example, to load [d3-array](https://github.com/d3/d3-array):
 
 ```js
-require("d3-array").then(d3 => {
-  console.log(d3.range(100));
-});
+d3 = require("d3-array")
 ```
 
 Or, to load [d3-array](https://github.com/d3/d3-array) and [d3-color](https://github.com/d3/d3-color) and merge them into a single object:
 
 ```js
-require("d3-array", "d3-color").then(d3 => {
-  console.log(d3.range(360).map(h => d3.hsl(h, 1, 0.5)));
-});
+d3 = require("d3-array", "d3-color")
 ```
 
 Or, to load [d3-array](https://github.com/d3/d3-array) 1.1.x:
 
 ```js
-require("d3-array@1.1").then(d3 => {
-  console.log(d3.range(100));
-});
+d3 = require("d3-array@1.1")
 ```
 
 See [d3-require](https://github.com/d3/d3-require) for more information.
