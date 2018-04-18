@@ -29,18 +29,7 @@ Returns a new canvas element with the specified *width* and *height*. For exampl
 DOM.canvas(960, 500)
 ```
 
-This is equivalent to:
-
-```js
-{
-  const canvas = document.createElement("canvas");
-  canvas.width = 960;
-  canvas.height = 500;
-  return canvas;
-}
-```
-
-Or, using the [html](#html) tagged template literal:
+This is equivalent to using the [html](#html) tagged template literal:
 
 ```js
 html`<canvas width=960 height=500>`
@@ -50,7 +39,7 @@ If you are using [2D Canvas](https://www.w3.org/TR/2dcontext/) (rather than [Web
 
 <a href="#DOM_context2d" name="DOM_context2d">#</a> DOM.<b>context2d</b>(<i>width</i>, <i>height</i>[, <i>dpi</i>]) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/dom/context2d.js "Source")
 
-Returns a new canvas context with the specified *width* and *height* and the specified device pixel ratio *dpi*. If *dpi* is not specified, it defaults to [*window*.devicePixelRatio](https://developer.mozilla.org/docs/Web/API/Window/devicePixelRatio). For example, to create a 960×500 canvas:
+Returns a new canvas context with the specified *width* and *height* and the specified device pixel ratio *dpi*. If *dpi* is not specified, it defaults to [*window*.devicePixelRatio](https://developer.mozilla.org/docs/Web/API/Window/devicePixelRatio). To access the context’s canvas, use [*context*.canvas](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/canvas). For example, to create a 960×500 canvas:
 
 ```js
 {
@@ -58,22 +47,6 @@ Returns a new canvas context with the specified *width* and *height* and the spe
   return context.canvas;
 }
 ```
-
-If the device pixel ratio is two, this is equivalent to:
-
-```js
-{
-  const canvas = document.createElement("canvas");
-  canvas.width = 1920;
-  canvas.height = 1000;
-  canvas.style.width = "960px";
-  const context = canvas.getContext("2d");
-  context.scale(2, 2);
-  return canvas;
-}
-```
-
-To access the context’s canvas, use [*context*.canvas](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/canvas).
 
 If you are using [WebGL](https://webglfundamentals.org/) (rather than [2D Canvas](https://www.w3.org/TR/2dcontext/)), you should use [DOM.canvas](#DOM_canvas) or  the [html](#html) tagged template literal instead of DOM.context2d.
 
@@ -89,13 +62,7 @@ Returns a new element with the specified *name*. For example, to create an empty
 DOM.element("h1")
 ```
 
-This is equivalent to:
-
-```js
-document.createElement("h1")
-```
-
-Or, using the [html](#html) tagged template literal:
+This is equivalent to using the [html](#html) tagged template literal:
 
 ```js
 html`<h1>`
@@ -107,17 +74,7 @@ If *attributes* is specified, sets any attributes in the specified object before
 DOM.element("a", {target: "_blank"})
 ```
 
-This is equivalent to:
-
-```js
-{
-  const a = document.createElement("a");
-  a.setAttribute("target", "_blank");
-  return a;
-}
-```
-
-Or, using the [html](#html) tagged template literal:
+This is equivalent to using the [html](#html) tagged template literal:
 
 ```js
 html`<a target=_blank>`
@@ -129,13 +86,7 @@ If the *name* has the prefix `svg:`, `math:` or `xhtml:`, uses [*document*.creat
 DOM.element("svg:svg")
 ```
 
-This is equivalent to:
-
-```js
-document.createElementNS("http://www.w3.org/2000/svg", "svg")
-```
-
-Or, using the [svg](#svg) tagged template literal:
+This is equivalent to using the [svg](#svg) (or [html](#html)) tagged template literal:
 
 ```js
 svg`<svg>`
@@ -149,17 +100,7 @@ Returns a new input element with the specified *type*. If *type* is not specifie
 DOM.input("file")
 ```
 
-This is equivalent to:
-
-```js
-{
-  const input = document.createElement("input");
-  input.type = "file";
-  return input;
-}
-```
-
-Or, using the [html](#html) tagged template literal:
+This is equivalent to using the [html](#html) tagged template literal:
 
 ```js
 html`<input type=file>`
@@ -173,20 +114,7 @@ Returns a new range input element. (See also [DOM.input](#input).) If *max* is s
 DOM.range(-180, 180, 1)
 ```
 
-This is equivalent to:
-
-```js
-{
-  const input = document.createElement("input");
-  input.min = -180;
-  input.max = 180;
-  input.step = 1;
-  input.type = "range";
-  return input;
-}
-```
-
-Or, using the [html](#html) tagged template literal:
+This is equivalent to using the [html](#html) tagged template literal:
 
 ```js
 html`<input type=range min=-180 max=180 step=1>`
@@ -200,22 +128,7 @@ Returns a new select element with an option for each string in the specified *va
 DOM.select(["red", "green", "blue"])
 ```
 
-This is equivalent to:
-
-```js
-{
-  const select = document.createElement("select");
-  const optionRed = select.appendChild(document.createElement("option"));
-  optionRed.value = optionRed.textContent = "red";
-  const optionGreen = select.appendChild(document.createElement("option"));
-  optionGreen.value = optionGreen.textContent = "green";
-  const optionBlue = select.appendChild(document.createElement("option"));
-  optionBlue.value = optionBlue.textContent = "blue";
-  return select;
-}
-```
-
-Or, using the [html](#html) tagged template literal:
+This is equivalent to using the [html](#html) tagged template literal:
 
 ```js
 html`<select>
@@ -225,7 +138,7 @@ html`<select>
 </select>`
 ```
 
-Or, using an array of data:
+Or, from an array of data:
 
 ```js
 html`<select>${colors.map(color => `
@@ -233,7 +146,7 @@ html`<select>${colors.map(color => `
 </select>`
 ```
 
-The template literal approach is recommended instead of DOM.select for greater control.
+The template literal approach is recommended instead of DOM.select for greater control, such as when the value and label of the select options are different.
 
 <a href="#DOM_svg" name="DOM_svg">#</a> DOM.<b>svg</b>(<i>width</i>, <i>height</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/dom/svg.js "Source")
 
@@ -243,19 +156,7 @@ Returns a new SVG element with the specified *width* and *height*. For example, 
 DOM.svg(960, 500)
 ```
 
-This is equivalent to:
-
-```js
-{
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  set.setAttribute("viewBox", "0,0,960,500")
-  svg.setAttribute("width", "960");
-  svg.setAttribute("height", "500");
-  return svg;
-}
-```
-
-Or, using the [svg](#svg) tagged template literal:
+This is equivalent to using the [svg](#svg) tagged template literal:
 
 ```js
 svg`<svg width=960 height=500 viewBox="0,0,960,500">`
@@ -264,7 +165,12 @@ svg`<svg width=960 height=500 viewBox="0,0,960,500">`
 To create responsive SVG, set the max-width to 100% and the height to auto:
 
 ```js
-svg`<svg viewBox="0,0,960,500" style="max-width:100%;height:auto;">`
+svg`<svg
+  width=960
+  height=500
+  viewBox="0,0,960,500"
+  style="max-width:100%;height:auto;"
+>`
 ```
 
 <a href="#DOM_text" name="DOM_text">#</a> DOM.<b>text</b>(<i>string</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/dom/text.js "Source")
@@ -275,13 +181,7 @@ Returns a new text node with the specified *string* value. For example, to say h
 DOM.text("Hello, world!")
 ```
 
-This is equivalent to:
-
-```js
-document.createTextNode("Hello, world!")
-```
-
-Or, using the [html](#html) tagged template literal:
+This is equivalent to using the [html](#html) tagged template literal:
 
 
 ```js
@@ -339,7 +239,7 @@ Files.url(file).then(url => {
 })
 ```
 
-However, note that it may be more efficient to use the synchronous [URL.createObjectURL](https://developer.mozilla.org/docs/Web/API/URL/createObjectURL) method instead, such as:
+A data URL may be significantly less efficient than [URL.createObjectURL](https://developer.mozilla.org/docs/Web/API/URL/createObjectURL) method for large files. For example:
 
 ```js
 {
@@ -433,15 +333,25 @@ A promise that resolves when the current cell is re-evaluated: when the cell’s
 }
 ```
 
-See also [Generators.disposable](#Generators_disposable). This special variable is not provided by the standard library, but by the runtime itself.
+The invalidation promise is provided by the runtime rather than the standard library because it resolves to a new promise each time a cell is evaluated. See also [Generators.disposable](#Generators_disposable).
 
 <a href="#now" name="now">#</a> <b>now</b> [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/now.js "Source")
 
-The current value of [Date.now](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Date/now).
+The current value of [Date.now](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Date/now). For example, to display the current time in Markdown:
+
+```js
+md`The current time is: ${new Date(now).toISOString()}`
+```
 
 <a href="#width" name="width">#</a> <b>width</b> [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/width.js "Source")
 
-The current width of cells.
+The current width of cells. For example, to make a rounded rectangle in SVG that resizes to fit the page:
+
+```js
+html`<svg width=${width} height=200>
+  <rect width=${width} height=200 rx=10 ry=10></circle>
+</svg>`
+```
 
 ### HTML
 
@@ -450,7 +360,7 @@ The current width of cells.
 Returns the HTML element represented by the specified *strings* and *values*. This function is intended to be used as a [tagged template literal](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals#Tagged_template_literals_and_escape_sequences). For example, to create an H1 element whose content is “Hello, world!”:
 
 ```js
-html`<h1>Hello, world!</h1>`
+html`<h1>Hello, world!`
 ```
 
 If the resulting HTML fragment is not a single HTML element or node, is it wrapped in a DIV element. For example, this expression:
