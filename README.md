@@ -92,6 +92,8 @@ This is equivalent to using the [svg](#svg) (or [html](#html)) tagged template l
 svg`<svg>`
 ```
 
+In general, you probably want to use the [html](#html) or [svg](#svg) tagged template literal instead of DOM.element.
+
 <a href="#DOM_input" name="DOM_input">#</a> DOM.<b>input</b>([<i>type</i>]) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/dom/input.js "Source")
 
 Returns a new input element with the specified *type*. If *type* is not specified or null, a text input is created. For example, to create a new file input:
@@ -106,6 +108,8 @@ This is equivalent to using the [html](#html) tagged template literal:
 html`<input type=file>`
 ```
 
+In general, you probably want to use the [html](#html) tagged template literal instead of DOM.input.
+
 <a href="#DOM_range" name="DOM_range">#</a> DOM.<b>range</b>(\[<i>min</i>, \]\[<i>max</i>\]\[, <i>step</i>\]) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/dom/range.js "Source")
 
 Returns a new range input element. (See also [DOM.input](#input).) If *max* is specified, sets the maximum value of the range to the specified number; if *max* is not specified or null, sets the maximum value of the range to 1. If *min* is specified, sets the minimum value of the range to the specified number; if *min* is not specified or null, sets the minimum value of the range to 0. If *step* is specified, sets the step value of the range to the specified number; if *step* is not specified or null, sets the step value of the range to `any`. For example, to create a slider that ranges the integers from -180 to +180, inclusive:
@@ -119,6 +123,8 @@ This is equivalent to using the [html](#html) tagged template literal:
 ```js
 html`<input type=range min=-180 max=180 step=1>`
 ```
+
+In general, you probably want to use the [html](#html) tagged template literal instead of DOM.input.
 
 <a href="#DOM_select" name="DOM_select">#</a> DOM.<b>select</b>(<i>values</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/dom/select.js "Source")
 
@@ -146,7 +152,7 @@ html`<select>${colors.map(color => `
 </select>`
 ```
 
-The template literal approach is recommended instead of DOM.select for greater control, such as when the value and label of the select options are different.
+In general, you probably want to use the [html](#html) tagged template literal instead of DOM.select, particularly if you want greater control of the display, such as to customize the displayed option labels.
 
 <a href="#DOM_svg" name="DOM_svg">#</a> DOM.<b>svg</b>(<i>width</i>, <i>height</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/dom/svg.js "Source")
 
@@ -173,6 +179,8 @@ svg`<svg
 >`
 ```
 
+In general, you probably want to use the [html](#html) or [svg](#svg) tagged template literal instead of DOM.svg.
+
 <a href="#DOM_text" name="DOM_text">#</a> DOM.<b>text</b>(<i>string</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/dom/text.js "Source")
 
 Returns a new text node with the specified *string* value. For example, to say hello:
@@ -187,6 +195,8 @@ This is equivalent to using the [html](#html) tagged template literal:
 ```js
 html`Hello, world!`
 ```
+
+In general, you probably want to use the [html](#html) tagged template literal instead of DOM.text.
 
 <a href="#DOM_uid" name="DOM_uid">#</a> DOM.<b>uid</b>([<i>name</i>]) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/dom/uid.js "Source")
 
