@@ -40,6 +40,14 @@ This is equivalent to:
 }
 ```
 
+Or, using the [html](#html) tagged template literal:
+
+```js
+html`<canvas width=960 height=500>`
+```
+
+If you are using [2D Canvas](https://www.w3.org/TR/2dcontext/) (rather than [WebGL](https://webglfundamentals.org/)), you should use [DOM.context2d](#DOM_context2d) instead of DOM.canvas for automatic pixel density scaling.
+
 <a href="#DOM_context2d" name="DOM_context2d">#</a> DOM.<b>context2d</b>(<i>width</i>, <i>height</i>[, <i>dpi</i>]) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/dom/context2d.js "Source")
 
 Returns a new canvas context with the specified *width* and *height* and the specified device pixel ratio *dpi*. If *dpi* is not specified, it defaults to [*window*.devicePixelRatio](https://developer.mozilla.org/docs/Web/API/Window/devicePixelRatio). For example, to create a 960×500 canvas:
@@ -66,6 +74,8 @@ If the device pixel ratio is two, this is equivalent to:
 ```
 
 To access the context’s canvas, use [*context*.canvas](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/canvas).
+
+If you are using [WebGL](https://webglfundamentals.org/) (rather than [2D Canvas](https://www.w3.org/TR/2dcontext/)), you should use [DOM.canvas](#DOM_canvas) or  the [html](#html) tagged template literal instead of DOM.context2d.
 
 <a href="#DOM_download" name="DOM_download">#</a> DOM.<b>download</b>(<i>object</i>\[, <i>name</i>\]\[, <i>value</i>\]) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/dom/download.js "Source")
 
