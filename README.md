@@ -33,7 +33,7 @@ This is equivalent to:
 
 ```js
 {
-  let canvas = document.createElement("canvas");
+  const canvas = document.createElement("canvas");
   canvas.width = 960;
   canvas.height = 500;
   return canvas;
@@ -46,7 +46,7 @@ Returns a new canvas context with the specified *width* and *height* and the spe
 
 ```js
 {
-  let context = DOM.context2d(960, 500);
+  const context = DOM.context2d(960, 500);
   return context.canvas;
 }
 ```
@@ -55,11 +55,11 @@ If the device pixel ratio is two, this is equivalent to:
 
 ```js
 {
-  let canvas = document.createElement("canvas");
+  const canvas = document.createElement("canvas");
   canvas.width = 1920;
   canvas.height = 1000;
   canvas.style.width = "960px";
-  let context = canvas.getContext("2d");
+  const context = canvas.getContext("2d");
   context.scale(2, 2);
   return canvas;
 }
@@ -85,6 +85,34 @@ This is equivalent to:
 document.createElement("h1")
 ```
 
+Or, using the [html](#html) tagged template literal:
+
+```js
+html`<h1>`
+```
+
+If *attributes* is specified, sets any attributes in the specified object before returning the new element. For example:
+
+```js
+DOM.element("a", {target: "_blank"})
+```
+
+This is equivalent to:
+
+```js
+{
+  const a = document.createElement("a");
+  a.setAttribute("target", "_blank");
+  return a;
+}
+```
+
+Or, using the [html](#html) tagged template literal:
+
+```js
+html`<a target=_blank>`
+```
+
 If the *name* has the prefix `svg:`, `math:` or `xhtml:`, uses [*document*.createElementNS](https://developer.mozilla.org/docs/Web/API/Document/createElementNS) instead of [*document*.createElement](https://developer.mozilla.org/docs/Web/API/Document/createElement). For example, to create an empty SVG element (see also [DOM.svg](#DOM_svg)):
 
 ```js
@@ -97,7 +125,11 @@ This is equivalent to:
 document.createElementNS("http://www.w3.org/2000/svg", "svg")
 ```
 
-If *attributes* is specified, sets any attributes in the specified object before returning the new element.
+Or, using the [svg](#svg) tagged template literal:
+
+```js
+svg`<svg>`
+```
 
 <a href="#DOM_input" name="DOM_input">#</a> DOM.<b>input</b>([<i>type</i>]) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/dom/input.js "Source")
 
@@ -111,10 +143,16 @@ This is equivalent to:
 
 ```js
 {
-  let input = document.createElement("input");
+  const input = document.createElement("input");
   input.type = "file";
   return input;
 }
+```
+
+Or, using the [html](#html) tagged template literal:
+
+```js
+html`<input type=file>`
 ```
 
 <a href="#DOM_range" name="DOM_range">#</a> DOM.<b>range</b>(\[<i>min</i>, \]\[<i>max</i>\]\[, <i>step</i>\]) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/dom/range.js "Source")
@@ -129,7 +167,7 @@ This is equivalent to:
 
 ```js
 {
-  let input = document.createElement("input");
+  const input = document.createElement("input");
   input.min = -180;
   input.max = 180;
   input.step = 1;
@@ -138,7 +176,7 @@ This is equivalent to:
 }
 ```
 
-Or using [html](#html):
+Or, using the [html](#html) tagged template literal:
 
 ```js
 html`<input type=range min=-180 max=180 step=1>`
@@ -156,18 +194,18 @@ This is equivalent to:
 
 ```js
 {
-  let select = document.createElement("select");
-  let optionRed = select.appendChild(document.createElement("option"));
+  const select = document.createElement("select");
+  const optionRed = select.appendChild(document.createElement("option"));
   optionRed.value = optionRed.textContent = "red";
-  let optionGreen = select.appendChild(document.createElement("option"));
+  const optionGreen = select.appendChild(document.createElement("option"));
   optionGreen.value = optionGreen.textContent = "green";
-  let optionBlue = select.appendChild(document.createElement("option"));
+  const optionBlue = select.appendChild(document.createElement("option"));
   optionBlue.value = optionBlue.textContent = "blue";
   return select;
 }
 ```
 
-For greater control, consider using [html](#html) instead. For example, here is an equivalent way to define the above drop-down menu:
+Or, using the [html](#html) tagged template literal:
 
 ```js
 html`<select>
@@ -176,6 +214,16 @@ html`<select>
   <option value="blue">blue</option>
 </select>`
 ```
+
+Or, using an array of data:
+
+```js
+html`<select>${colors.map(color => `
+  <option value="${color}">${color}</option>`)}
+</select>`
+```
+
+The template literal approach is recommended instead of DOM.select for greater control.
 
 <a href="#DOM_svg" name="DOM_svg">#</a> DOM.<b>svg</b>(<i>width</i>, <i>height</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/dom/svg.js "Source")
 
@@ -189,12 +237,24 @@ This is equivalent to:
 
 ```js
 {
-  let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   set.setAttribute("viewBox", "0,0,960,500")
   svg.setAttribute("width", "960");
   svg.setAttribute("height", "500");
   return svg;
 }
+```
+
+Or, using the [svg](#svg) tagged template literal:
+
+```js
+svg`<svg width=960 height=500 viewBox="0,0,960,500">`
+```
+
+To create responsive SVG, set the max-width to 100% and the height to auto:
+
+```js
+svg`<svg viewBox="0,0,960,500" style="max-width:100%;height:auto;">`
 ```
 
 <a href="#DOM_text" name="DOM_text">#</a> DOM.<b>text</b>(<i>string</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/dom/text.js "Source")
@@ -209,6 +269,13 @@ This is equivalent to:
 
 ```js
 document.createTextNode("Hello, world!")
+```
+
+Or, using the [html](#html) tagged template literal:
+
+
+```js
+html`Hello, world!`
 ```
 
 <a href="#DOM_uid" name="DOM_uid">#</a> DOM.<b>uid</b>([<i>name</i>]) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/dom/uid.js "Source")
@@ -240,6 +307,8 @@ The use of DOM.uid is strongly recommended over hand-coding as it ensures that y
 
 ### Files
 
+See [Reading Local Files](https://beta.observablehq.com/@mbostock/reading-local-files) for examples.
+
 <a href="#Files_buffer" name="Files_buffer">#</a> Files.<b>buffer</b>(<i>file</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/files/buffer.js "Source")
 
 Reads the specified *file*, returning a promise of the ArrayBuffer yielded by [*fileReader*.readAsArrayBuffer](https://developer.mozilla.org/docs/Web/API/FileReader/readAsArrayBuffer). This is useful for reading binary files, such as shapefiles and ZIP archives.
@@ -264,8 +333,9 @@ However, note that it may be more efficient to use the synchronous [URL.createOb
 
 ```js
 {
-  let image = new Image;
+  const image = new Image;
   image.src = URL.createObjectURL(file);
+  invalidation.then(() => URL.revokeObjectURL(image.src));
   return image;
 }
 ```
@@ -502,8 +572,8 @@ Returns a new standard library object. If a *resolve* function is specified, it 
 For example, to create the default standard library, and then use it to create a [canvas](#DOM_canvas):
 
 ```js
-let library = new Library();
-let canvas = library.DOM.canvas(960, 500);
+const library = new Library();
+const canvas = library.DOM.canvas(960, 500);
 ```
 
 The properties on the returned *library* instance correspond to the symbols (documented above) that are available in Observable notebook cells. However, note that the library fields (such as *library*.now) are *definitions*, not values: the values may be wrapped in a function which, when invoked, returns the corresponding value.
