@@ -52,7 +52,11 @@ If you are using [WebGL](https://webglfundamentals.org/) (rather than [2D Canvas
 
 <a href="#DOM_download" name="DOM_download">#</a> DOM.<b>download</b>(<i>object</i>\[, <i>name</i>\]\[, <i>value</i>\]) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/dom/download.js "Source")
 
-Returns an anchor element containing a button that when clicked will download a file representing the specified *object*. The *object* should be anything supported by [URL.createObjectURL](https://developer.mozilla.org/docs/Web/API/URL/createObjectURL) such as a [file](https://developer.mozilla.org/docs/Web/API/File) or a [blob](https://developer.mozilla.org/docs/Web/API/Blob).
+Returns an anchor element containing a button that when clicked will download a file representing the specified *object*. The *object* should be anything supported by [URL.createObjectURL](https://developer.mozilla.org/docs/Web/API/URL/createObjectURL) such as a [file](https://developer.mozilla.org/docs/Web/API/File) or a [blob](https://developer.mozilla.org/docs/Web/API/Blob). For example, to create a button to download a Canvas element as a PNG:
+
+```js
+DOM.download(await new Promise(resolve => canvas.toBlob(resolve)))
+```
 
 <a href="#DOM_element" name="DOM_element">#</a> DOM.<b>element</b>(<i>name</i>[, <i>attributes</i>]) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/dom/element.js "Source")
 
@@ -274,7 +278,13 @@ See also [invalidation](#invalidation).
 
 <a href="#Generators_filter" name="Generators_filter">#</a> Generators.<b>filter</b>(<i>iterator</i>, <i>test</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/generators/filter.js "Source")
 
-…
+Returns a generator that yields a subset of values from the specified *iterator*, if and only if the specified *test* function returns truthy for the given value. The *test* function is invoked with the current value from the *iterator* and the current index, starting at 0 and increasing by one. For example, to yield only odd integers in [0, 100]:
+
+```js
+x = Generators.filter(Generators.range(100), x => x & 1)
+```
+
+This method assumes that the specified *iterator* is synchronous; if the *iterator* yields a promise, this method does not wait for the promise to resolve before continuing. If the specified *iterator* is a generator, this method also does not (currently) wrap the specified generator’s [return](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Generator/return) and [throw](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Generator/throw) methods.
 
 <a href="#Generators_input" name="Generators_input">#</a> Generators.<b>input</b>(<i>input</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/generators/input.js "Source")
 
@@ -282,7 +292,13 @@ See also [invalidation](#invalidation).
 
 <a href="#Generators_map" name="Generators_map">#</a> Generators.<b>map</b>(<i>iterator</i>, <i>transform</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/generators/map.js "Source")
 
-Returns a generator that yields transformed values from the specified *iterator*, applying the specified *transform* function to each value. The *transform* function is invoked with the current value from the *iterator* and the current index, starting at 0 and increasing by one. This method assumes that the specified *iterator* is synchronous; if the *iterator* yields a promise, this method does not wait for the promise to resolve before continuing. If the specified *iterator* is a generator, this method also does not (currently) wrap the specified generator’s [return](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Generator/return) and [throw](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Generator/throw) methods.
+Returns a generator that yields transformed values from the specified *iterator*, applying the specified *transform* function to each value. The *transform* function is invoked with the current value from the *iterator* and the current index, starting at 0 and increasing by one. For example, to yield perfect squares:
+
+```js
+x = Generators.map(Generators.range(100), x => x * x)
+```
+
+This method assumes that the specified *iterator* is synchronous; if the *iterator* yields a promise, this method does not wait for the promise to resolve before continuing. If the specified *iterator* is a generator, this method also does not (currently) wrap the specified generator’s [return](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Generator/return) and [throw](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Generator/throw) methods.
 
 <a href="#Generators_observe" name="Generators_observe">#</a> Generators.<b>observe</b>(<i>initialize</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/generators/observe.js "Source")
 
