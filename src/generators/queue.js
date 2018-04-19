@@ -1,7 +1,7 @@
 import noop from "../noop";
 
 export default function(initialize) {
-  var queue = [], resolve, finalize = initialize(push);
+  var queue = [], resolve, dispose = initialize(push);
 
   function push(x) {
     queue.push(x);
@@ -17,7 +17,7 @@ export default function(initialize) {
 
   return {
     throw: noop,
-    return: finalize == null ? noop : finalize,
+    return: dispose == null ? noop : dispose,
     next: next
   };
 }

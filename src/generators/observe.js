@@ -1,7 +1,7 @@
 import noop from "../noop";
 
 export default function(initialize) {
-  var stale = false, value, resolve, finalize = initialize(change);
+  var stale = false, value, resolve, dispose = initialize(change);
 
   function change(x) {
     if (resolve) resolve(x), resolve = null;
@@ -17,7 +17,7 @@ export default function(initialize) {
 
   return {
     throw: noop,
-    return: finalize == null ? noop : finalize,
+    return: dispose == null ? noop : dispose,
     next: next
   };
 }
