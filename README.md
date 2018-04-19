@@ -282,7 +282,7 @@ See also [invalidation](#invalidation).
 
 <a href="#Generators_map" name="Generators_map">#</a> Generators.<b>map</b>(<i>iterator</i>, <i>transform</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/generators/map.js "Source")
 
-…
+Returns a generator that yields transformed values from the specified *iterator*, applying the specified *transform* function to each value. The *transform* function is invoked with the current value from the *iterator* and the current index, starting at 0 and increasing by one. This method assumes that the specified *iterator* is synchronous; if the *iterator* yields a promise, this method does not wait for the promise to resolve before continuing. If the specified *iterator* is a generator, this method also does not (currently) wrap the specified generator’s [return](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Generator/return) and [throw](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Generator/throw) methods.
 
 <a href="#Generators_observe" name="Generators_observe">#</a> Generators.<b>observe</b>(<i>initialize</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/generators/observe.js "Source")
 
@@ -294,11 +294,54 @@ See also [invalidation](#invalidation).
 
 <a href="#Generators_range" name="Generators_range">#</a> Generators.<b>range</b>([<i>start</i>, ]<i>stop</i>[, <i>step</i>]) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/generators/range.js "Source")
 
-…
+Returns a generator yielding an arithmetic progression, similar to the Python built-in [range](https://docs.python.org/3/library/stdtypes.html#typesseq-range). This method is often used to iterate over a sequence of uniformly-spaced numeric values, such as the indexes of an array or the ticks of a linear scale. (See also [d3.range](https://github.com/d3/d3-array/blob/master/README.md#range).)
+
+For example, to iterator over the integers from 0 to 100:
+
+```js
+i = {
+  for (const i of Generators.range(0, 100, 1)) {
+    yield i;
+  }
+}
+```
+
+Or more simply:
+
+```js
+i = Generators.range(100)
+```
+
+If *step* is omitted, it defaults to 1. If *start* is omitted, it defaults to 0. The *stop* value is exclusive; it is not included in the result. If *step* is positive, the last element is the largest *start* + *i* \* *step* less than *stop*; if *step* is negative, the last element is the smallest *start* + *i* \* *step* greater than *stop*. If the returned array would contain an infinite number of values, an empty range is returned.
+
+The arguments are not required to be integers; however, the results are more predictable if they are. The values in the returned array are defined as *start* + *i* \* *step*, where *i* is an integer from zero to one minus the total number of elements in the returned array. For example:
+
+```js
+Generators.range(0, 1, 0.2) // 0, 0.2, 0.4, 0.6000000000000001, 0.8
+```
+
+This unexpected behavior is due to IEEE 754 double-precision floating point, which defines 0.2 * 3 = 0.6000000000000001. Use [d3-format](https://github.com/d3/d3-format) to format numbers for human consumption with appropriate rounding.
+
+Likewise, if the returned array should have a specific length, consider using [*array*.map](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array/map) on an integer range. For example:
+
+```js
+[...Generators.range(0, 1, 1 / 49)] // BAD: returns 50 elements!
+```
+
+```js
+[...Generators.range(49)].map(d => d / 49) // GOOD: returns 49 elements.
+```
+
 
 <a href="#Generators_valueAt" name="Generators_valueAt">#</a> Generators.<b>valueAt</b>(<i>iterator</i>, <i>index</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/generators/valueAt.js "Source")
 
-…
+Returns the value from the specified *iterator* at the specified *index*. For example, to return the first element from the iterator:
+
+```js
+first = Generators.valueAt(iterator, 0)
+```
+
+This method assumes that the specified *iterator* is synchronous; if the *iterator* yields a promise, this method does not wait for the promise to resolve before continuing.
 
 <a href="#Generators_worker" name="Generators_worker">#</a> Generators.<b>worker</b>(<i>source</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/generators/worker.js "Source")
 
@@ -318,15 +361,49 @@ The worker will be automatically [terminated](https://developer.mozilla.org/docs
 
 <a href="#Promises_delay" name="Promises_delay">#</a> Promises.<b>delay</b>(<i>duration</i>[, <i>value</i>]) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/promises/delay.js "Source")
 
-Returns a promise that resolves with the specified *value* after the specified *duration* in milliseconds.
+Returns a promise that resolves with the specified *value* after the specified *duration* in milliseconds. For example, to define a cell that increments approximately every second:
+
+```js
+i = {
+  let i = 0;
+  yield i;
+  while (true) {
+    yield Promises.delay(1000, ++i);
+  }
+}
+```
+
+If you desire precise synchronization, such as a timer that ticks exactly every second, use [Promises.tick](#Promises_tick) instead of Promises.delay.
 
 <a href="#Promises_tick" name="Promises_tick">#</a> Promises.<b>tick</b>(<i>duration</i>[, <i>value</i>]) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/promises/tick.js "Source")
 
-Returns a promise that resolves with the specified *value* at the next integer multiple of *milliseconds* since the UNIX epoch. This is much like [Promises.delay](#Promises_delay), except it allows promises to be synchronized.
+Returns a promise that resolves with the specified *value* at the next integer multiple of *milliseconds* since the UNIX epoch. This is much like [Promises.delay](#Promises_delay), except it allows promises to be synchronized. For example, to define a cell that increments every second, on the second:
+
+```js
+i = {
+  let i = 0;
+  yield i;
+  while (true) {
+    yield Promises.tick(1000, ++i);
+  }
+}
+```
+
+Or, as an async generator:
+
+```js
+i = {
+  let i = 0;
+  while (true) {
+    yield i++;
+    await Promises.tick(1000);
+  }
+}
+```
 
 <a href="#Promises_when" name="Promises_when">#</a> Promises.<b>when</b>(<i>date</i>[, <i>value</i>]) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/promises/when.js "Source")
 
-… Note: the current implementation relies on [setTimeout](https://developer.mozilla.org/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout), and thus the specified *date* must be no longer than 2,147,483,647 milliseconds (24.9 days) from now.
+Returns a promise that resolves with the specified *value* at the specified *date*. This method relies on [setTimeout](https://developer.mozilla.org/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout), and thus the specified *date* must be no longer than 2,147,483,647 milliseconds (24.9 days) from now.
 
 ### Specials
 
