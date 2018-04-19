@@ -367,7 +367,7 @@ html`<svg width=${width} height=200>
 
 <a href="#html" name="html">#</a> <b>html</b>\`<i>string</i>\` [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/html.js "Source")
 
-Returns the HTML element represented by the specified HTML *string* literal. This function is intended to be used as a [tagged template literal](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals#Tagged_template_literals_and_escape_sequences). For example, to create an H1 element whose content is “Hello, world!”:
+Returns the HTML element represented by the specified HTML *string* literal. This function is intended to be used as a [tagged template literal](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals#Tagged_template_literals_and_escape_sequences). Leading and trailing whitespace is automatically trimmed. For example, to create an H1 element whose content is “Hello, world!”:
 
 ```js
 html`<h1>Hello, world!`
@@ -403,7 +403,7 @@ html`<table>
 
 <a href="#svg" name="svg">#</a> <b>svg</b>\`<i>string</i>\` [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/svg.js "Source")
 
-Returns the SVG element represented by the specified SVG *string* literal. This function is intended to be used as a [tagged template literal](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals#Tagged_template_literals_and_escape_sequences). For example, to create an SVG element whose content is a circle:
+Returns the SVG element represented by the specified SVG *string* literal. This function is intended to be used as a [tagged template literal](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals#Tagged_template_literals_and_escape_sequences). Leading and trailing whitespace is automatically trimmed. For example, to create an SVG element whose content is a circle:
 
 ```js
 svg`<svg width=16 height=16>
@@ -435,16 +435,16 @@ If an embedded expression is a DOM element, it is embedded in generated SVG. If 
 
 <a href="#md" name="md">#</a> <b>md</b>\`<i>string</i>\` [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/md.js "Source")
 
-Returns the HTML element represented by the specified Markdown *string* literal. Implemented by [Marked](https://github.com/markedjs/marked).
+Returns the HTML element represented by the specified Markdown *string* literal. Implemented by [Marked](https://github.com/markedjs/marked). Leading and trailing whitespace is automatically trimmed. For example, to create an H1 element whose content is “Hello, world!”:
 
 ```js
-md`Hello, *world*!`
+md`# Hello, world!`
 ```
 
 If an embedded expression is a DOM element, it is embedded in generated HTML. For example, to embed [LaTeX](#tex) within Markdown:
 
 ```js
-md`My favorite number is ${tex`\tau`}.`
+md`My *favorite* number is ${tex`\tau`}.`
 ```
 
 If an embedded expression is an array, the elements of the array are embedded in the generated HTML. The elements may either be strings, which are interpreted as Markdown, or DOM elements. For example, given an array of data:
