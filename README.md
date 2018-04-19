@@ -515,7 +515,7 @@ See [d3-require](https://github.com/d3/d3-require) for more information.
 Returns the resolved URL to require the module with the specified *name*. For example:
 
 ```js
-resolve("d3-array") // "https://unpkg.com/d3-array@1.2.1/build/d3-array.js"
+resolve("d3-array") // "https://unpkg.com/d3-array"
 ```
 
 ## Installing
