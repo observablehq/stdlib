@@ -512,7 +512,11 @@ See [d3-require](https://github.com/d3/d3-require) for more information.
 
 <a href="#resolve" name="resolve">#</a> <b>resolve</b>(<i>name</i>) [<>](https://github.com/d3/d3-require/blob/master/index.js "Source")
 
-Returns the resolved URL to require the module with the specified *name*.
+Returns the resolved URL to require the module with the specified *name*. For example:
+
+```js
+resolve("d3-array") // "https://unpkg.com/d3-array@1.2.1/build/d3-array.js"
+```
 
 ## Installing
 
