@@ -1,4 +1,4 @@
-export default function template(render) {
+export default function template(render, wrapper) {
   return function(strings) {
     var string = strings[0],
         parts = [], part,
@@ -54,9 +54,12 @@ export default function template(render) {
       }
     }
 
-    // If the rendered content is a single node, detach and return the node.
-    return root.childNodes.length === 1
-        ? root.removeChild(root.firstChild)
+    // Is the rendered content
+    // … a parent of a single child? Detach and return the child.
+    // … a document fragment? Replace the fragment with an element.
+    // … some other node? Return it.
+    return root.childNodes.length === 1 ? root.removeChild(root.firstChild)
+        : root.nodeType === 11 ? ((node = wrapper()).appendChild(root), node)
         : root;
   };
 }
