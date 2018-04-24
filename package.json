@@ -11,15 +11,15 @@
     "url": "https://github.com/observablehq/notebook-stdlib.git"
   },
   "scripts": {
-    "test": "tape -r @std/esm 'test/**/*-test.js'",
+    "test": "tape -r esm 'test/**/*-test.js'",
     "precommit": "eslint . && yarn test"
   },
-  "@std/esm": {
-    "esm": "js",
+  "esm": {
+    "mode": "all",
     "cjs": true
   },
   "dependencies": {
-    "@std/esm": "^0.16.0",
+    "esm": "^3.0.5",
     "d3-require": "^0.6.6"
   },
   "devDependencies": {
