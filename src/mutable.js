@@ -3,11 +3,8 @@ import observe from "./generators/observe";
 export default function Mutable(value) {
   let change;
   Object.defineProperties(this, {
-    generator: {value: observe(_ => change = _)},
-    value: {
-      get: function() { return value; },
-      set: function(x) { return change((value = x)); }
-    }
+    generator: {value: observe(_ => void (change = _))},
+    value: {get: () => value, set: x => change(value = x)}
   });
   if (value !== undefined) change(value);
 }
