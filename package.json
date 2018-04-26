@@ -12,8 +12,7 @@
   },
   "scripts": {
     "test": "tape -r esm 'test/**/*-test.js'",
-    "precommit": "eslint . && yarn test",
-    "prepare": "rollup -c"
+    "precommit": "eslint . && yarn test"
   },
   "esm": {
     "mode": "all",
