@@ -8,9 +8,3 @@ export default function Mutable(value) {
   });
   if (value !== undefined) change(value);
 }
-
-Mutable.value = function(init) {
-  return function() {
-    return new Mutable(init.apply(this, arguments));
-  };
-};

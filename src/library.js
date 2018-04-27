@@ -5,6 +5,7 @@ import Files from "./files/index";
 import Generators from "./generators/index";
 import html from "./html";
 import md from "./md";
+import Mutable from "./mutable";
 import now from "./now";
 import Promises from "./promises/index";
 import svg from "./svg";
@@ -18,6 +19,7 @@ export default function Library(resolve) {
     DOM: {value: DOM, enumerable: true},
     Files: {value: Files, enumerable: true},
     Generators: {value: Generators, enumerable: true},
+    Mutable: {value: constant(Mutable), enumerable: true},
     Promises: {value: Promises, enumerable: true},
     require: {value: constant(require), enumerable: true},
     resolve: {value: constant(resolve), enumerable: true},
