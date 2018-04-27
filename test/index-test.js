@@ -6,6 +6,7 @@ tape("new Library returns a library with the expected keys", async test => {
     "DOM",
     "Files",
     "Generators",
+    "Mutable",
     "Promises",
     "html",
     "md",
