@@ -19,7 +19,7 @@ export default function Library(resolve) {
     DOM: {value: DOM, enumerable: true},
     Files: {value: Files, enumerable: true},
     Generators: {value: Generators, enumerable: true},
-    Mutable: {value: constant(Mutable), enumerable: true},
+    Mutable: {value: Mutable, enumerable: true},
     Promises: {value: Promises, enumerable: true},
     require: {value: constant(require), enumerable: true},
     resolve: {value: constant(resolve), enumerable: true},
