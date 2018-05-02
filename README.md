@@ -452,7 +452,7 @@ The current width of cells. For example, to make a rounded rectangle in SVG that
 
 ```js
 html`<svg width=${width} height=200>
-  <rect width=${width} height=200 rx=10 ry=10></circle>
+  <rect width=${width} height=200 rx=10 ry=10></rect>
 </svg>`
 ```
 
