@@ -19,15 +19,15 @@ export default function Library(resolve) {
     DOM: {value: DOM, enumerable: true},
     Files: {value: Files, enumerable: true},
     Generators: {value: Generators, enumerable: true},
-    Mutable: {value: Mutable, enumerable: true},
+    html: {value: constant(html), enumerable: true},
+    md: {value: md(require, resolve), enumerable: true},
+    Mutable: {value: constant(Mutable), enumerable: true},
+    now: {value: now, enumerable: true},
     Promises: {value: Promises, enumerable: true},
     require: {value: constant(require), enumerable: true},
     resolve: {value: constant(resolve), enumerable: true},
-    html: {value: constant(html), enumerable: true},
-    md: {value: md(require, resolve), enumerable: true},
     svg: {value: constant(svg), enumerable: true},
     tex: {value: tex(require, resolve), enumerable: true},
-    now: {value: now, enumerable: true},
     width: {value: width, enumerable: true}
   });
 }
