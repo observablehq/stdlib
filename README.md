@@ -307,7 +307,9 @@ The resolved value is likewise dependent on the *input*.type as follows:
 
 The specified *input* need not be an HTMLInputElement, but it must support the *target*.addEventListener and *target*.removeEventListener methods of the [EventTarget interface](https://developer.mozilla.org/docs/Web/API/EventTarget/addEventListener).
 
-This generator implementation is used by Observable’s [viewof operator](https://beta.observablehq.com/@mbostock/a-brief-introduction-to-viewof) to define the current value of a view, and is based on [Generators.observe](#Generators_observe). Note that because Generators.observe is lossy, the generator returned by Generators.input is likewise not guaranteed to yield a value for every input event emitted by the *input*; if more than one event is emitted before the next value is pulled from the generator (more than once per animation frame in the Observable runtime), then only the latest value is seen. See [Generators.queue](#Generators_queue) for a non-debouncing generator.
+This generator implementation is used by Observable’s [viewof operator](https://beta.observablehq.com/@mbostock/a-brief-introduction-to-viewof) to define the current value of a view, and is based on [Generators.observe](#Generators_observe). One often does not use Generators.input directly, but it can be used to define a [generator cell](https://beta.observablehq.com/@mbostock/generator-cells-functions-and-objects) exposing the current value of an input.
+
+Note that because Generators.observe is lossy, the generator returned by Generators.input is likewise not guaranteed to yield a value for every input event emitted by the *input*; if more than one event is emitted before the next value is pulled from the generator (more than once per animation frame in the Observable runtime), then only the latest value is seen. See [Generators.queue](#Generators_queue) for a non-debouncing generator.
 
 <a href="#Generators_map" name="Generators_map">#</a> Generators.<b>map</b>(<i>iterator</i>, <i>transform</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/generators/map.js "Source")
 
@@ -321,15 +323,15 @@ This method assumes that the specified *iterator* is synchronous; if the *iterat
 
 <a href="#Generators_observe" name="Generators_observe">#</a> Generators.<b>observe</b>(<i>initialize</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/generators/observe.js "Source")
 
-Returns a generator that yields promises to an observable value, adapting a push-based data source (such as an [Observable](https://github.com/tc39/proposal-observable/blob/master/README.md), an [EventEmitter](https://nodejs.org/api/events.html#events_class_eventemitter) or an [EventTarget](https://developer.mozilla.org/docs/Web/API/EventTarget)) to a pull-based one. The specified *initialize* function is synchronously invoked, being passed a *change* function; calling *change* triggers the resolution of the current promise with the passed value. The *initialize* function may return a *dispose* function; this function will be called when the generator is [disposed](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Generator/return). (See [invalidation](#invalidation).)
+Returns a generator that yields promises to an observable value, adapting a push-based data source (such as an [Observable](https://github.com/tc39/proposal-observable/blob/master/README.md), an [EventEmitter](https://nodejs.org/api/events.html#events_class_eventemitter) or an [EventTarget](https://developer.mozilla.org/docs/Web/API/EventTarget)) to a pull-based one. The specified *initialize* function is invoked before Generators.observe returns, being passed a *change* function; calling *change* triggers the resolution of the current promise with the passed value. The *initialize* function may also return a *dispose* function; this function will be called when the generator is [disposed](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Generator/return). (See [invalidation](#invalidation).)
 
 For example, to observe the current value of a text input element, you might say:
 
 ```js
-value = Generators.observe(element, change => {
+Generators.observe(change => {
 
   // An event listener to yield the element’s new value.
-  const inputted = event => change(element.value);
+  const inputted = () => change(element.value);
 
   // Attach the event listener.
   element.addEventListener("input", inputted);
