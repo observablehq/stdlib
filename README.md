@@ -323,7 +323,9 @@ This method assumes that the specified *iterator* is synchronous; if the *iterat
 
 <a href="#Generators_observe" name="Generators_observe">#</a> Generators.<b>observe</b>(<i>initialize</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/generators/observe.js "Source")
 
-Returns a generator that yields promises to an observable value, adapting a push-based data source (such as an [Observable](https://github.com/tc39/proposal-observable/blob/master/README.md), an [EventEmitter](https://nodejs.org/api/events.html#events_class_eventemitter) or an [EventTarget](https://developer.mozilla.org/docs/Web/API/EventTarget)) to a pull-based one. The specified *initialize* function is invoked before Generators.observe returns, being passed a *change* function; calling *change* triggers the resolution of the current promise with the passed value. The *initialize* function may also return a *dispose* function; this function will be called when the generator is [disposed](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Generator/return). (See [invalidation](#invalidation).)
+Returns a generator that yields promises to an observable value, adapting a push-based data source (such as an [Observable](https://github.com/tc39/proposal-observable/blob/master/README.md), an [EventEmitter](https://nodejs.org/api/events.html#events_class_eventemitter) or an [EventTarget](https://developer.mozilla.org/docs/Web/API/EventTarget)) to a pull-based one.
+
+The specified *initialize* function is invoked before Generators.observe returns, being passed a *change* function; calling *change* triggers the resolution of the current promise with the passed value. The *initialize* function may also return a *dispose* function; this function will be called when the generator is [disposed](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Generator/return). (See [invalidation](#invalidation).)
 
 For example, to observe the current value of a text input element, you might say:
 
@@ -346,11 +348,34 @@ Generators.observe(change => {
 
 (See also [Generators.input](#Generators_input).)
 
-Generators.observe is lossy: if *change* is called more than once before the next promise is pulled from the generator, then the next promise returned by the generator will be resolved with the latest value passed to *change*, potentially skipping intermediate values. See [Generators.queue](#Generators_queue) for a non-debouncing generator.
+Generators.observe is lossy and may skip values: if *change* is called more than once before the next promise is pulled from the generator, then the next promise returned by the generator will be resolved with the latest value passed to *change*, potentially skipping intermediate values. See [Generators.queue](#Generators_queue) for a non-debouncing generator.
 
 <a href="#Generators_queue" name="Generators_queue">#</a> Generators.<b>queue</b>(<i>initialize</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/generators/queue.js "Source")
 
-…
+Returns a generator that yields promises to an observable value, adapting a push-based data source (such as an [Observable](https://github.com/tc39/proposal-observable/blob/master/README.md), an [EventEmitter](https://nodejs.org/api/events.html#events_class_eventemitter) or an [EventTarget](https://developer.mozilla.org/docs/Web/API/EventTarget)) to a pull-based one. The specified *initialize* function is invoked before Generators.queue returns, being passed a *change* function; calling *change* triggers the resolution of the current promise with the passed value. The *initialize* function may also return a *dispose* function; this function will be called when the generator is [disposed](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Generator/return). (See [invalidation](#invalidation).)
+
+For example, to observe the value of a text input element, you might say:
+
+```js
+Generators.queue(change => {
+
+  // An event listener to yield the element’s new value.
+  const inputted = () => change(element.value);
+
+  // Attach the event listener.
+  element.addEventListener("input", inputted);
+
+  // Yield the element’s initial value.
+  change(element.value);
+
+  // Detach the event listener when the generator is disposed.
+  return () => element.removeEventListener("input", inputted);
+})
+```
+
+(See also [Generators.input](#Generators_input).)
+
+Generators.queue is non-lossy and, as a result, may yield “stale” values: if *change* is called more than once before the next promise is pulled from the generator, the passed values are queued in order and the generator will return resolved promises until the queue is empty again. See [Generators.observe](#Generators_observe) for a debouncing generator.
 
 <a href="#Generators_range" name="Generators_range">#</a> Generators.<b>range</b>([<i>start</i>, ]<i>stop</i>[, <i>step</i>]) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/generators/range.js "Source")
 
