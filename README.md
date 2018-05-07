@@ -309,7 +309,7 @@ The specified *input* need not be an HTMLInputElement, but it must support the *
 
 This generator implementation is used by Observable’s [viewof operator](https://beta.observablehq.com/@mbostock/a-brief-introduction-to-viewof) to define the current value of a view, and is based on [Generators.observe](#Generators_observe). One often does not use Generators.input directly, but it can be used to define a [generator cell](https://beta.observablehq.com/@mbostock/generator-cells-functions-and-objects) exposing the current value of an input.
 
-Note that because Generators.observe is lossy, the generator returned by Generators.input is likewise not guaranteed to yield a value for every input event emitted by the *input*; if more than one event is emitted before the next value is pulled from the generator (more than once per animation frame in the Observable runtime), then only the latest value is seen. See [Generators.queue](#Generators_queue) for a non-debouncing generator.
+Generators.input is lossy and may skip values: if more than one event is emitted before the next promise is pulled from the generator (more than once per animation frame), then the next promise returned by the generator will be resolved with the latest *input* value, potentially skipping intermediate values. See [Generators.queue](#Generators_queue) for a non-debouncing generator.
 
 <a href="#Generators_map" name="Generators_map">#</a> Generators.<b>map</b>(<i>iterator</i>, <i>transform</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/generators/map.js "Source")
 
@@ -348,7 +348,7 @@ Generators.observe(change => {
 
 (See also [Generators.input](#Generators_input).)
 
-Generators.observe is lossy and may skip values: if *change* is called more than once before the next promise is pulled from the generator, then the next promise returned by the generator will be resolved with the latest value passed to *change*, potentially skipping intermediate values. See [Generators.queue](#Generators_queue) for a non-debouncing generator.
+Generators.observe is lossy and may skip values: if *change* is called more than once before the next promise is pulled from the generator (more than once per animation frame), then the next promise returned by the generator will be resolved with the latest value passed to *change*, potentially skipping intermediate values. See [Generators.queue](#Generators_queue) for a non-debouncing generator.
 
 <a href="#Generators_queue" name="Generators_queue">#</a> Generators.<b>queue</b>(<i>initialize</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/generators/queue.js "Source")
 
@@ -375,7 +375,7 @@ Generators.queue(change => {
 
 (See also [Generators.input](#Generators_input).)
 
-Generators.queue is non-lossy and, as a result, may yield “stale” values: if *change* is called more than once before the next promise is pulled from the generator, the passed values are queued in order and the generator will return resolved promises until the queue is empty again. See [Generators.observe](#Generators_observe) for a debouncing generator.
+Generators.queue is non-lossy and, as a result, may yield “stale” values: if *change* is called more than once before the next promise is pulled from the generator (more than once per animation frame), the passed values are queued in order and the generator will return resolved promises until the queue is empty again. See [Generators.observe](#Generators_observe) for a debouncing generator.
 
 <a href="#Generators_range" name="Generators_range">#</a> Generators.<b>range</b>([<i>start</i>, ]<i>stop</i>[, <i>step</i>]) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/generators/range.js "Source")
 
