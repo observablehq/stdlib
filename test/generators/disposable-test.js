@@ -11,9 +11,8 @@ tape("disposable(value, dispose) yields the specified value", async test => {
 tape("disposable(value, dispose) defines generator.return", async test => {
   let passedFoo;
   const foo = {};
-  const returnValue = {};
   const generator = disposable(foo, _ => passedFoo = _);
-  test.equal(generator.return(returnValue), returnValue);
+  test.deepEqual(generator.return(), {done: true});
   test.equal(passedFoo, foo);
   test.deepEqual(generator.next(), {done: true});
 });

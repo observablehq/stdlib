@@ -1,4 +1,3 @@
-import noop from "../noop";
 import that from "../that";
 
 export default function(initialize) {
@@ -20,8 +19,8 @@ export default function(initialize) {
 
   return {
     [Symbol.iterator]: that,
-    throw: noop,
-    return: dispose == null ? noop : dispose,
+    throw: () => ({done: true}),
+    return: () => (dispose != null && dispose(), {done: true}),
     next
   };
 }
