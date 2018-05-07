@@ -1,7 +1,10 @@
 import noop from "../noop";
+import that from "../that";
 
 export default function(initialize) {
-  var queue = [], resolve, dispose = initialize(push);
+  let resolve;
+  const queue = [];
+  const dispose = initialize(push);
 
   function push(x) {
     queue.push(x);
@@ -12,12 +15,13 @@ export default function(initialize) {
   function next() {
     return {done: false, value: queue.length
         ? Promise.resolve(queue.shift())
-        : new Promise(function(_) { resolve = _; })};
+        : new Promise(_ => (resolve = _))};
   }
 
   return {
+    [Symbol.iterator]: that,
     throw: noop,
     return: dispose == null ? noop : dispose,
-    next: next
+    next
   };
 }
