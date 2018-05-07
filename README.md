@@ -288,7 +288,26 @@ This method assumes that the specified *iterator* is synchronous; if the *iterat
 
 <a href="#Generators_input" name="Generators_input">#</a> Generators.<b>input</b>(<i>input</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/generators/input.js "Source")
 
-…
+Returns a new generator that yields promises to the current value of the specified *input* element; each promise resolves when the *input* element emits an event. (The current promise resolves when the event is emitted, even if the value of the input is unchanged.) If the initial value of the *input* is not undefined, the returned generator’s first yielded value is a synchronously-resolved promise with the initial value of the *input*.
+
+The type of event that triggers resolution depends on the specified *input*.type as follows:
+
+* For button, submit and checkbox inputs, *click* events.
+* For file inputs, *change* events.
+* For all other types, *input* events.
+
+The interpreted value of the *input* is likewise dependent on the *input*.type as follows:
+
+* For range and number inputs, *input*.valueAsNumber.
+* For date inputs, *input*.valueAsDate.
+* For checkbox inputs, *input*.checked.
+* For single-file inputs (*input*.multiple is falsey), *input*.files[0].
+* For multi-file inputs (*input*.multiple is truthy), *input*.files.
+* For all other types, *input*.value.
+
+The specified *input* need not be an HTMLInputElement, but it must support the *target*.addEventListener and *target*.removeEventListener methods of the [EventTarget interface](https://developer.mozilla.org/docs/Web/API/EventTarget/addEventListener).
+
+This generator implementation is used by Observable’s [viewof operator](https://beta.observablehq.com/@mbostock/a-brief-introduction-to-viewof) to define the current value of a view, and is based on [Generators.observe](#Generators_observe). Note that because Generators.observe is lossy, the generator returned by Generators.input is likewise not guaranteed to yield a value for every input event emitted by the *input*; if more than one event is emitted before the next value is pulled from the generator (more than once per animation frame in the Observable runtime), then only the latest value is seen. (See [Generators.queue](#Generators_queue) for a non-debouncing generator.)
 
 <a href="#Generators_map" name="Generators_map">#</a> Generators.<b>map</b>(<i>iterator</i>, <i>transform</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/generators/map.js "Source")
 
