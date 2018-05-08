@@ -10,6 +10,6 @@ export default {
     banner: `// @observablehq/notebook-stdlib Copyright ${(new Date).getFullYear()} Observable, Inc.`,
     file: "dist/notebook-stdlib.js",
     format: "umd",
-    name: "O"
+    name: "Observable"
   }
 };
