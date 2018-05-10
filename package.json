@@ -4,6 +4,7 @@
   "license": "ISC",
   "main": "src/index",
   "module": "dist/notebook-stdlib.js",
+  "unpkg": "dist/notebook-stdlib.umd.js",
   "author": {
     "name": "Observable, Inc."
   },
