@@ -14,7 +14,7 @@ import tex from "./tex";
 import width from "./width";
 
 export default function Library(resolver) {
-  var require = resolver == null ? requireFrom(resolver) : requireDefault;
+  var require = resolver == null ? requireDefault : requireFrom(resolver);
   Object.defineProperties(this, {
     DOM: {value: DOM, enumerable: true},
     Files: {value: Files, enumerable: true},
