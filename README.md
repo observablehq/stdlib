@@ -11,7 +11,6 @@ For examples, see https://beta.observablehq.com/@mbostock/standard-library.
 * [Generators](#generators) - utilities for generators and iterators.
 * [Promises](#promises) - utilities for promises.
 * [require](#require) - load third-party libraries.
-* [resolve](#resolve) - find third-party resources.
 * [html](#html) - render HTML.
 * [md](#markdown) - render Markdown.
 * [svg](#svg) - render SVG.
@@ -711,12 +710,12 @@ d3 = require("d3-array@1.1")
 
 See [d3-require](https://github.com/d3/d3-require) for more information.
 
-<a href="#resolve" name="resolve">#</a> <b>resolve</b>(<i>name</i>) [<>](https://github.com/d3/d3-require/blob/master/index.js "Source")
+<a href="#require_resolve" name="require_resolve">#</a> require.<b>resolve</b>(<i>name</i>) [<>](https://github.com/d3/d3-require/blob/master/index.js "Source")
 
-Returns the resolved URL to require the module with the specified *name*. For example:
+Returns a promise to the resolved URL to require the module with the specified *name*. For example:
 
 ```js
-resolve("d3-array") // "https://unpkg.com/d3-array"
+require.resolve("d3-array") // "https://unpkg.com/d3-array@1.2.1/build/d3-array.js"
 ```
 
 ## Installing

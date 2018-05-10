@@ -11,11 +11,11 @@ function style(href) {
   });
 }
 
-export default function(require, resource) {
+export default function(require) {
   return function() {
     return Promise.all([
       require("katex@0.9.0/dist/katex.min.js"),
-      resource("katex@0.9.0/dist/katex.min.css").then(style)
+      require.resolve("katex@0.9.0/dist/katex.min.css").then(style)
     ]).then(function(values) {
       var katex = values[0], tex = renderer();
 
