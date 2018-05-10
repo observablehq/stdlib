@@ -724,7 +724,7 @@ The Observable notebook standard library is built-in to Observable, so you donâ€
 
 <a href="#Library" name="Library">#</a> <b>Library</b>([<i>resolve</i>]) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/index.js "Source")
 
-Returns a new standard library object. If a *resolve* function is specified, it is a function that returns the URL of the module with the specified *name*; this is used internally by [require](#require) (and by extension, [md](#md) and [tex](#tex)). See [d3.resolve](https://github.com/d3/d3-require/blob/master/README.md#resolve) for the default implementation.
+Returns a new standard library object. If a *resolve* function is specified, it is a function that returns a promise to the URL of the module with the specified *name*; this is used internally by [require](#require) (and by extension, [md](#md) and [tex](#tex)). See [d3-require](https://github.com/d3/d3-require/blob/master/README.md) for details.
 
 For example, to create the default standard library, and then use it to create a [canvas](#DOM_canvas):
 
