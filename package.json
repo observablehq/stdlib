@@ -20,8 +20,8 @@
     "cjs": true
   },
   "dependencies": {
-    "esm": "^3.0.5",
-    "d3-require": "^0.6.6"
+    "d3-require": "^1.0.0",
+    "esm": "^3.0.5"
   },
   "devDependencies": {
     "eslint": "^4.12.1",
