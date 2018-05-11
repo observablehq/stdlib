@@ -1,6 +1,6 @@
 {
   "name": "@observablehq/notebook-stdlib",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "license": "ISC",
   "main": "src/index",
   "module": "dist/notebook-stdlib.js",
