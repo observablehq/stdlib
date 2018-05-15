@@ -2,9 +2,8 @@
   "name": "@observablehq/notebook-stdlib",
   "version": "1.0.0",
   "license": "ISC",
-  "main": "src/index",
+  "main": "dist/notebook-stdlib.umd.js",
   "module": "dist/notebook-stdlib.js",
-  "unpkg": "dist/notebook-stdlib.umd.js",
   "author": {
     "name": "Observable, Inc."
   },
@@ -15,7 +14,7 @@
   "scripts": {
     "test": "tape -r esm 'test/**/*-test.js'",
     "precommit": "eslint . && yarn test",
-    "prepublishOnly": "rollup -c"
+    "prepare": "rollup -c"
   },
   "esm": {
     "mode": "all",
