@@ -1,8 +1,10 @@
 {
   "name": "@observablehq/notebook-stdlib",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "license": "ISC",
   "main": "src/index",
+  "module": "dist/notebook-stdlib.js",
+  "unpkg": "dist/notebook-stdlib.umd.js",
   "author": {
     "name": "Observable, Inc."
   },
@@ -29,6 +31,7 @@
     "jsdom": "^11.6.2",
     "rollup": "^0.52.0",
     "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-plugin-uglify": "^3.0.0",
     "tape": "^4.9.0",
     "tape-await": "0.1.0"
   }
