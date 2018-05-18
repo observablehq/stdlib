@@ -17,6 +17,7 @@ For examples, see https://beta.observablehq.com/@mbostock/standard-library.
 * [tex](#tex) - render LaTeX.
 * [now](#now) - the current value of Date.now.
 * [width](#width) - the current page width.
+* [invalidation](#invalidation) - dispose resources.
 
 ### DOM
 
