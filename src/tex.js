@@ -8,6 +8,12 @@ function style(href) {
     link.onerror = reject;
     link.onload = resolve;
     document.head.appendChild(link);
+    var style = document.createElement("style");
+    style.textContent = `
+.katex{font-size:1.1em}
+.katex-display>.katex{font-size:1.21em}
+`;
+    document.head.appendChild(style);
   });
 }
 
