@@ -14,8 +14,8 @@ function style(href) {
 export default function(require) {
   return function() {
     return Promise.all([
-      require("@observablehq/katex@0.9.1/dist/katex.min.js"),
-      require.resolve("@observablehq/katex@0.9.1/dist/katex.min.css").then(style)
+      require("@observablehq/katex@0.9.2/dist/katex.min.js"),
+      require.resolve("@observablehq/katex@0.9.2/dist/katex.min.css").then(style)
     ]).then(function(values) {
       var katex = values[0], tex = renderer();
 
