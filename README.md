@@ -18,6 +18,7 @@ For examples, see https://beta.observablehq.com/@mbostock/standard-library.
 * [now](#now) - the current value of Date.now.
 * [width](#width) - the current page width.
 * [invalidation](#invalidation) - dispose resources.
+* [visibility](#visibility) - wait for visibility.
 
 ### DOM
 
@@ -563,6 +564,10 @@ html`<svg width=${width} height=200>
   <rect width=${width} height=200 rx=10 ry=10></rect>
 </svg>`
 ```
+
+<a href="#visibility" name="visibility">#</a> <b>visibility</b>([<i>value</i>]) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/width.js "Source")
+
+Returns a promise that resolves with the specified *value* when this cell is visible in the viewport.
 
 ### HTML
 
