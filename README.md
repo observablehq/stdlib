@@ -721,7 +721,7 @@ require.resolve("d3-array") // "https://unpkg.com/d3-array@1.2.1/build/d3-array.
 
 <a href="#require_alias" name="require_alias">#</a> require.<b>alias</b>(<i>aliases</i>) [<>](https://github.com/d3/d3-require/blob/master/index.js "Source")
 
-Returns a [*require*](#require) function with the specified *aliases*. For each key in the specified *aliases* object, any require of that key is substituted with the corresponding value. For example, to declare UMD bundles and pin versions:
+Returns a [require function](#require) with the specified *aliases*. For each key in the specified *aliases* object, any require of that key is substituted with the corresponding value. For example, to declare UMD bundles and pin versions:
 
 ```js
 r = require.alias({

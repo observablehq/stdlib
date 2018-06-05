@@ -1,7 +1,7 @@
 import {require as requireDefault, requireFrom} from "d3-require";
 
-export default function(resolver) {
-  const require = resolver == null ? requireDefault : requireFrom(resolver);
+export default function(resolve) {
+  const require = resolve == null ? requireDefault : requireFrom(resolve);
   require.alias = requireAlias(require.resolve);
   return require;
 }
