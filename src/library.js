@@ -1,4 +1,3 @@
-import {require as requireDefault, requireFrom} from "d3-require";
 import constant from "./constant";
 import DOM from "./dom/index";
 import Files from "./files/index";
@@ -9,13 +8,13 @@ import Mutable from "./mutable";
 import now from "./now";
 import Promises from "./promises/index";
 import resolve from "./resolve";
+import requirer from "./require";
 import svg from "./svg";
 import tex from "./tex";
 import width from "./width";
 
 export default function Library(resolver) {
-  const require = resolver == null ? requireDefault : requireFrom(resolver);
-  require.alias = requireAlias(require.resolve);
+  const require = requirer(resolver);
   Object.defineProperties(this, {
     DOM: {value: DOM, enumerable: true},
     Files: {value: Files, enumerable: true},
@@ -31,8 +30,4 @@ export default function Library(resolver) {
     tex: {value: tex(require), enumerable: true},
     width: {value: width, enumerable: true}
   });
-}
-
-function requireAlias(resolve) {
-  return map => requireFrom(name => resolve(name in map ? map[name] : name));
 }

@@ -719,6 +719,30 @@ Returns a promise to the resolved URL to require the module with the specified *
 require.resolve("d3-array") // "https://unpkg.com/d3-array@1.2.1/build/d3-array.js"
 ```
 
+<a href="#require_alias" name="require_alias">#</a> require.<b>alias</b>(<i>aliases</i>) [<>](https://github.com/d3/d3-require/blob/master/index.js "Source")
+
+Returns a [*require*](#require) function with the specified *aliases*. For each key in the specified *aliases* object, any require of that key is substituted with the corresponding value. For example, to declare UMD bundles and pin versions:
+
+```js
+r = require.alias({
+  "react": "react@16/umd/react.production.min.js",
+  "react-dom": "react-dom@16/umd/react-dom.production.min.js",
+  "semiotic": "semiotic@1"
+})
+```
+
+Then to require the libraries:
+
+```js
+React = r("react")
+```
+```js
+ReactDOM = r("react-dom")
+```
+```js
+Semiotic = r("semiotic")
+```
+
 ## Installing
 
 The Observable notebook standard library is built-in to Observable, so you don’t normally need to install or instantiate it directly. If you use NPM, `npm install @observablehq/notebook-stdlib`.
