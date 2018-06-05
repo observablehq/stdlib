@@ -14,7 +14,8 @@ import tex from "./tex";
 import width from "./width";
 
 export default function Library(resolver) {
-  var require = resolver == null ? requireDefault : requireFrom(resolver);
+  const require = resolver == null ? requireDefault : requireFrom(resolver);
+  require.alias = requireAlias(require.resolve);
   Object.defineProperties(this, {
     DOM: {value: DOM, enumerable: true},
     Files: {value: Files, enumerable: true},
@@ -30,4 +31,8 @@ export default function Library(resolver) {
     tex: {value: tex(require), enumerable: true},
     width: {value: width, enumerable: true}
   });
+}
+
+function requireAlias(resolve) {
+  return map => requireFrom(name => resolve(name in map ? map[name] : name));
 }
