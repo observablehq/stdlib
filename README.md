@@ -131,7 +131,7 @@ html`<input type=range min=-180 max=180 step=1>`
 
 In general, you probably want to use the [html](#html) tagged template literal instead of DOM.input.
 
-<a href="#DOM_select" name="DOM_select">#</a> DOM.<b>select</b>(<i>values</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/dom/select.js "Source")
+<a href="#DOM_select" name="DOM_select">#</a> DOM.<b>select</b>(<i>values</i>\[, <i>initial_selection</i>\]) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/dom/select.js "Source")
 
 Returns a new select element with an option for each string in the specified *values* array. For example, to create a drop-down menu of three colors:
 
@@ -154,6 +154,22 @@ Or, from an array of data:
 ```js
 html`<select>${colors.map(color => `
   <option value="${color}">${color}</option>`)}
+</select>`
+```
+
+To make the select element default to a particular option, include the value as a second parameter:
+
+```js
+DOM.select(["red", "green", "blue"], "green")
+```
+
+This is equivalent to using the [html](#html) tagged template literal:
+
+```js
+html`<select>
+  <option value="red">red</option>
+  <option value="green" selected>green</option>
+  <option value="blue">blue</option>
 </select>`
 ```
 
