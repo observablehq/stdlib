@@ -726,7 +726,19 @@ require.resolve("d3-array") // "https://unpkg.com/d3-array@1.2.1/build/d3-array.
 
 <a href="#require_alias" name="require_alias">#</a> require.<b>alias</b>(<i>aliases</i>) [<>](https://github.com/d3/d3-require/blob/master/index.js "Source")
 
-Returns a [require function](#require) with the specified *aliases*. For each key in the specified *aliases* object, any require of that key is substituted with the corresponding value. For example, to declare UMD bundles and pin versions:
+Returns a [require function](#require) with the specified *aliases*. For each key in the specified *aliases* object, any require of that key is substituted with the corresponding value. For example:
+
+```js
+React = require("react@16/umd/react.production.min.js")
+```
+```js
+ReactDOM = require("react-dom@16/umd/react-dom.production.min.js")
+```
+```js
+Semiotic = require.alias({"react": React, "react-dom": ReactDOM})("semiotic@1")
+```
+
+Equivalently:
 
 ```js
 r = require.alias({
