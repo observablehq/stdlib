@@ -27,13 +27,13 @@
     "esm": "^3.0.5"
   },
   "devDependencies": {
-    "eslint": "^4.12.1",
+    "eslint": "^5.3.0",
     "husky": "^0.14.3",
     "jsdom": "^11.6.2",
-    "rollup": "^0.52.0",
+    "rollup": "^0.64.1",
     "rollup-plugin-node-resolve": "^3.0.0",
-    "rollup-plugin-uglify": "^3.0.0",
+    "rollup-plugin-terser": "^1.0.1",
     "tape": "^4.9.0",
-    "tape-await": "0.1.0"
+    "tape-await": "0.1.1"
   }
 }
