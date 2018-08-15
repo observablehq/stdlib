@@ -7,7 +7,7 @@ export default function(require) {
         var root = document.createElement("div");
         root.innerHTML = marked(string, {langPrefix: ""}).trim();
         var code = root.querySelectorAll("pre code[class]");
-        if (code.length > 0) require("@observablehq/highlight.js@1.0.0/highlight.min.js").then(function(hl) { code.forEach(hl.highlightBlock); });
+        if (code.length > 0) require("@observablehq/highlight.js@1.1.0/highlight.min.js").then(function(hl) { code.forEach(hl.highlightBlock); });
         return root;
       }, function() {
         return document.createElement("div");
