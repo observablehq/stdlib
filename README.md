@@ -15,6 +15,7 @@ For examples, see https://beta.observablehq.com/@mbostock/standard-library.
 * [md](#markdown) - render Markdown.
 * [svg](#svg) - render SVG.
 * [tex](#tex) - render LaTeX.
+* [dot](#dot) - render DOT graphs.
 * [now](#now) - the current value of Date.now.
 * [width](#width) - the current page width.
 * [invalidation](#invalidation) - dispose resources.
@@ -690,6 +691,16 @@ Equivalent to [tex](#tex), but uses KaTeX’s display mode to produce a bigger b
 
 ```js
 tex.block`E = mc^2`
+```
+
+### Graphviz
+
+<a href="#dot" name="dot">#</a> <b>dot</b>\`<i>string</i>\` [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/dot.js "Source")
+
+Returns the SVG element represented by the specified DOT graph *string* literal. Implemented by [Graphviz](https://github.com/mdaines/viz.js/).
+
+```js
+dot`digraph { A -> B -> C }`
 ```
 
 ### require
