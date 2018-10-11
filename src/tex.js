@@ -27,6 +27,7 @@ export default function(require) {
         };
       }
 
+      tex.options = renderer;
       tex.block = renderer({displayMode: true});
       return tex;
     });
