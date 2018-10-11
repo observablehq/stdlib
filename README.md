@@ -692,6 +692,14 @@ Equivalent to [tex](#tex), but uses KaTeX’s display mode to produce a bigger b
 tex.block`E = mc^2`
 ```
 
+<a href="#tex_options" name="tex_options">#</a> tex.<b>options</b>(<i>options</i>) [<>](https://github.com/observablehq/notebook-stdlib/blob/master/src/tex.js "Source")
+
+Returns a function equivalent to [tex](#tex), but with the specified *options*.
+
+```js
+tex.options({displayMode: true})`E = mc^2`
+```
+
 ### require
 
 <a href="#require" name="require">#</a> <b>require</b>(<i>names…</i>) [<>](https://github.com/d3/d3-require/blob/master/index.js "Source")
