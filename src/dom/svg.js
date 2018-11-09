@@ -3,5 +3,6 @@ export default function(width, height) {
   svg.setAttribute("viewBox", [0, 0, width, height]);
   svg.setAttribute("width", width);
   svg.setAttribute("height", height);
+  svg.setAttributeNS("http://www.w3.org/XML/1998/namespace", "base", window.location.href);
   return svg;
 }
