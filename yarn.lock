@@ -255,9 +255,9 @@ cssstyle@^1.0.0:
   dependencies:
     cssom "0.3.x"
 
-"d3-require@https://github.com/d3/d3-require#7969f63b095bd0bb45ad79faca735c1ea33b5d50":
-  version "1.1.4"
-  resolved "https://github.com/d3/d3-require#7969f63b095bd0bb45ad79faca735c1ea33b5d50"
+d3-require@1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/d3-require/-/d3-require-1.2.0.tgz#a840fc88e4b7f3bc49dac91eb16615c1df20b42a"
 
 dashdash@^1.12.0:
   version "1.14.1"

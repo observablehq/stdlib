@@ -23,7 +23,7 @@
     "cjs": true
   },
   "dependencies": {
-    "d3-require": "https://github.com/d3/d3-require#7969f63b095bd0bb45ad79faca735c1ea33b5d50",
+    "d3-require": "1.2.0",
     "esm": "^3.0.5"
   },
   "devDependencies": {
