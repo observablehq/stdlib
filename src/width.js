@@ -1,13 +1,11 @@
 import observe from "./generators/observe";
 
-var inset = 28;
-
 export default function() {
   return observe(function(change) {
-    var width = change(window.innerWidth - inset);
+    var width = change(document.body.clientWidth);
     function resized() {
-      var width1 = window.innerWidth - inset;
-      if (width1 !== width) change(width = width1);
+      var w = document.body.clientWidth;
+      if (w !== width) change(width = w);
     }
     window.addEventListener("resize", resized);
     return function() {
