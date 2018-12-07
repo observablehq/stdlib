@@ -5,5 +5,5 @@ export default template(function(string) {
   template.innerHTML = string.trim();
   return document.importNode(template.content, true);
 }, function() {
-  return document.createElement("div");
+  return document.createElement("span");
 });
