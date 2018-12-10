@@ -1,7 +1,7 @@
 import node from "rollup-plugin-node-resolve";
 import {terser} from "rollup-plugin-terser";
 
-const copyright = `// @observablehq/notebook-stdlib Copyright ${(new Date).getFullYear()} Observable, Inc.`;
+const copyright = `// @observablehq/stdlib Copyright ${(new Date).getFullYear()} Observable, Inc.`;
 
 function config(output) {
   return {
@@ -21,12 +21,12 @@ function config(output) {
 export default [
   config({
     format: "es",
-    file: "dist/notebook-stdlib.js"
+    file: "dist/stdlib.js"
   }),
   config({
     format: "umd",
     extend: true,
     name: "observablehq",
-    file: "dist/notebook-stdlib.umd.js"
+    file: "dist/stdlib.umd.js"
   })
 ];
