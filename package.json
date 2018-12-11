@@ -1,6 +1,6 @@
 {
   "name": "@observablehq/stdlib",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "license": "ISC",
   "main": "dist/stdlib.js",
   "module": "src/index.js",
