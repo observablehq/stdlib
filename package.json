@@ -27,8 +27,8 @@
     "cjs": true
   },
   "files": [
-    "src/**.js",
-    "dist/**.js"
+    "src/**/*.js",
+    "dist/**/*.js"
   ],
   "dependencies": {
     "d3-require": "^1.2.0",
