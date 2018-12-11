@@ -2,8 +2,8 @@
   "name": "@observablehq/stdlib",
   "version": "2.0.1",
   "license": "ISC",
-  "main": "dist/stdlib.umd.js",
-  "module": "dist/stdlib.js",
+  "main": "dist/stdlib.js",
+  "module": "src/index.js",
   "author": {
     "name": "Observable, Inc.",
     "url": "https://observablehq.com"
@@ -14,7 +14,7 @@
   },
   "scripts": {
     "test": "tape -r esm 'test/**/*-test.js'",
-    "prepare": "rollup -c",
+    "prepublishOnly": "rollup -c",
     "postpublish": "git push && git push --tags"
   },
   "husky": {
@@ -26,6 +26,10 @@
     "mode": "all",
     "cjs": true
   },
+  "files": [
+    "src/**.js",
+    "dist/**.js"
+  ],
   "dependencies": {
     "d3-require": "^1.2.0",
     "esm": "^3.0.84"
