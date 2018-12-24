@@ -59,6 +59,14 @@ Returns an anchor element containing a button that when clicked will download a 
 DOM.download(await new Promise(resolve => canvas.toBlob(resolve)))
 ```
 
+The *object* may also be specified as a function, in which case the function is called when the download button is clicked. For example:
+
+```js
+DOM.download(() => new Promise(resolve => canvas.toBlob(resolve)))
+```
+
+If the *object* is a promise, or if it is a function that returns a promise, the promise will be awaited before downloading. If necessary, an additional click may be required to download the asynchronous value.
+
 <a href="#DOM_element" name="DOM_element">#</a> DOM.<b>element</b>(<i>name</i>[, <i>attributes</i>]) [<>](https://github.com/observablehq/stdlib/blob/master/src/dom/element.js "Source")
 
 Returns a new element with the specified *name*. For example, to create an empty H1 element:
