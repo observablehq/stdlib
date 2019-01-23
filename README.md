@@ -712,7 +712,7 @@ tex.options({displayMode: true})`E = mc^2`
 
 <a href="#require" name="require">#</a> <b>require</b>(<i>names…</i>) [<>](https://github.com/d3/d3-require/blob/master/index.js "Source")
 
-Returns a promise of the [asynchronous module definition](https://github.com/amdjs/amdjs-api/blob/master/AMD.md) (AMD) with the specified *names*, loaded from [unpkg](https://unpkg.com/). Each module *name* can be a package (or scoped package) name optionally followed by the at sign (`@`) and a semver range. For example, to load [d3-array](https://github.com/d3/d3-array):
+Returns a promise of the [asynchronous module definition](https://github.com/amdjs/amdjs-api/blob/master/AMD.md) (AMD) with the specified *names*, loaded from [jsDelivr](https://jsdelivr.com/). Each module *name* can be a package (or scoped package) name optionally followed by the at sign (`@`) and a semver range. For example, to load [d3-array](https://github.com/d3/d3-array):
 
 ```js
 d3 = require("d3-array")
@@ -737,7 +737,7 @@ See [d3-require](https://github.com/d3/d3-require) for more information.
 Returns a promise to the resolved URL to require the module with the specified *name*. For example:
 
 ```js
-require.resolve("d3-array") // "https://unpkg.com/d3-array@1.2.1/build/d3-array.js"
+require.resolve("d3-array") // "https://cdn.jsdelivr.net/npm/d3-array@2.0.3/dist/d3-array.min.js"
 ```
 
 <a href="#require_alias" name="require_alias">#</a> require.<b>alias</b>(<i>aliases</i>) [<>](https://github.com/d3/d3-require/blob/master/index.js "Source")
