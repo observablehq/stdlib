@@ -4,7 +4,7 @@ export default function(require) {
   return function() {
     return require("marked@0.3.12/marked.min.js").then(function(marked) {
       return template(function(string) {
-        var root = document.createElement("span");
+        var root = document.createElement("div");
         root.innerHTML = marked(string, {langPrefix: ""}).trim();
         var code = root.querySelectorAll("pre code[class]");
         if (code.length > 0) {
@@ -17,7 +17,7 @@ export default function(require) {
         }
         return root;
       }, function() {
-        return document.createElement("span");
+        return document.createElement("div");
       });
     });
   };
