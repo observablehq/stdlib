@@ -33,7 +33,7 @@
   "dependencies": {
     "d3-require": "^1.2.0",
     "esm": "^3.0.84",
-    "marked": "^0.6.1"
+    "marked": "https://github.com/observablehq/marked.git#e9c96e704cc6d8e2bdcbd23484db1ff8b72f03a1"
   },
   "devDependencies": {
     "eslint": "^5.10.0",
