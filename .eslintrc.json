@@ -1,8 +1,9 @@
 {
   "extends": "eslint:recommended",
+  "parser": "babel-eslint",
   "parserOptions": {
     "sourceType": "module",
-    "ecmaVersion": 8
+    "ecmaVersion": 2019
   },
   "env": {
     "browser": true,
