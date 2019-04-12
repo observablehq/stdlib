@@ -18,7 +18,9 @@ export default function(require) {
                 hl.highlightBlock(block);
                 block.parentNode.classList.add("observablehq--md-pre");
               }
-              if (!hl.getLanguage(block.className)) {
+              if (hl.getLanguage(block.className)) {
+                done();
+              } else {
                 require(HL_ROOT + "async-languages/index.js")
                   .then(index => {
                     if (index.has(block.className)) {
@@ -30,8 +32,6 @@ export default function(require) {
                     }
                   })
                   .then(done, done);
-              } else {
-                done();
               }
             });
           });
