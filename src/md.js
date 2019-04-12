@@ -1,8 +1,8 @@
 import template from "./template";
 import marked from "marked";
 
-const LANGUAGE_ROOT =
-  "https://cdn.jsdelivr.net/npm/@observablehq/highlight.js@2.0.0-alpha.3/";
+const HL_ROOT =
+  "https://cdn.jsdelivr.net/npm/@observablehq/highlight.js@2.0.0/";
 
 export default function(require) {
   return function() {
@@ -12,17 +12,17 @@ export default function(require) {
         root.innerHTML = marked(string, { langPrefix: "" }).trim();
         var code = root.querySelectorAll("pre code[class]");
         if (code.length > 0) {
-          require(LANGUAGE_ROOT + "highlight.min.js").then(function(hl) {
+          require(HL_ROOT + "highlight.min.js").then(function(hl) {
             code.forEach(function(block) {
               function done() {
                 hl.highlightBlock(block);
                 block.parentNode.classList.add("observablehq--md-pre");
               }
               if (!hl.getLanguage(block.className)) {
-                require(LANGUAGE_ROOT + "async-languages/index.js")
+                require(HL_ROOT + "async-languages/index.js")
                   .then(index => {
                     if (index.has(block.className)) {
-                      return require(LANGUAGE_ROOT +
+                      return require(HL_ROOT +
                         "async-languages/" +
                         index.get(block.className)).then(language => {
                         hl.registerLanguage(block.className, language);
