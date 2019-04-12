@@ -2,7 +2,7 @@ import template from "./template";
 import marked from "marked";
 
 const LANGUAGE_ROOT =
-  "https://cdn.jsdelivr.net/npm/@observablehq/highlight.js@2.0.0-alpha.2/";
+  "https://cdn.jsdelivr.net/npm/@observablehq/highlight.js@2.0.0-alpha.3/";
 
 export default function(require) {
   return function() {
