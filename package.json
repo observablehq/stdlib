@@ -36,7 +36,6 @@
     "marked": "https://github.com/observablehq/marked.git#94c6b946f462fd25db4465d71a6859183f86c57f"
   },
   "devDependencies": {
-    "babel-eslint": "^10.0.1",
     "eslint": "^5.10.0",
     "husky": "^1.2.0",
     "jsdom": "^13.0.0",

@@ -29,7 +29,7 @@ export default function(require) {
                       });
                     }
                   })
-                  .finally(done);
+                  .then(done, done);
               } else {
                 done();
               }
