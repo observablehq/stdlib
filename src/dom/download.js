@@ -19,7 +19,7 @@ export default function(value, name = "untitled", label = "Save") {
     try {
       const object = await (typeof value === "function" ? value() : value);
       b.textContent = "Download";
-      a.href = URL.createObjectURL(object);
+      a.href = URL.createObjectURL(object); // eslint-disable-line require-atomic-updates
     } catch (ignore) {
       b.textContent = label;
     }
