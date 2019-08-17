@@ -575,7 +575,7 @@ html`<svg width=${width} height=200>
 </svg>`
 ```
 
-<a href="#visibility" name="visibility">#</a> <b>visibility</b>([<i>value</i>]) [<>](https://github.com/observablehq/stdlib/blob/master/src/width.js "Source")
+<a href="#visibility" name="visibility">#</a> <b>visibility</b>([<i>value</i>]) [<>](https://github.com/observablehq/runtime/blob/master/src/runtime.js "Source")
 
 Returns a promise that resolves with the specified *value* when this cell is visible in the viewport.
 
