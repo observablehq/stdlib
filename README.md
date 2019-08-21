@@ -4,7 +4,7 @@
 
 The Observable standard library.
 
-For examples, see https://beta.observablehq.com/@mbostock/standard-library.
+For examples, see https://observablehq.com/@observablehq/standard-library.
 
 ## API Reference
 
@@ -217,7 +217,7 @@ In general, you probably want to use the [html](#html) tagged template literal i
 
 Returns a new unique *identifier*. If *name* is specified, the *identifier*.id will be derived from the specified *name*, which may be useful for debugging. If DOM.uid is called repeatedly with the same *name*, every returned *identifier* is still unique (that is, different). Identifiers are useful in SVG: use *identifier*.href for IRI references, such as the [xlink:href](https://www.w3.org/TR/SVG/animate.html#HrefAttribute) attribute; use *identifier*.toString for functional notation, such as the [clip-path](https://www.w3.org/TR/SVG/masking.html#ClipPathProperty) presentation attribute.
 
-For example, to [clip the Mona Lisa](https://beta.observablehq.com/@mbostock/svg-clipping-test) to a circle of radius 320px:
+For example, to [clip the Mona Lisa](https://observablehq.com/@mbostock/svg-clipping-test) to a circle of radius 320px:
 
 ```js
 {
@@ -242,7 +242,7 @@ The use of DOM.uid is strongly recommended over hand-coding as it ensures that y
 
 ### Files
 
-See [Reading Local Files](https://beta.observablehq.com/@mbostock/reading-local-files) for examples.
+See [Reading Local Files](https://observablehq.com/@mbostock/reading-local-files) for examples.
 
 <a href="#Files_buffer" name="Files_buffer">#</a> Files.<b>buffer</b>(<i>file</i>) [<>](https://github.com/observablehq/stdlib/blob/master/src/files/buffer.js "Source")
 
@@ -318,7 +318,7 @@ The resolved value is likewise dependent on the *input*.type as follows:
 
 The specified *input* need not be an HTMLInputElement, but it must support the *target*.addEventListener and *target*.removeEventListener methods of the [EventTarget interface](https://developer.mozilla.org/docs/Web/API/EventTarget/addEventListener).
 
-Generators.input is used by Observable’s [viewof operator](https://beta.observablehq.com/@mbostock/a-brief-introduction-to-viewof) to define the current value of a view, and is based on [Generators.observe](#Generators_observe). One often does not use Generators.input directly, but it can be used to define a [generator cell](https://beta.observablehq.com/@mbostock/generator-cells-functions-and-objects) exposing the current value of an input, and you can also read the yielded values by hand. For example, to accumulate the first four values:
+Generators.input is used by Observable’s [viewof operator](https://observablehq.com/@observablehq/a-brief-introduction-to-viewof) to define the current value of a view, and is based on [Generators.observe](#Generators_observe). One often does not use Generators.input directly, but it can be used to define a [generator cell](https://observablehq.com/@mbostock/generator-cells-functions-and-objects) exposing the current value of an input, and you can also read the yielded values by hand. For example, to accumulate the first four values:
 
 ```js
 {
@@ -370,7 +370,7 @@ Generators.observe(change => {
 
 (See also [Generators.input](#Generators_input).)
 
-Generators.observe is typically used to define a [generator cell](https://beta.observablehq.com/@mbostock/generator-cells-functions-and-objects), but you can also read the yielded values by hand. For example, to accumulate the first four values:
+Generators.observe is typically used to define a [generator cell](https://observablehq.com/@mbostock/generator-cells-functions-and-objects), but you can also read the yielded values by hand. For example, to accumulate the first four values:
 
 ```js
 {
@@ -411,7 +411,7 @@ Generators.queue(change => {
 
 (See also [Generators.input](#Generators_input).)
 
-Generators.queue is typically used to define a [generator cell](https://beta.observablehq.com/@mbostock/generator-cells-functions-and-objects), but you can also read the yielded values by hand. For example, to accumulate the first four values:
+Generators.queue is typically used to define a [generator cell](https://observablehq.com/@mbostock/generator-cells-functions-and-objects), but you can also read the yielded values by hand. For example, to accumulate the first four values:
 
 ```js
 {
