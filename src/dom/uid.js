@@ -6,7 +6,7 @@ export default function(name) {
 
 function Id(id) {
   this.id = id;
-  this.href = window.location.href + "#" + id;
+  this.href = window.location.href.replace(window.location.hash, "") + "#" + id;
 }
 
 Id.prototype.toString = function() {
