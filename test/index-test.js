@@ -1,8 +1,8 @@
-import tape from "tape-await";
+import { test } from "tap";
 import Library from "../src/library";
 
-tape("new Library returns a library with the expected keys", async test => {
-  test.deepEqual(Object.keys(new Library()).sort(), [
+test("new Library returns a library with the expected keys", async t => {
+  t.deepEqual(Object.keys(new Library()).sort(), [
     "DOM",
     "Files",
     "Generators",
@@ -17,4 +17,5 @@ tape("new Library returns a library with the expected keys", async test => {
     "tex",
     "width"
   ]);
+  t.end();
 });

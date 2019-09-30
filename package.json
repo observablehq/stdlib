@@ -13,7 +13,7 @@
     "url": "https://github.com/observablehq/stdlib.git"
   },
   "scripts": {
-    "test": "tape -r esm 'test/**/*-test.js'",
+    "test": "tap 'test/**/*-test.js'",
     "prepublishOnly": "rollup -c",
     "postpublish": "git push && git push --tags"
   },
@@ -22,17 +22,12 @@
       "pre-commit": "eslint . && yarn test"
     }
   },
-  "esm": {
-    "mode": "all",
-    "cjs": true
-  },
   "files": [
     "src/**/*.js",
     "dist/**/*.js"
   ],
   "dependencies": {
     "d3-require": "^1.2.0",
-    "esm": "^3.0.84",
     "marked": "https://github.com/observablehq/marked.git#94c6b946f462fd25db4465d71a6859183f86c57f"
   },
   "devDependencies": {
@@ -42,7 +37,6 @@
     "rollup": "^1.20.3",
     "rollup-plugin-node-resolve": "^5.0.0",
     "rollup-plugin-terser": "^5.0.0",
-    "tape": "^4.9.0",
-    "tape-await": "0.1.2"
+    "tap": "^14.6.7"
   }
 }
