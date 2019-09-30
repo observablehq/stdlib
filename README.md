@@ -1,7 +1,5 @@
 # @observablehq/stdlib
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/observablehq/stdlib.svg)](https://greenkeeper.io/)
-
 The Observable standard library.
 
 For examples, see https://observablehq.com/@observablehq/standard-library.
