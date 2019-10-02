@@ -1971,13 +1971,12 @@ minimist@~0.0.1:
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-0.0.10.tgz#de3f98543dbf96082be48ad1a0c7cda836301dcf"
   integrity sha1-3j+YVD2/lggr5IrRoMfNqDYwHc8=
 
-minipass@^2.2.0, minipass@^2.8.3:
-  version "2.8.6"
-  resolved "https://registry.yarnpkg.com/minipass/-/minipass-2.8.6.tgz#620d889ace26356391d010ecb9458749df9b6db5"
-  integrity sha512-lFG7d6g3+/UaFDCOtqPiKAC9zngWWsQZl1g5q6gaONqrjq61SX2xFqXMleQiFVyDpYwa018E9hmlAFY22PCb+A==
+minipass@^3.0.0:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/minipass/-/minipass-3.0.1.tgz#b4fec73bd61e8a40f0b374ddd04260ade2c8ec20"
+  integrity sha512-2y5okJ4uBsjoD2vAbLKL9EUQPPkC0YMIp+2mZOXG3nBba++pdfJWRxx2Ewirc0pwAJYu4XtWg2EkVo1nRXuO/w==
   dependencies:
-    safe-buffer "^5.1.2"
-    yallist "^3.0.0"
+    yallist "^4.0.0"
 
 mkdirp@^0.5.0, mkdirp@^0.5.1:
   version "0.5.1"
@@ -2964,51 +2963,42 @@ table@^5.2.3:
     slice-ansi "^2.1.0"
     string-width "^3.0.0"
 
-tap-mocha-reporter@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/tap-mocha-reporter/-/tap-mocha-reporter-4.0.1.tgz#f613229c42c2e5b5f096f2f022e88724c9380b10"
-  integrity sha512-/KfXaaYeSPn8qBi5Be8WSIP3iKV83s2uj2vzImJAXmjNu22kzqZ+1Dv1riYWa53sPCiyo1R1w1jbJrftF8SpcQ==
+tap-mocha-reporter@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/tap-mocha-reporter/-/tap-mocha-reporter-5.0.0.tgz#ab40a1687bb0b941d80c43eca4c8b69038ef5d6d"
+  integrity sha512-8HlAtdmYGlDZuW83QbF/dc46L7cN+AGhLZcanX3I9ILvxUAl+G2/mtucNPSXecTlG/4iP1hv6oMo0tMhkn3Tsw==
   dependencies:
     color-support "^1.1.0"
     debug "^2.1.3"
     diff "^1.3.2"
     escape-string-regexp "^1.0.3"
     glob "^7.0.5"
-    tap-parser "^8.0.0"
-    tap-yaml "0 || 1"
+    tap-parser "^10.0.0"
+    tap-yaml "^1.0.0"
     unicode-length "^1.0.0"
   optionalDependencies:
     readable-stream "^2.1.5"
 
-tap-parser@^8.0.0:
-  version "8.1.0"
-  resolved "https://registry.yarnpkg.com/tap-parser/-/tap-parser-8.1.0.tgz#6aff5221c0fe9b39757d60eafc4c436c3a9188fc"
-  integrity sha512-GgOzgDwThYLxhVR83RbS1JUR1TxcT+jfZsrETgPAvFdr12lUOnuvrHOBaUQgpkAp6ZyeW6r2Nwd91t88M0ru3w==
+tap-parser@^10.0.0:
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/tap-parser/-/tap-parser-10.0.0.tgz#4a3eb3620a41b4fb6136b9bc6f07955723d56aea"
+  integrity sha512-kzeUPvVoSyovAlYvN8m8eajjh1LAJpGn8C3hVIbq7TDW6FDzuH09egdJZMczG4bDdc7+uQSqOlin+XKRLtHbeA==
   dependencies:
     events-to-array "^1.0.1"
-    minipass "^2.2.0"
-    tap-yaml "0 || 1"
-
-tap-parser@^9.3.2, tap-parser@^9.3.3:
-  version "9.3.3"
-  resolved "https://registry.yarnpkg.com/tap-parser/-/tap-parser-9.3.3.tgz#f47a27cf07bafc48c53e33de65a9a97fd76d6cf8"
-  integrity sha512-VlC7tlSZ3EGt2qPLSa9CTJepNkc2yCh7uzhzAF5DxnuujeKbFbKxMA+fxtTWEN2j/KgfGi+mgooiZPKkOhEQyw==
-  dependencies:
-    events-to-array "^1.0.1"
-    minipass "^2.2.0"
+    minipass "^3.0.0"
     tap-yaml "^1.0.0"
 
-"tap-yaml@0 || 1", tap-yaml@^1.0.0:
+tap-yaml@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/tap-yaml/-/tap-yaml-1.0.0.tgz#4e31443a5489e05ca8bbb3e36cef71b5dec69635"
   integrity sha512-Rxbx4EnrWkYk0/ztcm5u3/VznbyFJpyXO12dDBHKWiDVxy7O2Qw6MRrwO5H6Ww0U5YhRY/4C/VzWmFPhBQc4qQ==
   dependencies:
     yaml "^1.5.0"
 
-tap@^14.6.7:
-  version "14.6.7"
-  resolved "https://registry.yarnpkg.com/tap/-/tap-14.6.7.tgz#e23c51c52655dbb895ea96d0a9b7069b785dbab6"
-  integrity sha512-44C1d1q7TnATCO4XjzyDMkLoGEC4XcwwAoDSbX5FVjtkWAWeQoB3ClQRaxsvj0qvyBvJkql5QypLLa8Q42xuZw==
+tap@^14.6.9:
+  version "14.6.9"
+  resolved "https://registry.yarnpkg.com/tap/-/tap-14.6.9.tgz#bcc6f7d73cb0df3a4a045165a79244a3ed33b7f3"
+  integrity sha512-impxvxJo49knWdQNctdY+hAyQGbLjGR9foNkX4B9NnotgV5tfmJNqLrFu+YluHSNhIjfqF6Ea+Pj08xPAHxfSQ==
   dependencies:
     async-hook-domain "^1.1.1"
     bind-obj-methods "^2.0.0"
@@ -3030,7 +3020,7 @@ tap@^14.6.7:
     isexe "^2.0.0"
     istanbul-lib-processinfo "^1.0.0"
     jackspeak "^1.4.0"
-    minipass "^2.8.3"
+    minipass "^3.0.0"
     mkdirp "^0.5.1"
     nyc "^14.1.1"
     opener "^1.5.1"
@@ -3041,11 +3031,11 @@ tap@^14.6.7:
     signal-exit "^3.0.0"
     source-map-support "^0.5.13"
     stack-utils "^1.0.2"
-    tap-mocha-reporter "^4.0.1"
-    tap-parser "^9.3.3"
+    tap-mocha-reporter "^5.0.0"
+    tap-parser "^10.0.0"
     tap-yaml "^1.0.0"
     tcompare "^2.3.0"
-    treport "^0.4.0"
+    treport "^0.4.1"
     trivial-deferred "^1.0.1"
     ts-node "^8.3.0"
     typescript "^3.6.3"
@@ -3144,10 +3134,10 @@ tr46@^1.0.1:
   dependencies:
     punycode "^2.1.0"
 
-treport@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/treport/-/treport-0.4.0.tgz#23416de91294f08f0acb3774fa45ece31a348e0e"
-  integrity sha512-1/gjl3sCJAm60txV3uyz/bghxkzXidSvijM15dM+xgtBRXnZ/5Lwzb6SY1AvhRzTl+rOsukw9kDh2mjTtm6L9A==
+treport@^0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/treport/-/treport-0.4.1.tgz#7eb360ec6b6f313e61b2a8c96f18104cb67a92ed"
+  integrity sha512-zzlOBUwMCv2JEmpsT6RUY8TqCLHc4QVIoRDMyMZBrm5U67XdUB95TZRseKTvvPq8uu7OLh/fRaCaxpdD+92KTg==
   dependencies:
     cardinal "^2.1.1"
     chalk "^2.4.2"
@@ -3156,7 +3146,7 @@ treport@^0.4.0:
     ms "^2.1.1"
     react "^16.8.6"
     string-length "^2.0.0"
-    tap-parser "^9.3.2"
+    tap-parser "^10.0.0"
     unicode-length "^2.0.1"
 
 trim-right@^1.0.1:
@@ -3440,10 +3430,10 @@ yallist@^2.1.2:
   resolved "https://registry.yarnpkg.com/yallist/-/yallist-2.1.2.tgz#1c11f9218f076089a47dd512f93c6699a6a81d52"
   integrity sha1-HBH5IY8HYImkfdUS+TxmmaaoHVI=
 
-yallist@^3.0.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/yallist/-/yallist-3.1.0.tgz#906cc2100972dc2625ae78f566a2577230a1d6f7"
-  integrity sha512-6gpP93MR+VOOehKbCPchro3wFZNSNmek8A2kbkOAZLIZAYx1KP/zAqwO0sOHi3xJEb+UBz8NaYt/17UNit1Q9w==
+yallist@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/yallist/-/yallist-4.0.0.tgz#9bb92790d9c0effec63be73519e11a35019a3a72"
+  integrity sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==
 
 yaml@^1.5.0, yaml@^1.6.0:
   version "1.7.0"
