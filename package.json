@@ -27,7 +27,7 @@
     "dist/**/*.js"
   ],
   "dependencies": {
-    "d3-require": "^1.2.0",
+    "d3-require": "^1.2.4",
     "marked": "https://github.com/observablehq/marked.git#94c6b946f462fd25db4465d71a6859183f86c57f"
   },
   "devDependencies": {
