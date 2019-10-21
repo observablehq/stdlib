@@ -1,6 +1,5 @@
 import constant from "./constant";
 import DOM from "./dom/index";
-import FileAttachment from "./fileAttachment";
 import Files from "./files/index";
 import Generators from "./generators/index";
 import html from "./html";
@@ -18,7 +17,6 @@ export default function Library(resolver) {
   const require = requirer(resolver);
   Object.defineProperties(this, {
     DOM: {value: DOM, writable: true, enumerable: true},
-    FileAttachment: {value: constant(FileAttachment), writable: true, enumerable: true},
     Files: {value: Files, writable: true, enumerable: true},
     Generators: {value: Generators, writable: true, enumerable: true},
     html: {value: constant(html), writable: true, enumerable: true},

@@ -1,10 +1,9 @@
 import { test } from "tap";
-import Library from "../src/library";
+import {Library, FileAttachment} from "../src";
 
 test("new Library returns a library with the expected keys", async t => {
   t.deepEqual(Object.keys(new Library()).sort(), [
     "DOM",
-    "FileAttachment",
     "Files",
     "Generators",
     "Mutable",
@@ -18,5 +17,11 @@ test("new Library returns a library with the expected keys", async t => {
     "tex",
     "width"
   ]);
+  t.end();
+});
+
+test("FileAttachment is exported by stdlib/index", t => {
+  t.equal(typeof FileAttachment, "function");
+  t.equal(FileAttachment.name, "FileAttachment");
   t.end();
 });
