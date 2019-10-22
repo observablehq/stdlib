@@ -4,37 +4,40 @@ async function remote_fetch(url) {
   return response;
 }
 
-export default function FileAttachment(resolve) {
-  return class FileAttachment {
-    constructor(name) {
-      Object.defineProperties(this, {
-        name: {value: name, enumerable: true}
+class FileAttachment {
+  constructor(resolve, name) {
+    Object.defineProperties(this, {
+      _resolve: {value: resolve},
+      name: {value: name, enumerable: true}
+    });
+  }
+  async url() {
+    return this._resolve(this.name);
+  }
+  async blob() {
+    return (await remote_fetch(await this.url())).blob();
+  }
+  async arrayBuffer() {
+    return (await remote_fetch(await this.url())).arrayBuffer();
+  }
+  async text() {
+    return (await remote_fetch(await this.url())).text();
+  }
+  async json() {
+    return (await remote_fetch(await this.url())).json();
+  }
+  async image() {
+    return new Promise((resolve, reject) => {
+      const img = document.createElement("img");
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error("Unable to load image"));
+      this.url().then(url => {
+        img.src = url;
       });
-    }
-    async url() {
-      return resolve(this.name);
-    }
-    async blob() {
-      return (await remote_fetch(await this.url())).blob();
-    }
-    async arrayBuffer() {
-      return (await remote_fetch(await this.url())).arrayBuffer();
-    }
-    async text() {
-      return (await remote_fetch(await this.url())).text();
-    }
-    async json() {
-      return (await remote_fetch(await this.url())).json();
-    }
-    async image() {
-      return new Promise((resolve, reject) => {
-        const img = document.createElement("img");
-        img.onload = () => resolve(img);
-        img.onerror = () => reject(new Error("Unable to load image"));
-        this.url().then(url => {
-          img.src = url;
-        });
-      });
-    }
-  };
+    });
+  }
+}
+
+export default function ResolveFileAttachment(resolve) {
+  return (name) => new FileAttachment(resolve, name);
 }

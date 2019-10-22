@@ -1,5 +1,5 @@
 import { test } from "tap";
-import {Library, FileAttachment} from "../src";
+import {Library, ResolveFileAttachment} from "../src";
 
 test("new Library returns a library with the expected keys", async t => {
   t.deepEqual(Object.keys(new Library()).sort(), [
@@ -20,8 +20,8 @@ test("new Library returns a library with the expected keys", async t => {
   t.end();
 });
 
-test("FileAttachment is exported by stdlib/index", t => {
-  t.equal(typeof FileAttachment, "function");
-  t.equal(FileAttachment.name, "FileAttachment");
+test("ResolveFileAttachment is exported by stdlib/index", t => {
+  t.equal(typeof ResolveFileAttachment, "function");
+  t.equal(ResolveFileAttachment.name, "ResolveFileAttachment");
   t.end();
 });
