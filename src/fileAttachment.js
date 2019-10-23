@@ -1,5 +1,5 @@
-async function remote_fetch(url) {
-  const response = await fetch(url);
+async function remote_fetch(file) {
+  const response = await fetch(await file.url());
   if (!response.ok) throw new Error("Unable to load file");
   return response;
 }
@@ -17,16 +17,16 @@ class FileAttachment {
     return url;
   }
   async blob() {
-    return (await remote_fetch(await this.url())).blob();
+    return (await remote_fetch(this)).blob();
   }
   async arrayBuffer() {
-    return (await remote_fetch(await this.url())).arrayBuffer();
+    return (await remote_fetch(this)).arrayBuffer();
   }
   async text() {
-    return (await remote_fetch(await this.url())).text();
+    return (await remote_fetch(this)).text();
   }
   async json() {
-    return (await remote_fetch(await this.url())).json();
+    return (await remote_fetch(this)).json();
   }
   async image() {
     return new Promise((resolve, reject) => {
