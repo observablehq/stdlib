@@ -40,6 +40,6 @@ class FileAttachment {
   }
 }
 
-export default function ResolveFileAttachment(resolve) {
+export default function FileAttachments(resolve) {
   return (name) => new FileAttachment(resolve, name);
 }
