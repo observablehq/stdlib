@@ -12,7 +12,9 @@ class FileAttachment {
     });
   }
   async url() {
-    return this._resolve(this.name);
+    const url = await this._resolve(this.name);
+    if (url == null) throw new Error(`Unknown file: ${this.name}`);
+    return url;
   }
   async blob() {
     return (await remote_fetch(await this.url())).blob();
