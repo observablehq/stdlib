@@ -29,11 +29,12 @@ class FileAttachment {
     return (await remote_fetch(this)).json();
   }
   async image() {
+    const url = await this.url();
     return new Promise(async (resolve, reject) => {
       const img = new Image;
       img.onload = () => resolve(img);
       img.onerror = () => reject(new Error(`Unable to load file: ${this.name}`));
-      img.src = await this.url();
+      img.src = url;
     });
   }
 }
