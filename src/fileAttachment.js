@@ -31,10 +31,13 @@ class FileAttachment {
   async image() {
     const url = await this.url();
     return new Promise((resolve, reject) => {
-      const img = new Image;
-      img.onload = () => resolve(img);
-      img.onerror = () => reject(new Error(`Unable to load file: ${this.name}`));
-      img.src = url;
+      const i = new Image;
+      if (new URL(url).origin !== new URL(location).origin) {
+        i.crossOrigin = "anonymous";
+      }
+      i.onload = () => resolve(i);
+      i.onerror = () => reject(new Error(`Unable to load file: ${this.name}`));
+      i.src = url;
     });
   }
 }
