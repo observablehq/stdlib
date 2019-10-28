@@ -28,6 +28,9 @@ class FileAttachment {
   async json() {
     return (await remote_fetch(this)).json();
   }
+  async stream() {
+    return (await remote_fetch(this)).body;
+  }
   async image() {
     const url = await this.url();
     return new Promise((resolve, reject) => {
