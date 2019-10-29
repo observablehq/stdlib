@@ -35,8 +35,12 @@ class FileAttachment {
     const url = await this.url();
     return new Promise((resolve, reject) => {
       const i = new Image;
-      if (new URL(url).origin !== new URL(location).origin) {
-        i.crossOrigin = "anonymous";
+      try {
+        if (new URL(url).origin !== new URL(location).origin) {
+          i.crossOrigin = "anonymous";
+        }
+      } catch (e) {
+        // Relative paths, not urls.
       }
       i.onload = () => resolve(i);
       i.onerror = () => reject(new Error(`Unable to load file: ${this.name}`));
