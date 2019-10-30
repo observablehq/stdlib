@@ -1,5 +1,7 @@
 # @observablehq/stdlib
 
+[![Node CI](https://github.com/observablehq/stdlib/workflows/Node%20CI/badge.svg)](https://github.com/observablehq/stdlib/actions?workflow=Node+CI)
+
 The Observable standard library.
 
 For examples, see https://observablehq.com/@observablehq/standard-library.
