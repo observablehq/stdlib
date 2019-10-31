@@ -316,7 +316,7 @@ const logs = await FileAttachment("weekend-logs.json").json();
 
 <a href="#attachment_image" name="attachment_image">#</a> *attachment*.<b>image</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
 
-Returns a promise to a file loaded as an [Image](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/Image). The promise resolves when the image has finished loading, making this useful for reading the image pixels in Canvas, or for loading the image into a WebGL texture. consider [*attachment*.url](#attachment_url) if you want to embed an image in HTML or Markdown.
+Returns a promise to a file loaded as an [Image](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/Image). The promise resolves when the image has finished loading, making this useful for reading the image pixels in Canvas, or for loading the image into a WebGL texture. Consider [*attachment*.url](#attachment_url) if you want to embed an image in HTML or Markdown.
 
 ```js
 const image = await FileAttachment("sunset.jpg").image();
