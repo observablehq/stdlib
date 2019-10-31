@@ -280,9 +280,82 @@ A data URL may be significantly less efficient than [URL.createObjectURL](https:
 
 See [File Attachments](https://observablehq.com/@observablehq/file-attachments) on Observable for examples.
 
-<a href="#FileAttachments" name="FileAttachments">#</a> <br>FileAttachments</b>(<i>resolve</i>) [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
+<a href="#FileAttachment" name="FileAttachment">#</a> <b>FileAttachment</b>(<i>name</i>) [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
 
-The **FileAttachments** function exported by the standard library is an abstract class that can be used to fetch files by name from remote URLs. To make it concrete, you call it with a *resolve* function, which is an async function that takes a *name* and returns a URL at which the file of that name may be loaded. For example:
+Returns the file attachment with the given *name*, or throws an error if there is no file with the given name.
+
+```js
+photo = FileAttachment("sunset.jpg")
+```
+
+FileAttachments work similarly to the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch), providing methods that return promises to the file’s contents in a handful of convenient forms.
+
+<a href="#attachment_url" name="attachment_url">#</a> *attachment*.<b>url</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
+
+Returns a promise to the URL at which the file may be retrieved.
+
+```js
+const url = await FileAttachment("file.txt").url();
+```
+
+<a href="#attachment_text" name="attachment_text">#</a> *attachment*.<b>text</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
+
+Returns a promise to the file’s contents as a JavaScript string.
+
+```js
+const data = d3.csvParse(await FileAttachment("cars.csv").text());
+```
+
+<a href="#attachment_json" name="attachment_json">#</a> *attachment*.<b>json</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
+
+Returns a promise to the file’s contents, parsed as JSON into JavaScript values.
+
+```js
+const logs = await FileAttachment("weekend-logs.json").json();
+```
+
+<a href="#attachment_image" name="attachment_image">#</a> *attachment*.<b>image</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
+
+Returns a promise to a file loaded as an [Image](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/Image). The promise resolves when the image has finished loading, making this useful for reading the image pixels in Canvas, or for loading the image into a WebGL texture. consider [*attachment*.url](#attachment_url) if you want to embed an image in HTML or Markdown.
+
+```js
+const image = await FileAttachment("sunset.jpg").image();
+```
+
+<a href="#attachment_arrayBuffer" name="attachment_arrayBuffer">#</a> *attachment*.<b>arrayBuffer</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
+
+Returns a promise to the file’s contents as an [ArrayBuffer](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer).
+
+```js
+const city = shapefile.read(await FileAttachment("sf.shp").arrayBuffer());
+```
+
+<a href="#attachment_stream" name="attachment_stream">#</a> *attachment*.<b>stream</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
+
+Returns a promise to a [ReadableStream](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API) of the file’s contents.
+
+```js
+const stream = await FileAttachment("metrics.csv").stream();
+const reader = stream.getReader();
+let done, value;
+while (({done, value} = await reader.read()), !done) {
+  yield value;
+}
+```
+
+<a href="#attachment_blob" name="attachment_blob">#</a> *attachment*.<b>blob</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
+
+Returns a promise to a [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob) containing the raw contents of the file.
+
+```js
+const blob = await FileAttachment("binary-data.dat").blob();
+```
+
+<a href="#FileAttachments" name="FileAttachments">#</a> <b>FileAttachments</b>(<i>resolve</i>) [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
+
+*Note: this function is not part of the Observable standard library (in notebooks), but is provided by this module as a means for defining custom file attachment implementations when working directly with the Observable runtime.*
+
+Returns a [*FileAttachment*](#FileAttachment) function given the specified *resolve* function. The *resolve* function is an async function that takes a *name* and returns a URL at which the file of that name can be loaded. For example:
 
 ```js
 const FileAttachment = FileAttachments((name) =>
@@ -299,75 +372,6 @@ const FileAttachment = FileAttachments(async (name) =>
   cachedUrls.set(name, url);
   return url;
 );
-```
-
-Once you have your **FileAttachment** function defined, you can call it from notebook code:
-
-```js
-photo = FileAttachment("sunset.jpg")
-```
-
-FileAttachments work similarly to the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch), providing methods that return promises to the file’s contents in a handful of convenient forms.
-
-<a href="#FileAttachment_url" name="FileAttachment_url">#</a> FileAttachment(name).<b>url</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
-
-Returns a promise to the URL at which the file may be retrieved.
-
-```js
-const url = await FileAttachment("file.txt").url();
-```
-
-<a href="#FileAttachment_text" name="FileAttachment_text">#</a> FileAttachment(name).<b>text</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
-
-Returns a promise to the file’s contents as a JavaScript string.
-
-```js
-const data = d3.csvParse(await FileAttachment("cars.csv").text());
-```
-
-<a href="#FileAttachment_json" name="FileAttachment_json">#</a> FileAttachment(name).<b>json</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
-
-Returns a promise to the file’s contents, parsed as JSON into JavaScript values.
-
-```js
-const logs = await FileAttachment("weekend-logs.json").json();
-```
-
-<a href="#FileAttachment_image" name="FileAttachment_image">#</a> FileAttachment(name).<b>image</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
-
-Returns a promise to a file loaded as an [HTML Image](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/Image). Note that the promise won't resolve until the image has finished loading — making this a useful value to pass to other cells that need to process the image, or paint it into a `<canvas>`.
-
-```js
-const image = await FileAttachment("sunset.jpg").image();
-```
-
-<a href="#FileAttachment_arrayBuffer" name="FileAttachment_arrayBuffer">#</a> FileAttachment(name).<b>arrayBuffer</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
-
-Returns a promise to the file’s contents as an [ArrayBuffer](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer).
-
-```js
-const city = shapefile.read(await FileAttachment("sf.shp").arrayBuffer());
-```
-
-<a href="#FileAttachment_stream" name="FileAttachment_stream">#</a> FileAttachment(name).<b>stream</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
-
-Returns a promise to a [Stream](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API) of the file’s contents.
-
-```js
-const stream = await FileAttachment("metrics.csv").stream();
-const reader = stream.getReader();
-let done, value;
-while (({done, value} = await reader.read()), !done) {
-  yield value;
-}
-```
-
-<a href="#FileAttachment_blob" name="FileAttachment_blob">#</a> FileAttachment(name).<b>blob</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
-
-Returns a promise to a [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob) containing the raw contents of the file.
-
-```js
-const blob = await FileAttachment("binary-data.dat").blob();
 ```
 
 ### Generators
