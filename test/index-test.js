@@ -1,5 +1,5 @@
-import { test } from "tap";
-import { Library, FileAttachments } from "../src";
+import {test} from "tap";
+import {Library, FileAttachments} from "../src";
 
 test("new Library returns a library with the expected keys", async t => {
   t.deepEqual(Object.keys(new Library()).sort(), [
