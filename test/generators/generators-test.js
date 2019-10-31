@@ -1,8 +1,10 @@
-import { test } from "tap";
+import {test} from "tap";
 import filter from "../../src/generators/filter";
 import map from "../../src/generators/map";
 import range from "../../src/generators/range";
 import valueAt from "../../src/generators/valueAt";
+import observe from "../../src/generators/observe";
+import queue from "../../src/generators/queue";
 
 test("filter(value, fn) filters", t => {
   function* input() {
@@ -33,5 +35,24 @@ test("valueAt(generator, i) picks a value", t => {
   }
   t.equal(valueAt(input(), 2), 3);
   t.equal(valueAt(input()), undefined);
+  t.end();
+});
+
+test("observe only yields the most recent value", async t => {
+  let o = observe(change => {
+    change(1);
+    change(2);
+  });
+  t.equal(await o.next().value, 2);
+  t.end();
+});
+
+test("queue yields all values", async t => {
+  let q = queue(change => {
+    change(1);
+    change(2);
+  });
+  t.equal(await q.next().value, 1);
+  t.equal(await q.next().value, 2);
   t.end();
 });
