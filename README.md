@@ -10,7 +10,7 @@ For examples, see https://observablehq.com/@observablehq/standard-library.
 
 * [DOM](#dom) - create HTML and SVG elements.
 * [Files](#files) - read local files into memory.
-* [FileAttachments](#file_attachments) - read remote files.
+* [FileAttachments](#file-attachments) - read remote files.
 * [Generators](#generators) - utilities for generators and iterators.
 * [Promises](#promises) - utilities for promises.
 * [require](#require) - load third-party libraries.
