@@ -5,16 +5,14 @@ async function remote_fetch(file) {
 }
 
 class FileAttachment {
-  constructor(resolve, name) {
+  constructor(url, name) {
     Object.defineProperties(this, {
-      _resolve: {value: resolve},
+      _url: {value: url},
       name: {value: name, enumerable: true}
     });
   }
   async url() {
-    const url = await this._resolve(this.name);
-    if (url == null) throw new Error(`Unknown file: ${this.name}`);
-    return url;
+    return this._url;
   }
   async blob() {
     return (await remote_fetch(this)).blob();
@@ -45,6 +43,14 @@ class FileAttachment {
   }
 }
 
+export function NoFileAttachments(name) {
+  throw new Error(`File not found: ${name}`);
+}
+
 export default function FileAttachments(resolve) {
-  return (name) => new FileAttachment(resolve, name);
+  return name => {
+    const url = resolve(name += ""); // Returns a Promise, or null.
+    if (url == null) throw new Error(`File not found: ${name}`);
+    return new FileAttachment(url, name);
+  };
 }

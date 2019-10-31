@@ -1,6 +1,7 @@
 import constant from "./constant.js";
 import DOM from "./dom/index.js";
 import Files from "./files/index.js";
+import {NoFileAttachments} from "./fileAttachment.js";
 import Generators from "./generators/index.js";
 import html from "./html.js";
 import md from "./md.js";
@@ -17,6 +18,7 @@ export default function Library(resolver) {
   const require = requirer(resolver);
   Object.defineProperties(this, {
     DOM: {value: DOM, writable: true, enumerable: true},
+    FileAttachment: {value: constant(NoFileAttachments), writable: true, enumerable: true},
     Files: {value: Files, writable: true, enumerable: true},
     Generators: {value: Generators, writable: true, enumerable: true},
     html: {value: constant(html), writable: true, enumerable: true},
