@@ -1,13 +1,13 @@
-import canvas from "./canvas";
-import context2d from "./context2d";
-import download from "./download";
-import element from "./element";
-import input from "./input";
-import range from "./range";
-import select from "./select";
-import svg from "./svg";
-import text from "./text";
-import uid from "./uid";
+import canvas from "./canvas.js";
+import context2d from "./context2d.js";
+import download from "./download.js";
+import element from "./element.js";
+import input from "./input.js";
+import range from "./range.js";
+import select from "./select.js";
+import svg from "./svg.js";
+import text from "./text.js";
+import uid from "./uid.js";
 
 export default {
   canvas: canvas,

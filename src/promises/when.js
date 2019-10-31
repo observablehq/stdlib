@@ -1,4 +1,4 @@
-import constant from "../constant";
+import constant from "../constant.js";
 
 var timeouts = new Map;
 

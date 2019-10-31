@@ -1,4 +1,4 @@
-import template from "./template";
+import template from "./template.js";
 
 export default template(function(string) {
   var template = document.createElement("template");

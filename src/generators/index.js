@@ -1,12 +1,12 @@
-import disposable from "./disposable";
-import filter from "./filter";
-import input from "./input";
-import map from "./map";
-import observe from "./observe";
-import queue from "./queue";
-import range from "./range";
-import valueAt from "./valueAt";
-import worker from "./worker";
+import disposable from "./disposable.js";
+import filter from "./filter.js";
+import input from "./input.js";
+import map from "./map.js";
+import observe from "./observe.js";
+import queue from "./queue.js";
+import range from "./range.js";
+import valueAt from "./valueAt.js";
+import worker from "./worker.js";
 
 export default {
   disposable: disposable,

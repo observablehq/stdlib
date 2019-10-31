@@ -1,6 +1,6 @@
 import {test} from "tap";
-import {Library, FileAttachments} from "../src";
-import UID from "../src/dom/uid";
+import {Library, FileAttachments} from "../src/index.js";
+import UID from "../src/dom/uid.js";
 
 test("new Library returns a library with the expected keys", async t => {
   t.deepEqual(Object.keys(new Library()).sort(), [
@@ -35,7 +35,6 @@ test("UID", t => {
     href: "https://test.com/#O-hi-1"
   });
   t.equal(hi.toString(), "url(https://test.com/#O-hi-1)");
-
   const anon = UID();
   t.equal(anon.toString(), "url(https://test.com/#O-2)");
   t.end();

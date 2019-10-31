@@ -1,6 +1,6 @@
-import { test } from "tap";
-import delay from "../../src/promises/delay";
-import tick from "../../src/promises/tick";
+import {test} from "tap";
+import delay from "../../src/promises/delay.js";
+import tick from "../../src/promises/tick.js";
 
 test("delay(duration) resolves with undefined", async t => {
   t.equal(await delay(50), undefined);

@@ -1,4 +1,4 @@
-import disposable from "./disposable";
+import disposable from "./disposable.js";
 
 export default function worker(source) {
   const url = URL.createObjectURL(new Blob([source], {type: "text/javascript"}));

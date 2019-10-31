@@ -1,4 +1,4 @@
-import observe from "./observe";
+import observe from "./observe.js";
 
 export default function(input) {
   return observe(function(change) {

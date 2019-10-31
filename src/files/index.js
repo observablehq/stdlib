@@ -1,6 +1,6 @@
-import buffer from "./buffer";
-import text from "./text";
-import url from "./url";
+import buffer from "./buffer.js";
+import text from "./text.js";
+import url from "./url.js";
 
 export default {
   buffer: buffer,

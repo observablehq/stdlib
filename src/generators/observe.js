@@ -1,4 +1,4 @@
-import that from "../that";
+import that from "../that.js";
 
 export default function(initialize) {
   let stale = false;

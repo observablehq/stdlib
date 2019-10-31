@@ -1,4 +1,4 @@
-import template from "./template";
+import template from "./template.js";
 
 export default template(function(string) {
   var root = document.createElementNS("http://www.w3.org/2000/svg", "g");

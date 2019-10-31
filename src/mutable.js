@@ -1,4 +1,4 @@
-import observe from "./generators/observe";
+import observe from "./generators/observe.js";
 
 export default function Mutable(value) {
   let change;

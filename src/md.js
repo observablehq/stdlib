@@ -1,4 +1,4 @@
-import template from "./template";
+import template from "./template.js";
 import marked from "marked";
 
 const HL_ROOT =
@@ -9,7 +9,7 @@ export default function(require) {
     return template(
       function(string) {
         var root = document.createElement("div");
-        root.innerHTML = marked(string, { langPrefix: "" }).trim();
+        root.innerHTML = marked(string, {langPrefix: ""}).trim();
         var code = root.querySelectorAll("pre code[class]");
         if (code.length > 0) {
           require(HL_ROOT + "highlight.min.js").then(function(hl) {
