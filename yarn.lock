@@ -267,6 +267,19 @@
   resolved "https://registry.yarnpkg.com/@types/normalize-package-data/-/normalize-package-data-2.4.0.tgz#e486d0d97396d79beedd0a6e33f4534ff6b4973e"
   integrity sha512-f5j5b/Gf71L+dbqxIpQ4Z2WlmI/mPJ0fOkGGmFgtb6sAu97EPczzbS3/tJKxmcYDj55OX6ssqwDAWOHIYDRDGA==
 
+"@types/prop-types@*":
+  version "15.7.3"
+  resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.7.3.tgz#2ab0d5da2e5815f94b0b9d4b95d1e5f243ab2ca7"
+  integrity sha512-KfRL3PuHmqQLOG+2tGpRO26Ctg+Cq1E01D2DMriKEATHgWLfeNDmq9e29Q9WIky0dQ3NPkd1mzYH8Lm936Z9qw==
+
+"@types/react@^16.9.16":
+  version "16.9.17"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.9.17.tgz#58f0cc0e9ec2425d1441dd7b623421a867aa253e"
+  integrity sha512-UP27In4fp4sWF5JgyV6pwVPAQM83Fj76JOcg02X5BZcpSu5Wx+fP9RMqc2v0ssBoQIFvD5JdKY41gjJJKmw6Bg==
+  dependencies:
+    "@types/prop-types" "*"
+    csstype "^2.2.0"
+
 "@types/resolve@0.0.8":
   version "0.0.8"
   resolved "https://registry.yarnpkg.com/@types/resolve/-/resolve-0.0.8.tgz#f26074d238e02659e323ce1a13d041eee280e194"
@@ -753,6 +766,11 @@ cross-spawn@^6.0.0, cross-spawn@^6.0.5:
     semver "^5.5.0"
     shebang-command "^1.2.0"
     which "^1.2.9"
+
+csstype@^2.2.0:
+  version "2.6.8"
+  resolved "https://registry.yarnpkg.com/csstype/-/csstype-2.6.8.tgz#0fb6fc2417ffd2816a418c9336da74d7f07db431"
+  integrity sha512-msVS9qTuMT5zwAGCVm4mxfrZ18BNc6Csd0oJAtiFMZ1FAx1CCvy2+5MDmYoix63LM/6NDbNtodCiGYGmFgO0dA==
 
 d3-require@^1.2.4:
   version "1.2.4"
@@ -2769,11 +2787,12 @@ tap-yaml@^1.0.0:
   dependencies:
     yaml "^1.5.0"
 
-tap@^14.10.2:
-  version "14.10.2"
-  resolved "https://registry.yarnpkg.com/tap/-/tap-14.10.2.tgz#b1b3fce91f676e48891534bf32e6b85614d63046"
-  integrity sha512-JeUDsVrMFmR6b3p9hO9yIT/jibrK6LI7nFza5cqDGsxJyCp7yU3enRgS5nekuoAOzewbrU7P+9QDRDT01urROA==
+tap@^14.10.5:
+  version "14.10.5"
+  resolved "https://registry.yarnpkg.com/tap/-/tap-14.10.5.tgz#59c625ee064fba229d87eab8badb27d46ebec169"
+  integrity sha512-8I8zMFEVu7e7RVcjK1GUNf1vW+6B9TRCZWGgif5siMBfvwTE9/EPN/7aH6W2r+WR2H2YHXcrCJ3XhRitYEVKfQ==
   dependencies:
+    "@types/react" "^16.9.16"
     async-hook-domain "^1.1.3"
     bind-obj-methods "^2.0.0"
     browser-process-hrtime "^1.0.0"
@@ -2808,7 +2827,7 @@ tap@^14.10.2:
     tap-parser "^10.0.1"
     tap-yaml "^1.0.0"
     tcompare "^3.0.0"
-    treport "^1.0.0"
+    treport "^1.0.1"
     trivial-deferred "^1.0.1"
     ts-node "^8.5.2"
     typescript "^3.7.2"
@@ -2880,10 +2899,10 @@ tough-cookie@~2.4.3:
     psl "^1.1.24"
     punycode "^1.4.1"
 
-treport@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/treport/-/treport-1.0.0.tgz#2bf2253f5fa72c86c4e641b33dab43d97d58ca9f"
-  integrity sha512-el0MUR6ZebROF0+Htq7CLtBsLDusQ84otUeyQoA+wBUArrFLrY7V303lx4lORIsFm1RGvonMZtACuUc3wGrgQg==
+treport@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/treport/-/treport-1.0.1.tgz#d8f26a9f20045d5c5a7080da246ebdb99dcf39f0"
+  integrity sha512-JbmV0whGV0kcr4Mlzc95FtcFWOIltMthYcF5h/E+i6Nd0hh+vI7ZYxr9S3DR19LXFOtlDPHSd7rGvs+KCWAuzg==
   dependencies:
     cardinal "^2.1.1"
     chalk "^3.0.0"

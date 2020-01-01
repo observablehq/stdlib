@@ -36,6 +36,6 @@
     "rollup": "^1.27.8",
     "rollup-plugin-node-resolve": "^5.0.0",
     "rollup-plugin-terser": "^5.1.2",
-    "tap": "^14.10.2"
+    "tap": "^14.10.5"
   }
 }
