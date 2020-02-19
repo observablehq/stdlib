@@ -1,3 +1,4 @@
+import {require as requireDefault} from "d3-require";
 import constant from "./constant.js";
 import DOM from "./dom/index.js";
 import Files from "./files/index.js";
@@ -14,7 +15,7 @@ import svg from "./svg.js";
 import tex from "./tex.js";
 import width from "./width.js";
 
-export default function Library(resolver) {
+export default Object.assign(function Library(resolver) {
   const require = requirer(resolver);
   Object.defineProperties(this, {
     DOM: {value: DOM, writable: true, enumerable: true},
@@ -32,4 +33,4 @@ export default function Library(resolver) {
     tex: {value: tex(require), writable: true, enumerable: true},
     width: {value: width, writable: true, enumerable: true}
   });
-}
+}, {resolve: requireDefault.resolve});
