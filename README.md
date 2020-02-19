@@ -894,6 +894,6 @@ const canvas = library.DOM.canvas(960, 500);
 
 The properties on the returned *library* instance correspond to the symbols (documented above) that are available in Observable notebooks. However, note that the library fields (such as *library*.now) are *definitions*, not values: the values may be wrapped in a function which, when invoked, returns the corresponding value.
 
-<a href="#Library_resolve" name="Library_resolve">#</a> Library.<b>resolve</b>(<i>name</i>, [<i>base</i>]) [<>](https://github.com/observablehq/stdlib/blob/master/src/library.js "Source")
+<a href="#Library_resolve" name="Library_resolve">#</a> Library.<b>resolve</b>(<i>name</i>[, <i>base</i>]) [<>](https://github.com/observablehq/stdlib/blob/master/src/library.js "Source")
 
 An alias for [d3.require.resolve](https://github.com/d3/d3-require/blob/master/README.md#require_resolve).
