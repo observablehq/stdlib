@@ -1,9 +1,14 @@
 import that from "../that.js";
 
 export default function(initialize) {
-  let resolve;
   const queue = [];
-  const dispose = initialize(push);
+  let resolve;
+  let dispose = initialize(push);
+
+  if (dispose != null && typeof dispose !== "function") {
+    console.warn("dispose is not a function; ignoring", dispose);
+    dispose = null;
+  }
 
   function push(x) {
     queue.push(x);
