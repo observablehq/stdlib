@@ -4,11 +4,10 @@ export default function(initialize) {
   let stale = false;
   let value;
   let resolve;
-  let dispose = initialize(change);
+  const dispose = initialize(change);
 
   if (dispose != null && typeof dispose !== "function") {
-    console.warn("dispose is not a function; ignoring", dispose);
-    dispose = null;
+    throw new Error("invalid dispose");
   }
 
   function change(x) {
