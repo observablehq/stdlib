@@ -7,7 +7,9 @@ export default function(initialize) {
   const dispose = initialize(change);
 
   if (dispose != null && typeof dispose !== "function") {
-    throw new Error("invalid dispose");
+    throw new Error(typeof dispose.then === "function"
+        ? "async initializers are not supported"
+        : "initializer returned something, but not a dispose function");
   }
 
   function change(x) {
