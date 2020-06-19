@@ -16,3 +16,13 @@ test("FileAttachment ensures that URLs are strings", async t => {
   t.equal(await file.url(), "https://example.com/filename.js");
   t.end();
 });
+
+test("FileAttachment works with Promises that resolve to URLs", async t => {
+  const fileAttachments = FileAttachments((name) =>
+    new Promise((resolve) => resolve(new URL(`https://example.com/${name}.js`)))
+  );
+  const file = fileAttachments("otherfile");
+  t.equal(file.constructor.name, "FileAttachment");
+  t.equal(await file.url(), "https://example.com/otherfile.js");
+  t.end();
+});

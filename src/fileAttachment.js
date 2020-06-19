@@ -7,12 +7,12 @@ async function remote_fetch(file) {
 class FileAttachment {
   constructor(url, name) {
     Object.defineProperties(this, {
-      _url: {value: url + ""},
+      _url: {value: url},
       name: {value: name, enumerable: true}
     });
   }
   async url() {
-    return this._url;
+    return (await this._url) + "";
   }
   async blob() {
     return (await remote_fetch(this)).blob();
