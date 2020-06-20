@@ -12,7 +12,7 @@ class FileAttachment {
     });
   }
   async url() {
-    return this._url;
+    return (await this._url) + "";
   }
   async blob() {
     return (await remote_fetch(this)).blob();
