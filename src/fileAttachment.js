@@ -1,7 +1,16 @@
+import {require as requireDefault} from "d3-require";
+
 async function remote_fetch(file) {
   const response = await fetch(await file.url());
   if (!response.ok) throw new Error(`Unable to load file: ${file.name}`);
   return response;
+}
+
+async function dsv(file, delimiter, {array = false, typed = false} = {}) {
+  const [text, d3] = await Promise.all([file.text(), requireDefault("d3-dsv@2.0.0/dist/d3-dsv.min.js")]);
+  return (delimiter === "\t"
+      ? (array ? d3.tsvParseRows : d3.tsvParse)
+      : (array ? d3.csvParseRows : d3.csvParse))(text, typed && d3.autoType);
 }
 
 class FileAttachment {
@@ -28,6 +37,12 @@ class FileAttachment {
   }
   async stream() {
     return (await remote_fetch(this)).body;
+  }
+  async csv(options) {
+    return dsv(this, ",", options);
+  }
+  async tsv(options) {
+    return dsv(this, "\t", options);
   }
   async image() {
     const url = await this.url();
