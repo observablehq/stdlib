@@ -48,9 +48,12 @@ export function NoFileAttachments(name) {
 }
 
 export default function FileAttachments(resolve) {
-  return name => {
-    const url = resolve(name += ""); // Returns a Promise, string, or null.
-    if (url == null) throw new Error(`File not found: ${name}`);
-    return new FileAttachment(url, name);
-  };
+  return Object.assign(
+    name => {
+      const url = resolve(name += ""); // Returns a Promise, string, or null.
+      if (url == null) throw new Error(`File not found: ${name}`);
+      return new FileAttachment(url, name);
+    },
+    {prototype: FileAttachment.prototype} // instanceof
+  );
 }
