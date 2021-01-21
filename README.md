@@ -696,7 +696,7 @@ html`<svg width=${width} height=200>
 
 <a href="#visibility" name="visibility">#</a> <b>visibility</b>([<i>value</i>]) [<>](https://github.com/observablehq/runtime/blob/master/src/runtime.js "Source")
 
-Returns a promise that resolves with the specified *value* when this cell is visible in the viewport.
+Returns a promise that resolves with the specified *value* when this cell is visible in the viewport. The visibility function is provided by the runtime rather than the standard library because it resolves to a different function for each cell.
 
 ### HTML
 
