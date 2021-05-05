@@ -7,8 +7,13 @@ test("new Library returns a library with the expected keys", async t => {
     "FileAttachment",
     "Files",
     "Generators",
+    "Inputs",
     "Mutable",
+    "Plot",
     "Promises",
+    "_",
+    "d3",
+    "htl",
     "html",
     "md",
     "now",
@@ -16,6 +21,7 @@ test("new Library returns a library with the expected keys", async t => {
     "resolve",
     "svg",
     "tex",
+    "vl",
     "width"
   ]);
   t.end();
