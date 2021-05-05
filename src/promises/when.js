@@ -1,5 +1,3 @@
-import constant from "../constant.js";
-
 var timeouts = new Map;
 
 function timeout(now, time) {
@@ -16,7 +14,7 @@ function timeout(now, time) {
 
 export default function when(time, value) {
   var now;
-  return (now = timeouts.get(time = +time)) ? now.then(constant(value))
+  return (now = timeouts.get(time = +time)) ? now.then(() => value)
       : (now = Date.now()) >= time ? Promise.resolve(value)
-      : timeout(now, time).then(constant(value));
+      : timeout(now, time).then(() => value);
 }
