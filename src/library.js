@@ -1,5 +1,4 @@
 import {require as requireDefault} from "d3-require";
-import constant from "./constant.js";
 import DOM from "./dom/index.js";
 import Files from "./files/index.js";
 import {NoFileAttachments} from "./fileAttachment.js";
@@ -13,24 +12,39 @@ import resolve from "./resolve.js";
 import requirer from "./require.js";
 import svg from "./svg.js";
 import tex from "./tex.js";
+import vegalite from "./vegalite.js";
 import width from "./width.js";
 
 export default Object.assign(function Library(resolver) {
   const require = requirer(resolver);
-  Object.defineProperties(this, {
-    DOM: {value: DOM, writable: true, enumerable: true},
-    FileAttachment: {value: constant(NoFileAttachments), writable: true, enumerable: true},
-    Files: {value: Files, writable: true, enumerable: true},
-    Generators: {value: Generators, writable: true, enumerable: true},
-    html: {value: constant(html), writable: true, enumerable: true},
-    md: {value: md(require), writable: true, enumerable: true},
-    Mutable: {value: constant(Mutable), writable: true, enumerable: true},
-    now: {value: now, writable: true, enumerable: true},
-    Promises: {value: Promises, writable: true, enumerable: true},
-    require: {value: constant(require), writable: true, enumerable: true},
-    resolve: {value: constant(resolve), writable: true, enumerable: true},
-    svg: {value: constant(svg), writable: true, enumerable: true},
-    tex: {value: tex(require), writable: true, enumerable: true},
-    width: {value: width, writable: true, enumerable: true}
-  });
+  Object.defineProperties(this, properties({
+    DOM: () => DOM,
+    FileAttachment: () => NoFileAttachments,
+    Files: () => Files,
+    Generators: () => Generators,
+    Inputs: () => require("@observablehq/inputs@0.8.0/dist/inputs.umd.min.js"),
+    Mutable: () => Mutable,
+    Plot: () => require("@observablehq/plot@0.1.0/dist/plot.umd.min.js"),
+    Promises: () => Promises,
+    _: () => require("lodash@4.17.21/lodash.min.js"),
+    d3: () => require("d3@6.7.0/dist/d3.min.js"),
+    htl: () => require("htl@0.2.5/dist/htl.min.js"),
+    html: () => html,
+    md: md(require),
+    now: now,
+    require: () => require,
+    resolve: () => resolve,
+    svg: () => svg,
+    tex: tex(require),
+    vl: vegalite(require),
+    width: width
+  }));
 }, {resolve: requireDefault.resolve});
+
+function properties(values) {
+  return Object.fromEntries(Object.entries(values).map(property));
+}
+
+function property([key, value]) {
+  return [key, ({value, writable: true, enumerable: true})];
+}
