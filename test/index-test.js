@@ -13,6 +13,7 @@ test("new Library returns a library with the expected keys", async t => {
     "Promises",
     "_",
     "d3",
+    "dot",
     "htl",
     "html",
     "md",

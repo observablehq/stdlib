@@ -28,6 +28,7 @@ export default Object.assign(function Library(resolver) {
     Promises: () => Promises,
     _: () => require("lodash@4.17.21/lodash.min.js"),
     d3: () => require("d3@6.7.0/dist/d3.min.js"),
+    dot: () => require("@observablehq/graphviz@0.2.1/dist/graphviz.min.js"),
     htl: () => require("htl@0.2.5/dist/htl.min.js"),
     html: () => html,
     md: md(require),
