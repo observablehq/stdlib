@@ -15,7 +15,7 @@ export class SQLiteDatabaseClient {
     return await exec(this._db, query, params);
   }
   async queryRow(query, params) {
-    return (await this.query(query, params))[0];
+    return (await this.query(query, params))[0] || null;
   }
   async explain(query, params) {
     const rows = (await this.query(`EXPLAIN QUERY PLAN ${query}`, params));
