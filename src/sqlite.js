@@ -46,16 +46,6 @@ export class SQLiteDatabaseClient {
 }
 
 async function exec(db, query, params) {
-  if (params !== undefined) {
-    let i = -1;
-    query = query.replace(/\?/g, () => {
-      const param = params[++i];
-      return Array.isArray(param)
-        ? new Array(param.length).fill("?")
-        : "?";
-    });
-    params = params.flat(1);
-  }
   const [result] = await db.exec(query, params);
   if (!result) return [];
   const {columns, values} = result;
