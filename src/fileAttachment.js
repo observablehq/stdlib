@@ -1,4 +1,5 @@
 import {require as requireDefault} from "d3-require";
+import sqlite, {SQLiteDatabaseClient} from "./sqlite.js";
 
 async function remote_fetch(file) {
   const response = await fetch(await file.url());
@@ -55,6 +56,11 @@ class FileAttachment {
       i.onerror = () => reject(new Error(`Unable to load file: ${this.name}`));
       i.src = url;
     });
+  }
+  async sqlite() {
+    const [SQL, buffer] = await Promise.all([sqlite(requireDefault), this.arrayBuffer()]);
+    const db = new SQL.Database(new Uint8Array(buffer));
+    return new SQLiteDatabaseClient(db);
   }
 }
 
