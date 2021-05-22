@@ -26,22 +26,11 @@ export class SQLiteDatabaseClient {
     return pre;
   }
   async describe(object) {
-    if (object !== undefined) {
-      const row = await this.queryRow(`SELECT * FROM '${object}' LIMIT 1`);
-      return table(
-        Object.entries(row).map(([column_name, value]) => ({
-          column_name,
-          data_type: typeof value === "string" ? "character varying"
-              : typeof value === "number" ? "integer"
-              : undefined,
-          column_default: null,
-          is_nullable: "YES"
-        }))
-      );
-    } else {
-      const rows = await this.query(`SELECT name FROM sqlite_master WHERE type = 'table'`);
-      return table(rows);
-    }
+    return table(
+      await (object === undefined
+        ? this.query(`SELECT name FROM sqlite_master WHERE type = 'table'`)
+        : this.query(`SELECT * FROM pragma_table_info(?)`, [object]))
+    );
   }
 }
 
