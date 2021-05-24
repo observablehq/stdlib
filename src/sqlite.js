@@ -16,17 +16,21 @@ export class SQLiteDatabaseClient {
     return (await this.query(query, params))[0] || null;
   }
   async explain(query, params) {
-    return formatText(
-      (await this.query(`EXPLAIN QUERY PLAN ${query}`, params))
-      .map(row => row.detail).join("\n")
-    );
+    const rows = await this.query(`EXPLAIN QUERY PLAN ${query}`, params);
+    return element("pre", {className: "observablehq--inspect"}, [
+      text(rows.map(row => row.detail).join("\n"))
+    ]);
   }
   async describe(object) {
-    return formatTable(
-      await (object === undefined
-        ? this.query(`SELECT name FROM sqlite_master WHERE type = 'table'`)
-        : this.query(`SELECT * FROM pragma_table_info(?)`, [object]))
-    );
+    const rows = await (object === undefined
+      ? this.query(`SELECT name FROM sqlite_master WHERE type = 'table'`)
+      : this.query(`SELECT * FROM pragma_table_info(?)`, [object]));
+    if (!rows.length) throw new Error("Not found");
+    const {columns} = rows;
+    return element("table", {value: rows}, [
+      element("thead", [element("tr", columns.map(c => element("th", [text(c)])))]),
+      element("tbody", rows.map(r => element("tr", columns.map(c => element("td", [text(r[c])])))))
+    ]);
   }
 }
 
@@ -39,30 +43,14 @@ async function exec(db, query, params) {
   return rows;
 }
 
-function formatTable(rows, columns = rows.columns) {
-  if (!rows.length) throw new Error("Not found");
-  const table = document.createElement("table");
-  const thead = table.appendChild(document.createElement("thead"));
-  const tr = thead.appendChild(document.createElement("tr"));
-  for (const column of columns) {
-    const th = tr.appendChild(document.createElement("th"));
-    th.appendChild(document.createTextNode(column));
-  }
-  const tbody = table.appendChild(document.createElement("tbody"));
-  for (const row of rows) {
-    const tr = tbody.appendChild(document.createElement("tr"));
-    for (const column of columns) {
-      const td = tr.appendChild(document.createElement("td"));
-      td.appendChild(document.createTextNode(row[column]));
-    }
-  }
-  table.value = rows;
-  return table;
+function element(name, props, children) {
+  if (arguments.length === 2) children = props, props = undefined;
+  const element = document.createElement(name);
+  if (props !== undefined) for (const p in props) element[p] = props[p];
+  if (children !== undefined) for (const c of children) element.appendChild(c);
+  return element;
 }
 
-function formatText(text) {
-  const pre = document.createElement("pre");
-  pre.className = "observablehq--inspect";
-  pre.appendChild(document.createTextNode(text));
-  return pre;
+function text(value) {
+  return document.createTextNode(value);
 }
