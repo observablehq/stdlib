@@ -5,6 +5,13 @@ import range from "../../src/generators/range";
 import valueAt from "../../src/generators/valueAt";
 import observe from "../../src/generators/observe";
 import queue from "../../src/generators/queue";
+import Library from "../../src/library";
+
+test("library.Generators.observe is a function", t => {
+  const library = new Library();
+  t.equal(typeof library.Generators.observe, "function");
+  t.end();
+});
 
 test("filter(value, fn) filters", t => {
   function* input() {
