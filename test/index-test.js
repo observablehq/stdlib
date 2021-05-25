@@ -11,6 +11,7 @@ test("new Library returns a library with the expected keys", async t => {
     "Mutable",
     "Plot",
     "Promises",
+    "SQLite",
     "_",
     "d3",
     "dot",

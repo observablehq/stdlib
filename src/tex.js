@@ -11,25 +11,23 @@ function style(href) {
   });
 }
 
-export default function(require) {
-  return function() {
-    return Promise.all([
-      require("@observablehq/katex@0.11.1/dist/katex.min.js"),
-      require.resolve("@observablehq/katex@0.11.1/dist/katex.min.css").then(style)
-    ]).then(function(values) {
-      var katex = values[0], tex = renderer();
+export default function tex(require) {
+  return Promise.all([
+    require("@observablehq/katex@0.11.1/dist/katex.min.js"),
+    require.resolve("@observablehq/katex@0.11.1/dist/katex.min.css").then(style)
+  ]).then(function(values) {
+    var katex = values[0], tex = renderer();
 
-      function renderer(options) {
-        return function() {
-          var root = document.createElement("div");
-          katex.render(raw.apply(String, arguments), root, options);
-          return root.removeChild(root.firstChild);
-        };
-      }
+    function renderer(options) {
+      return function() {
+        var root = document.createElement("div");
+        katex.render(raw.apply(String, arguments), root, options);
+        return root.removeChild(root.firstChild);
+      };
+    }
 
-      tex.options = renderer;
-      tex.block = renderer({displayMode: true});
-      return tex;
-    });
-  };
+    tex.options = renderer;
+    tex.block = renderer({displayMode: true});
+    return tex;
+  });
 }
