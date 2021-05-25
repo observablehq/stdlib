@@ -371,6 +371,14 @@ Returns a promise to a [Blob](https://developer.mozilla.org/en-US/docs/Web/API/B
 const blob = await FileAttachment("binary-data.dat").blob();
 ```
 
+<a href="#attachment_sqlite" name="attachment_sqlite">#</a> *attachment*.<b>sqlite</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
+
+Returns a promise to the file loads as a [SQLite database client](https://observablehq.com/@observablehq/databases).
+
+```js
+const db = await FileAttachment("chinook.db").sqlite();
+```
+
 <a href="#FileAttachments" name="FileAttachments">#</a> <b>FileAttachments</b>(<i>resolve</i>) [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
 
 *Note: this function is not part of the Observable standard library (in notebooks), but is provided by this module as a means for defining custom file attachment implementations when working directly with the Observable runtime.*
