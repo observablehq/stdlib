@@ -1,5 +1,6 @@
 import {require as requireDefault} from "d3-require";
 import sqlite, {SQLiteDatabaseClient} from "./sqlite.js";
+import xlsx, {XlsxWorkbook} from "./xlsx.js";
 
 async function remote_fetch(file) {
   const response = await fetch(await file.url());
@@ -61,6 +62,10 @@ class FileAttachment {
     const [SQL, buffer] = await Promise.all([sqlite(requireDefault), this.arrayBuffer()]);
     const db = new SQL.Database(new Uint8Array(buffer));
     return new SQLiteDatabaseClient(db);
+  }
+  async xlsx() {
+    const [XLSX, buffer] = await Promise.all([xlsx(requireDefault), this.arrayBuffer()]);
+    return new XlsxWorkbook(await XLSX.read(buffer, {type: "buffer"}));
   }
 }
 
