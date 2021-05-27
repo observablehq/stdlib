@@ -63,9 +63,9 @@ class FileAttachment {
     const db = new SQL.Database(new Uint8Array(buffer));
     return new SQLiteDatabaseClient(db);
   }
-  async xlsx() {
+  async xlsx(options) {
     const [XLSX, buffer] = await Promise.all([xlsx(requireDefault), this.arrayBuffer()]);
-    return new XlsxWorkbook(await XLSX.read(buffer, {type: "buffer"}));
+    return new XlsxWorkbook(await XLSX.read(buffer, {cellDates: true, ...options, type: "buffer"}));
   }
 }
 
