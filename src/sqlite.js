@@ -1,8 +1,9 @@
 import {require as requireDefault} from "d3-require";
+import {sql} from "./dependencies";
 
 export default async function sqlite(require) {
-  const sql = await require("sql.js@1.5.0/dist/sql-wasm.js");
-  return sql({locateFile: file => `https://cdn.jsdelivr.net/npm/sql.js@1.5.0/dist/${file}`});
+  const init = await require(sql.resolve());
+  return init({locateFile: file => sql.resolve(`dist/${file}`)});
 }
 
 export class SQLiteDatabaseClient {
