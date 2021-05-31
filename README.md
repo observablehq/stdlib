@@ -4,7 +4,7 @@
 
 The Observable standard library.
 
-For examples, see https://observablehq.com/@observablehq/standard-library.
+For examples, see https://observablehq.com/@observablehq/stdlib.
 
 ## API Reference
 
