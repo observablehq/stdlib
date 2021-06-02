@@ -94,8 +94,8 @@ export class ZipArchive {
     this.filenames = Object.keys(this._.files);
   }
   file(path) {
-    const object = this._.file(path);
-    if (!object || object.dir) throw new Error("file not found");
+    const object = this._.file(path += "");
+    if (!object || object.dir) throw new Error(`file not found: ${path}`);
     return new ZipArchiveEntry(object);
   }
 }
