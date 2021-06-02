@@ -91,9 +91,7 @@ export default function FileAttachments(resolve) {
 export class ZipArchive {
   constructor(archive) {
     Object.defineProperty(this, "_", {value: archive});
-  }
-  fileNames() {
-    return Object.keys(this._.files);
+    this.filenames = Object.keys(this._.files);
   }
   file(path) {
     const object = this._.file(path);
