@@ -98,11 +98,11 @@ export class ZipArchive {
   file(path) {
     const object = this._.file(path);
     if (!object || object.dir) throw new Error("file not found");
-    return new ZipFile(object);
+    return new ZipArchiveEntry(object);
   }
 }
 
-class ZipFile extends AbstractFile {
+class ZipArchiveEntry extends AbstractFile {
   constructor(object) {
     super(object.name);
     Object.defineProperty(this, "_", {value: object});
