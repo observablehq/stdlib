@@ -3,6 +3,7 @@ import {Library} from "../src/index.js";
 
 test("new Library returns a library with the expected keys", async t => {
   t.deepEqual(Object.keys(new Library()).sort(), [
+    "Arrow",
     "DOM",
     "FileAttachment",
     "Files",

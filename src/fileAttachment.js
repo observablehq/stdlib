@@ -1,5 +1,5 @@
 import {require as requireDefault} from "d3-require";
-import {d3Dsv} from "./dependencies.js";
+import {arrow, d3Dsv} from "./dependencies.js";
 import {SQLiteDatabaseClient} from "./sqlite.js";
 import jszip from "./zip.js";
 
@@ -52,6 +52,10 @@ class AbstractFile {
       i.onerror = () => reject(new Error(`Unable to load file: ${this.name}`));
       i.src = url;
     });
+  }
+  async arrow() {
+    const [Arrow, response] = await Promise.all([requireDefault(arrow.resolve()), remote_fetch(this)]);
+    return Arrow.Table.from(response);
   }
   async sqlite() {
     return SQLiteDatabaseClient.open(remote_fetch(this));
