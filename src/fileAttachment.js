@@ -1,5 +1,6 @@
 import {require as requireDefault} from "d3-require";
 import sqlite, {SQLiteDatabaseClient} from "./sqlite.js";
+import jszip from "./zip.js";
 
 async function remote_fetch(file) {
   const response = await fetch(await file.url());
@@ -14,15 +15,9 @@ async function dsv(file, delimiter, {array = false, typed = false} = {}) {
       : (array ? d3.csvParseRows : d3.csvParse))(text, typed && d3.autoType);
 }
 
-class FileAttachment {
-  constructor(url, name) {
-    Object.defineProperties(this, {
-      _url: {value: url},
-      name: {value: name, enumerable: true}
-    });
-  }
-  async url() {
-    return (await this._url) + "";
+class AbstractFile {
+  constructor(name) {
+    Object.defineProperty(this, "name", {value: name, enumerable: true});
   }
   async blob() {
     return (await remote_fetch(this)).blob();
@@ -62,6 +57,20 @@ class FileAttachment {
     const db = new SQL.Database(new Uint8Array(buffer));
     return new SQLiteDatabaseClient(db);
   }
+  async zip() {
+    const [JSZip, buffer] = await Promise.all([jszip(requireDefault), this.arrayBuffer()]);
+    return new ZipArchive(await JSZip.loadAsync(buffer));
+  }
+}
+
+class FileAttachment extends AbstractFile {
+  constructor(url, name) {
+    super(name);
+    Object.defineProperty(this, "_url", {value: url});
+  }
+  async url() {
+    return (await this._url) + "";
+  }
 }
 
 export function NoFileAttachments(name) {
@@ -77,4 +86,39 @@ export default function FileAttachments(resolve) {
     },
     {prototype: FileAttachment.prototype} // instanceof
   );
+}
+
+export class ZipArchive {
+  constructor(archive) {
+    Object.defineProperty(this, "_", {value: archive});
+    this.filenames = Object.keys(archive.files).filter(name => !archive.files[name].dir);
+  }
+  file(path) {
+    const object = this._.file(path += "");
+    if (!object || object.dir) throw new Error(`file not found: ${path}`);
+    return new ZipArchiveEntry(object);
+  }
+}
+
+class ZipArchiveEntry extends AbstractFile {
+  constructor(object) {
+    super(object.name);
+    Object.defineProperty(this, "_", {value: object});
+    Object.defineProperty(this, "_url", {writable: true});
+  }
+  async url() {
+    return this._url || (this._url = this.blob().then(URL.createObjectURL));
+  }
+  async blob() {
+    return this._.async("blob");
+  }
+  async arrayBuffer() {
+    return this._.async("arraybuffer");
+  }
+  async text() {
+    return this._.async("text");
+  }
+  async json() {
+    return JSON.parse(await this.text());
+  }
 }
