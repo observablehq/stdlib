@@ -92,7 +92,7 @@ export class ZipArchive {
   constructor(archive) {
     Object.defineProperty(this, "_", {value: archive});
   }
-  files() {
+  fileNames() {
     return Object.keys(this._.files);
   }
   file(path) {
