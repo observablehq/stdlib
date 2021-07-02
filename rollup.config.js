@@ -11,7 +11,15 @@ export default [
       node(),
       terser({
         output: {preamble: copyright},
-        mangle: {reserved: ["RequireError"]}
+        mangle: {
+          reserved: [
+            "FileAttachment",
+            "RequireError",
+            "SQLiteDatabaseClient",
+            "ZipArchive",
+            "ZipArchiveEntry"
+          ]
+        }
       })
     ],
     output: {
