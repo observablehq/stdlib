@@ -1,3 +1,5 @@
+import {require as requireDefault} from "d3-require";
+
 export default async function sqlite(require) {
   const sql = await require("sql.js@1.5.0/dist/sql-wasm.js");
   return sql({locateFile: file => `https://cdn.jsdelivr.net/npm/sql.js@1.5.0/dist/${file}`});
@@ -8,6 +10,10 @@ export class SQLiteDatabaseClient {
     Object.defineProperties(this, {
       _db: {value: db}
     });
+  }
+  static async open(source) {
+    const [SQL, buffer] = await Promise.all([sqlite(requireDefault), Promise.resolve(source).then(load)]);
+    return new SQLiteDatabaseClient(new SQL.Database(buffer));
   }
   async query(query, params) {
     return await exec(this._db, query, params);
@@ -32,6 +38,13 @@ export class SQLiteDatabaseClient {
       element("tbody", rows.map(r => element("tr", columns.map(c => element("td", [text(r[c])])))))
     ]);
   }
+}
+
+function load(source) {
+  return typeof source === "string" ? fetch(source).then(load)
+    : source instanceof Response || source instanceof Blob ? source.arrayBuffer().then(load)
+    : source instanceof ArrayBuffer ? new Uint8Array(source)
+    : source;
 }
 
 async function exec(db, query, params) {
