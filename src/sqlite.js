@@ -42,7 +42,7 @@ export class SQLiteDatabaseClient {
 
 function load(source) {
   return typeof source === "string" ? fetch(source).then(load)
-    : source instanceof Response ? source.arrayBuffer().then(load)
+    : source instanceof Response || source instanceof Blob ? source.arrayBuffer().then(load)
     : source instanceof ArrayBuffer ? new Uint8Array(source)
     : source;
 }
