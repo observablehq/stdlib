@@ -60,6 +60,10 @@ const fetch = require("node-fetch");
     const package = await resolve("vega-lite-api");
     console.log(`export const vegaliteApi = dependency("${package.name}", "${package.version}", "${package.export}");`);
   }
+  {
+    const package = await resolve("apache-arrow@4");
+    console.log(`export const arrow = dependency("${package.name}", "${package.version}", "${package.export}");`);
+  }
 })();
 
 async function resolve(specifier) {

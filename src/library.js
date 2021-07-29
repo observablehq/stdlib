@@ -15,12 +15,13 @@ import svg from "./svg.js";
 import tex from "./tex.js";
 import vegalite from "./vegalite.js";
 import width from "./width.js";
-import {d3, graphviz, htl, inputs, lodash, plot} from "./dependencies.js";
+import {arrow, d3, graphviz, htl, inputs, lodash, plot} from "./dependencies.js";
 
 export default Object.assign(function Library(resolver) {
   const require = requirer(resolver);
   Object.defineProperties(this, properties({
     FileAttachment: () => NoFileAttachments,
+    Arrow: () => require(arrow.resolve()),
     Inputs: () => require(inputs.resolve()),
     Mutable: () => Mutable,
     Plot: () => require(plot.resolve()),
