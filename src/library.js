@@ -10,7 +10,7 @@ import now from "./now.js";
 import Promises from "./promises/index.js";
 import resolve from "./resolve.js";
 import requirer from "./require.js";
-import SQLite from "./sqlite.js";
+import SQLite, {SQLiteDatabaseClient} from "./sqlite.js";
 import svg from "./svg.js";
 import tex from "./tex.js";
 import vegalite from "./vegalite.js";
@@ -24,6 +24,7 @@ export default Object.assign(function Library(resolver) {
     Mutable: () => Mutable,
     Plot: () => require("@observablehq/plot@0.1.0/dist/plot.umd.min.js"),
     SQLite: () => SQLite(require),
+    SQLiteDatabaseClient: () => SQLiteDatabaseClient,
     _: () => require("lodash@4.17.21/lodash.min.js"),
     d3: () => require("d3@6.7.0/dist/d3.min.js"),
     dot: () => require("@observablehq/graphviz@0.2.1/dist/graphviz.min.js"),
