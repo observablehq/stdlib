@@ -1,3 +1,5 @@
+import {katex} from "./dependencies.js";
+
 var raw = String.raw;
 
 function style(href) {
@@ -13,8 +15,8 @@ function style(href) {
 
 export default function tex(require) {
   return Promise.all([
-    require("@observablehq/katex@0.11.1/dist/katex.min.js"),
-    require.resolve("@observablehq/katex@0.11.1/dist/katex.min.css").then(style)
+    require(katex.resolve()),
+    style(katex.resolve("dist/katex.min.css"))
   ]).then(function(values) {
     var katex = values[0], tex = renderer();
 

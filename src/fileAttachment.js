@@ -1,4 +1,5 @@
 import {require as requireDefault} from "d3-require";
+import {d3Dsv} from "./dependencies.js";
 import {SQLiteDatabaseClient} from "./sqlite.js";
 import jszip from "./zip.js";
 
@@ -9,7 +10,7 @@ async function remote_fetch(file) {
 }
 
 async function dsv(file, delimiter, {array = false, typed = false} = {}) {
-  const [text, d3] = await Promise.all([file.text(), requireDefault("d3-dsv@2.0.0/dist/d3-dsv.min.js")]);
+  const [text, d3] = await Promise.all([file.text(), requireDefault(d3Dsv.resolve())]);
   return (delimiter === "\t"
       ? (array ? d3.tsvParseRows : d3.tsvParse)
       : (array ? d3.csvParseRows : d3.csvParse))(text, typed && d3.autoType);

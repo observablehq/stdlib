@@ -1,0 +1,73 @@
+#!/usr/bin/env node
+
+const fetch = require("node-fetch");
+
+(async () => {
+  console.log(`import dependency from "./dependency.js";`);
+  {
+    const package = await resolve("d3");
+    console.log(`export const d3 = dependency("${package.name}", "${package.version}", "${package.export}");`);
+  }
+  {
+    const package = await resolve("d3-dsv");
+    console.log(`export const d3Dsv = dependency("${package.name}", "${package.version}", "${package.export}");`);
+  }
+  {
+    const package = await resolve("@observablehq/inputs");
+    console.log(`export const inputs = dependency("${package.name}", "${package.version}", "${package.export}");`);
+  }
+  {
+    const package = await resolve("@observablehq/plot");
+    console.log(`export const plot = dependency("${package.name}", "${package.version}", "${package.export}");`);
+  }
+  {
+    const package = await resolve("@observablehq/graphviz");
+    console.log(`export const graphviz = dependency("${package.name}", "${package.version}", "${package.export}");`);
+  }
+  {
+    const package = await resolve("@observablehq/highlight.js");
+    console.log(`export const highlight = dependency("${package.name}", "${package.version}", "${package.export}");`);
+  }
+  {
+    const package = await resolve("@observablehq/katex");
+    console.log(`export const katex = dependency("${package.name}", "${package.version}", "${package.export}");`);
+  }
+  {
+    const package = await resolve("lodash");
+    console.log(`export const lodash = dependency("${package.name}", "${package.version}", "${package.export.replace(/\.js$/, ".min.js")}");`);
+  }
+  {
+    const package = await resolve("htl");
+    console.log(`export const htl = dependency("${package.name}", "${package.version}", "${package.export}");`);
+  }
+  {
+    const package = await resolve("marked@0.3.12");
+    console.log(`export const marked = dependency("${package.name}", "${package.version}", "marked.min.js");`);
+  }
+  {
+    const package = await resolve("sql.js");
+    console.log(`export const sql = dependency("${package.name}", "${package.version}", "${package.export}");`);
+  }
+  {
+    const package = await resolve("vega");
+    console.log(`export const vega = dependency("${package.name}", "${package.version}", "${package.export}");`);
+  }
+  {
+    const package = await resolve("vega-lite");
+    console.log(`export const vegalite = dependency("${package.name}", "${package.version}", "${package.export}");`);
+  }
+  {
+    const package = await resolve("vega-lite-api");
+    console.log(`export const vegaliteApi = dependency("${package.name}", "${package.version}", "${package.export}");`);
+  }
+})();
+
+async function resolve(specifier) {
+  const response = await fetch(`https://cdn.jsdelivr.net/npm/${specifier}/package.json`);
+  const package = await response.json();
+  return {
+    name: package.name,
+    version: package.version,
+    export: (package.unpkg || package.jsdelivr || package.browser || package.main).replace(/^\.\//, "")
+  };
+}

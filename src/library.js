@@ -15,20 +15,21 @@ import svg from "./svg.js";
 import tex from "./tex.js";
 import vegalite from "./vegalite.js";
 import width from "./width.js";
+import {d3, graphviz, htl, inputs, lodash, plot} from "./dependencies.js";
 
 export default Object.assign(function Library(resolver) {
   const require = requirer(resolver);
   Object.defineProperties(this, properties({
     FileAttachment: () => NoFileAttachments,
-    Inputs: () => require("@observablehq/inputs@0.8.0/dist/inputs.umd.min.js"),
+    Inputs: () => require(inputs.resolve()),
     Mutable: () => Mutable,
-    Plot: () => require("@observablehq/plot@0.1.0/dist/plot.umd.min.js"),
+    Plot: () => require(plot.resolve()),
     SQLite: () => SQLite(require),
     SQLiteDatabaseClient: () => SQLiteDatabaseClient,
-    _: () => require("lodash@4.17.21/lodash.min.js"),
-    d3: () => require("d3@6.7.0/dist/d3.min.js"),
-    dot: () => require("@observablehq/graphviz@0.2.1/dist/graphviz.min.js"),
-    htl: () => require("htl@0.2.5/dist/htl.min.js"),
+    _: () => require(lodash.resolve()),
+    d3: () => require(d3.resolve()),
+    dot: () => require(graphviz.resolve()),
+    htl: () => require(htl.resolve()),
     html: () => html,
     md: () => md(require),
     now,
