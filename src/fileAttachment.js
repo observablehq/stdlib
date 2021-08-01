@@ -1,7 +1,6 @@
 import {require as requireDefault} from "d3-require";
-import {arrow, d3Dsv} from "./dependencies.js";
+import {arrow, d3Dsv, jszip} from "./dependencies.js";
 import {SQLiteDatabaseClient} from "./sqlite.js";
-import jszip from "./zip.js";
 
 async function remote_fetch(file) {
   const response = await fetch(await file.url());
@@ -61,7 +60,7 @@ class AbstractFile {
     return SQLiteDatabaseClient.open(remote_fetch(this));
   }
   async zip() {
-    const [JSZip, buffer] = await Promise.all([jszip(requireDefault), this.arrayBuffer()]);
+    const [JSZip, buffer] = await Promise.all([requireDefault(jszip.resolve()), this.arrayBuffer()]);
     return new ZipArchive(await JSZip.loadAsync(buffer));
   }
 }

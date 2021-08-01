@@ -8,6 +8,7 @@ export const highlight = dependency("@observablehq/highlight.js", "2.0.0", "high
 export const katex = dependency("@observablehq/katex", "0.11.1", "dist/katex.min.js");
 export const lodash = dependency("lodash", "4.17.21", "lodash.min.js");
 export const htl = dependency("htl", "0.2.5", "dist/htl.min.js");
+export const jszip = dependency("jszip", "3.7.0", "dist/jszip.min.js");
 export const marked = dependency("marked", "0.3.12", "marked.min.js");
 export const sql = dependency("sql.js", "1.5.0", "dist/sql-wasm.js");
 export const vega = dependency("vega", "5.20.2", "build/vega.min.js");
