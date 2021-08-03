@@ -25,6 +25,7 @@ test("new Library returns a library with the expected keys", async t => {
     "resolve",
     "svg",
     "tex",
+    "topojson",
     "vl",
     "width"
   ]);
