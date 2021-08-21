@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 const fetch = require("node-fetch");
+const extensionRe = /\.[^/]*$/;
+const mains = ["unpkg", "jsdelivr", "browser", "main"];
 
 (async () => {
   console.log(`import dependency from "./dependency.js";`);
@@ -41,6 +43,10 @@ const fetch = require("node-fetch");
     console.log(`export const htl = dependency("${package.name}", "${package.version}", "${package.export}");`);
   }
   {
+    const package = await resolve("jszip");
+    console.log(`export const jszip = dependency("${package.name}", "${package.version}", "dist/jszip.min.js");`);
+  }
+  {
     const package = await resolve("marked@0.3.12");
     console.log(`export const marked = dependency("${package.name}", "${package.version}", "marked.min.js");`);
   }
@@ -72,6 +78,17 @@ async function resolve(specifier) {
   return {
     name: package.name,
     version: package.version,
-    export: (package.unpkg || package.jsdelivr || package.browser || package.main).replace(/^\.\//, "")
+    export: main(package)
   };
+}
+
+// https://github.com/d3/d3-require/blob/4056a786912e9335a86b41c2b1cdfa392bd14289/src/index.js#L20-L27
+function main(meta) {
+  for (const key of mains) {
+    const value = meta[key];
+    if (typeof value === "string") {
+      return (extensionRe.test(value) ? value : `${value}.js`).replace(/^\.\//, "");
+    }
+  }
+  return "index.js";
 }
