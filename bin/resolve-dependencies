@@ -71,6 +71,10 @@ const mains = ["unpkg", "jsdelivr", "browser", "main"];
     console.log(`export const arrow = dependency("${package.name}", "${package.version}", "${package.export}");`);
   }
   {
+    const package = await resolve("arquero");
+    console.log(`export const arquero = dependency("${package.name}", "${package.version}", "${package.export}");`);
+  }
+  {
     const package = await resolve("topojson-client");
     console.log(`export const topojson = dependency("${package.name}", "${package.version}", "${package.export}");`);
   }
