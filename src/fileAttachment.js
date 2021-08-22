@@ -1,5 +1,6 @@
+import {autoType, csvParse, csvParseRows, tsvParse, tsvParseRows} from "d3-dsv";
 import {require as requireDefault} from "d3-require";
-import {arrow, d3Dsv, jszip} from "./dependencies.js";
+import {arrow, jszip} from "./dependencies.js";
 import {SQLiteDatabaseClient} from "./sqlite.js";
 
 async function remote_fetch(file) {
@@ -9,10 +10,10 @@ async function remote_fetch(file) {
 }
 
 async function dsv(file, delimiter, {array = false, typed = false} = {}) {
-  const [text, d3] = await Promise.all([file.text(), requireDefault(d3Dsv.resolve())]);
+  const text = await file.text();
   return (delimiter === "\t"
-      ? (array ? d3.tsvParseRows : d3.tsvParse)
-      : (array ? d3.csvParseRows : d3.csvParse))(text, typed && d3.autoType);
+      ? (array ? tsvParseRows : tsvParse)
+      : (array ? csvParseRows : csvParse))(text, typed && autoType);
 }
 
 class AbstractFile {

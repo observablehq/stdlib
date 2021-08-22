@@ -15,6 +15,7 @@ test("new Library returns a library with the expected keys", async t => {
     "SQLite",
     "SQLiteDatabaseClient",
     "_",
+    "aq",
     "d3",
     "dot",
     "htl",

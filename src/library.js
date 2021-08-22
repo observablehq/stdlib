@@ -15,7 +15,7 @@ import svg from "./svg.js";
 import tex from "./tex.js";
 import vegalite from "./vegalite.js";
 import width from "./width.js";
-import {arrow, d3, graphviz, htl, inputs, lodash, plot, topojson} from "./dependencies.js";
+import {arquero, arrow, d3, graphviz, htl, inputs, lodash, plot, topojson} from "./dependencies.js";
 
 export default Object.assign(function Library(resolver) {
   const require = requirer(resolver);
@@ -28,6 +28,7 @@ export default Object.assign(function Library(resolver) {
     SQLite: () => SQLite(require),
     SQLiteDatabaseClient: () => SQLiteDatabaseClient,
     _: () => require(lodash.resolve()),
+    aq: () => require.alias({"apache-arrow": arrow.resolve()})(arquero.resolve()),
     d3: () => require(d3.resolve()),
     dot: () => require(graphviz.resolve()),
     htl: () => require(htl.resolve()),

@@ -11,10 +11,6 @@ const mains = ["unpkg", "jsdelivr", "browser", "main"];
     console.log(`export const d3 = dependency("${package.name}", "${package.version}", "${package.export}");`);
   }
   {
-    const package = await resolve("d3-dsv");
-    console.log(`export const d3Dsv = dependency("${package.name}", "${package.version}", "${package.export}");`);
-  }
-  {
     const package = await resolve("@observablehq/inputs");
     console.log(`export const inputs = dependency("${package.name}", "${package.version}", "${package.export}");`);
   }
@@ -69,6 +65,10 @@ const mains = ["unpkg", "jsdelivr", "browser", "main"];
   {
     const package = await resolve("apache-arrow@4");
     console.log(`export const arrow = dependency("${package.name}", "${package.version}", "${package.export}");`);
+  }
+  {
+    const package = await resolve("arquero");
+    console.log(`export const arquero = dependency("${package.name}", "${package.version}", "${package.export}");`);
   }
   {
     const package = await resolve("topojson-client");

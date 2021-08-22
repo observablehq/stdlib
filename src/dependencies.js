@@ -1,7 +1,6 @@
 import dependency from "./dependency.js";
 export const d3 = dependency("d3", "7.0.1", "dist/d3.min.js");
-export const d3Dsv = dependency("d3-dsv", "3.0.1", "dist/d3-dsv.min.js");
-export const inputs = dependency("@observablehq/inputs", "0.9.0", "dist/inputs.min.js");
+export const inputs = dependency("@observablehq/inputs", "0.9.1", "dist/inputs.min.js");
 export const plot = dependency("@observablehq/plot", "0.2.0", "dist/plot.umd.min.js");
 export const graphviz = dependency("@observablehq/graphviz", "0.2.1", "dist/graphviz.min.js");
 export const highlight = dependency("@observablehq/highlight.js", "2.0.0", "highlight.min.js");
@@ -15,4 +14,5 @@ export const vega = dependency("vega", "5.20.2", "build/vega.min.js");
 export const vegalite = dependency("vega-lite", "5.1.0", "build/vega-lite.min.js");
 export const vegaliteApi = dependency("vega-lite-api", "5.0.0", "build/vega-lite-api.min.js");
 export const arrow = dependency("apache-arrow", "4.0.1", "Arrow.es2015.min.js");
+export const arquero = dependency("arquero", "4.8.4", "dist/arquero.min.js");
 export const topojson = dependency("topojson-client", "3.1.0", "dist/topojson-client.min.js");
