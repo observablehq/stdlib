@@ -27,6 +27,7 @@
     "dist/**/*.js"
   ],
   "dependencies": {
+    "d3-dsv": "^2.0.0",
     "d3-require": "^1.2.4"
   },
   "devDependencies": {
