@@ -1,6 +1,5 @@
 import dependency from "./dependency.js";
 export const d3 = dependency("d3", "7.0.1", "dist/d3.min.js");
-export const d3Dsv = dependency("d3-dsv", "3.0.1", "dist/d3-dsv.min.js");
 export const inputs = dependency("@observablehq/inputs", "0.9.0", "dist/inputs.min.js");
 export const plot = dependency("@observablehq/plot", "0.2.0", "dist/plot.umd.min.js");
 export const graphviz = dependency("@observablehq/graphviz", "0.2.1", "dist/graphviz.min.js");
