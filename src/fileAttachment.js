@@ -64,6 +64,12 @@ class AbstractFile {
     const [JSZip, buffer] = await Promise.all([requireDefault(jszip.resolve()), this.arrayBuffer()]);
     return new ZipArchive(await JSZip.loadAsync(buffer));
   }
+  async xml(mimeType = "application/xml") {
+    return (new DOMParser).parseFromString(await this.text(), mimeType);
+  }
+  async html() {
+    return this.xml("text/html");
+  }
 }
 
 class FileAttachment extends AbstractFile {
