@@ -3,18 +3,19 @@ export class ExcelWorkbook {
     Object.defineProperty(this, "_", {value: workbook});
   }
   sheetNames() {
-    return this._.worksheets.map(sheet => sheet.name);
+    return this._.worksheets.map((sheet) => sheet.name);
   }
   sheet(name, options) {
-    name = (typeof name === "number") ? name = this.sheetNames()[name] : name + "";
-    const sheet = this._.getWorksheet(name);
+    const sheet = this._.getWorksheet(
+      typeof name === "number" ? this.sheetNames()[name] : name + ""
+    );
     if (!sheet) throw new Error(`Sheet not found: ${name}`);
     return extract(sheet, options);
   }
 }
 
 function extract(sheet, options = {}) {
-  const { range, headers = false } = options;
+  const {range, headers = false} = options;
   let [[c0, r0], [c1, r1]] = parseRange(range, sheet);
   const empty = {};
   const output = new Array(r1 - r0).fill(empty);
@@ -47,7 +48,7 @@ function extract(sheet, options = {}) {
 
 function valueOf(cell) {
   if (!cell) return;
-  const { value } = cell;
+  const {value} = cell;
   if (value && typeof value === "object") {
     if (value.formula) return value.result;
     if (value.richText) return value.richText.map((d) => d.text).join("");
@@ -57,24 +58,22 @@ function valueOf(cell) {
   return value;
 }
 
-function parseRange(specifier = {}, { columnCount, rowCount }) {
+function parseRange(specifier = {}, {columnCount, rowCount}) {
   if (typeof specifier === "string") {
-    const [
-      [c0 = 0, r0 = 0] = [],
-      [c1 = columnCount, r1 = rowCount] = []
-    ] = specifier.split(":").map(NN);
+    const [[c0 = 0, r0 = 0] = [], [c1 = columnCount, r1 = rowCount] = []] =
+      specifier.split(":").map(NN);
     return [
       [c0, r0],
-      [c1, r1]
+      [c1, r1],
     ];
   } else if (typeof specifier === "object") {
     const {
       start: [c0 = 0, r0 = 0] = [],
-      end: [c1 = columnCount, r1 = rowCount] = []
+      end: [c1 = columnCount, r1 = rowCount] = [],
     } = specifier;
     return [
       [c0, r0],
-      [c1, r1]
+      [c1, r1],
     ];
   }
 }
