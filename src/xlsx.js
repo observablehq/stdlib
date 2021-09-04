@@ -5,20 +5,18 @@ export class ExcelWorkbook {
   sheetNames() {
     return this._.worksheets.map((sheet) => sheet.name);
   }
-  sheet(name, options) {
+  sheet(name, {range, headers = false} = {}) {
     const sheet = this._.getWorksheet(
       typeof name === "number" ? this.sheetNames()[name] : name + ""
     );
     if (!sheet) throw new Error(`Sheet not found: ${name}`);
-    return extract(sheet, options);
+    return extract(sheet, {range, headers});
   }
 }
 
-function extract(sheet, options = {}) {
-  const {range, headers = false} = options;
+function extract(sheet, {range, headers}) {
   let [[c0, r0], [c1, r1]] = parseRange(range, sheet);
-  const empty = {};
-  const output = new Array(r1 - r0).fill(empty);
+  const output = new Array(r1 - r0).fill({});
 
   const headerRow = headers && sheet._rows[r0++];
   const seen = new Set();
@@ -58,7 +56,7 @@ function valueOf(cell) {
   return value;
 }
 
-function parseRange(specifier = {}, {columnCount, rowCount}) {
+function parseRange(specifier = [], {columnCount, rowCount}) {
   if (typeof specifier === "string") {
     const [[c0 = 0, r0 = 0] = [], [c1 = columnCount, r1 = rowCount] = []] =
       specifier.split(":").map(NN);
@@ -67,10 +65,8 @@ function parseRange(specifier = {}, {columnCount, rowCount}) {
       [c1, r1],
     ];
   } else if (typeof specifier === "object") {
-    const {
-      start: [c0 = 0, r0 = 0] = [],
-      end: [c1 = columnCount, r1 = rowCount] = [],
-    } = specifier;
+    const [[c0 = 0, r0 = 0] = [], [c1 = columnCount, r1 = rowCount] = []] =
+      specifier;
     return [
       [c0, r0],
       [c1, r1],
@@ -78,13 +74,13 @@ function parseRange(specifier = {}, {columnCount, rowCount}) {
   }
 }
 
-function AA(x) {
-  let s = "";
-  x++;
+function AA(c) {
+  let sc = "";
+  c++;
   do {
-    s = String.fromCharCode(64 + (x % 26 || 26)) + s;
-  } while ((x = Math.floor((x - 1) / 26)));
-  return s;
+    sc = String.fromCharCode(64 + (c % 26 || 26)) + sc;
+  } while ((c = Math.floor((c - 1) / 26)));
+  return sc;
 }
 
 function NN(s = "") {
