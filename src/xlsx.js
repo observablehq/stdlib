@@ -16,8 +16,6 @@ export class ExcelWorkbook {
 
 function extract(sheet, {range, headers}) {
   let [[c0, r0], [c1, r1]] = parseRange(range, sheet);
-  const output = new Array(r1 - r0).fill({});
-
   const headerRow = headers && sheet._rows[r0++];
   const seen = new Set();
   const names = [];
@@ -30,13 +28,14 @@ function extract(sheet, {range, headers}) {
     return names[n];
   }
 
-  for (let r = r0; r < r1; r++) {
+  const output = new Array(r1 - r0 + 1).fill({});
+  for (let r = r0; r <= r1; r++) {
     const _row = sheet._rows[r];
     if (!_row || !_row.hasValues) continue;
     const row = (output[r - r0] = {});
-    for (let c = c0; c < c1; c++) {
+    for (let c = c0; c <= c1; c++) {
       const value = valueOf(_row._cells[c]);
-      if (value) row[name(c)] = value;
+      if (value !== null && value !== undefined) row[name(c)] = value;
     }
   }
 
@@ -58,15 +57,19 @@ function valueOf(cell) {
 
 function parseRange(specifier = [], {columnCount, rowCount}) {
   if (typeof specifier === "string") {
-    const [[c0 = 0, r0 = 0] = [], [c1 = columnCount, r1 = rowCount] = []] =
-      specifier.split(":").map(NN);
+    const [
+      [c0 = 0, r0 = 0] = [],
+      [c1 = columnCount - 1, r1 = rowCount - 1] = [],
+    ] = specifier.split(":").map(NN);
     return [
       [c0, r0],
       [c1, r1],
     ];
   } else if (typeof specifier === "object") {
-    const [[c0 = 0, r0 = 0] = [], [c1 = columnCount, r1 = rowCount] = []] =
-      specifier;
+    const [
+      [c0 = 0, r0 = 0] = [],
+      [c1 = columnCount - 1, r1 = rowCount - 1] = [],
+    ] = specifier;
     return [
       [c0, r0],
       [c1, r1],
