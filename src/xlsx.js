@@ -16,9 +16,9 @@ export class ExcelWorkbook {
 
 function extract(sheet, {range, headers}) {
   let [[c0, r0], [c1, r1]] = parseRange(range, sheet);
-  const headerRow = headers && sheet._rows[r0++];
   const seen = new Set();
   const names = [];
+  const headerRow = headers && sheet._rows[r0++];
   function name(n) {
     if (!names[n]) {
       let name = (headerRow ? valueOf(headerRow._cells[n]) : AA(n)) || AA(n);
@@ -27,6 +27,7 @@ function extract(sheet, {range, headers}) {
     }
     return names[n];
   }
+  if (headerRow) for (let c = c0; c <= c1; c++) name(c);
 
   const output = new Array(r1 - r0 + 1).fill({});
   for (let r = r0; r <= r1; r++) {

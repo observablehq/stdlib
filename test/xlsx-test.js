@@ -64,15 +64,15 @@ test("FileAttachment.xlsx reads sheets with headers", (t) => {
   const workbook = new ExcelWorkbook(
     mockWorkbook({
       Sheet1: [
-        ["one", "one", "one", "two"],
-        [1, null, 3, 4],
-        [5, 6, 7, 8],
+        [null, "one", "one", "two", "A"],
+        [   1,  null,     3,     4,   5],
+        [   6,     7,     8,     9,  10],
       ],
     })
   );
   t.same(workbook.sheet(0, {headers: true}), [
-    {one: 1, one_: 3, two: 4},
-    {one: 5, one__: 6, one_: 7, two: 8},
+    {A: 1, one_: 3, two: 4, A_: 5},
+    {A: 6, one: 7, one_: 8, two: 9, A_: 10},
   ]);
   t.end();
 });
