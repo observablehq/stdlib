@@ -43,6 +43,10 @@ test("FileAttachment.xlsx reads sheets", (t) => {
     {A: "one", B: "two", C: "three"},
     {A: 1, B: 2, C: 3},
   ]);
+  t.same(workbook.sheet("Sheet1"), [
+    {A: "one", B: "two", C: "three"},
+    {A: 1, B: 2, C: 3},
+  ]);
   t.end();
 });
 
