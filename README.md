@@ -373,7 +373,7 @@ const blob = await FileAttachment("binary-data.dat").blob();
 
 <a href="#attachment_sqlite" name="attachment_sqlite">#</a> *attachment*.<b>sqlite</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
 
-Returns a promise to the file loads as a [SQLite database client](https://observablehq.com/@observablehq/databases).
+Returns a promise to the file loaded as a [SQLite database client](https://observablehq.com/@observablehq/databases).
 
 ```js
 const db = await FileAttachment("chinook.db").sqlite();
