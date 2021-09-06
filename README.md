@@ -379,6 +379,10 @@ Returns a promise to the file loads as a [SQLite database client](https://observ
 const db = await FileAttachment("chinook.db").sqlite();
 ```
 
+<a href="#attachment_xlsx" name="attachment_xlsx">#</a> *attachment*.<b>xlsx</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/xlsx.js "Source")
+
+Returns a promise to the file loaded as an [ExcelWorkbook](https://observablehq.com/@observablehq/excelworkbook).
+
 <a href="#FileAttachments" name="FileAttachments">#</a> <b>FileAttachments</b>(<i>resolve</i>) [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
 
 *Note: this function is not part of the Observable standard library (in notebooks), but is provided by this module as a means for defining custom file attachment implementations when working directly with the Observable runtime.*
