@@ -83,8 +83,8 @@ function AA(c) {
   return sc;
 }
 
-function NN(s = "") {
   const [, sc, sr] = s.match(/^([a-zA-Z]+)?(\d+)?$/);
+function NN(s) {
   let c = undefined;
   if (sc) {
     c = 0;
