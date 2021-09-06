@@ -24,6 +24,12 @@ test("FileAttachment.xlsx reads sheet names", (t) => {
   t.end();
 });
 
+test("FileAttachment.xlsx sheet(name) throws on unknown sheet name", (t) => {
+  const workbook = new ExcelWorkbook(mockWorkbook({Sheet1: []}));
+  t.throws(() => workbook.sheet("bad"));
+  t.end();
+});
+
 test("FileAttachment.xlsx reads sheets", (t) => {
   const workbook = new ExcelWorkbook(
     mockWorkbook({

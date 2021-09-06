@@ -6,10 +6,10 @@ export class ExcelWorkbook {
     return this._.worksheets.map((sheet) => sheet.name);
   }
   sheet(name, {range, headers = false} = {}) {
-    const sheet = this._.getWorksheet(
-      typeof name === "number" ? this.sheetNames()[name] : name + ""
-    );
-    if (!sheet) throw new Error(`Sheet not found: ${name}`);
+    const names = this.sheetNames();
+    const sname = typeof name === "number" ? names[name] : names.includes(name + "") ? name + "" : null;
+    if (sname == null) throw new Error(`Sheet not found: ${name}`);
+    const sheet = this._.getWorksheet(sname);
     return extract(sheet, {range, headers});
   }
 }
