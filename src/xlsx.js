@@ -16,18 +16,14 @@ export class ExcelWorkbook {
 
 function extract(sheet, {range, headers}) {
   let [[c0, r0], [c1, r1]] = parseRange(range, sheet);
-  const seen = new Set();
-  const names = [];
   const headerRow = headers && sheet._rows[r0++];
-  function name(n) {
-    if (!names[n]) {
-      let name = (headerRow ? valueOf(headerRow._cells[n]) : AA(n)) || AA(n);
-      while (seen.has(name)) name += "_";
-      seen.add((names[n] = name));
-    }
-    return names[n];
+  let names = new Set();
+  for (let n = c0; n <= c1; n++) {
+    let name = (headerRow ? valueOf(headerRow._cells[n]) : null) || AA(n);
+    while (names.has(name)) name += "_";
+    names.add(name);
   }
-  if (headerRow) for (let c = c0; c <= c1; c++) name(c);
+  names = new Array(c0).concat(Array.from(names));
 
   const output = new Array(r1 - r0 + 1).fill({});
   for (let r = r0; r <= r1; r++) {
@@ -36,7 +32,7 @@ function extract(sheet, {range, headers}) {
     const row = (output[r - r0] = {});
     for (let c = c0; c <= c1; c++) {
       const value = valueOf(_row._cells[c]);
-      if (value !== null && value !== undefined) row[name(c)] = value;
+      if (value != null) row[names[c]] = value;
     }
   }
 
