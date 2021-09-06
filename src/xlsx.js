@@ -71,6 +71,8 @@ function parseRange(specifier = [], {columnCount, rowCount}) {
       [c0, r0],
       [c1, r1],
     ];
+  } else {
+    throw new Error(`Unknown range specifier`);
   }
 }
 
@@ -83,13 +85,13 @@ function AA(c) {
   return sc;
 }
 
-  const [, sc, sr] = s.match(/^([a-zA-Z]+)?(\d+)?$/);
 function NN(s) {
+  const [, sc, sr] = s.match(/^([A-Z]*)(\d*)$/i);
   let c = undefined;
   if (sc) {
     c = 0;
     for (let i = 0; i < sc.length; i++)
       c += Math.pow(26, sc.length - i - 1) * (sc.charCodeAt(i) - 64);
   }
-  return [c && c - 1, sr && +sr - 1];
+  return [c ? c - 1 : undefined, sr ? +sr - 1 : undefined];
 }
