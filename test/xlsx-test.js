@@ -24,6 +24,12 @@ test("FileAttachment.xlsx reads sheet names", (t) => {
   t.end();
 });
 
+test("FileAttachment.xlsx sheet(name) throws on unknown sheet name", (t) => {
+  const workbook = new ExcelWorkbook(mockWorkbook({Sheet1: []}));
+  t.throws(() => workbook.sheet("bad"));
+  t.end();
+});
+
 test("FileAttachment.xlsx reads sheets", (t) => {
   const workbook = new ExcelWorkbook(
     mockWorkbook({
@@ -37,6 +43,10 @@ test("FileAttachment.xlsx reads sheets", (t) => {
     {A: "one", B: "two", C: "three"},
     {A: 1, B: 2, C: 3},
   ]);
+  t.same(workbook.sheet("Sheet1"), [
+    {A: "one", B: "two", C: "three"},
+    {A: 1, B: 2, C: 3},
+  ]);
   t.end();
 });
 
@@ -44,18 +54,20 @@ test("FileAttachment.xlsx reads sheets with different types", (t) => {
   const workbook = new ExcelWorkbook(
     mockWorkbook({
       Sheet1: [
-        ["one", {richText: [{text: "two"}, {text: "three"}]}],
+        ["one", null, {richText: [{text: "two"}, {text: "three"}]}, undefined],
         [
           {text: "link", hyperlink: "https://example.com"},
           2,
           {formula: "=B2*5", result: 10},
         ],
+        [],
       ],
     })
   );
   t.same(workbook.sheet(0), [
-    {A: "one", B: "twothree"},
+    {A: "one", C: "twothree"},
     {A: `<a href="https://example.com">link</a>`, B: 2, C: 10},
+    {},
   ]);
   t.end();
 });
@@ -152,5 +164,42 @@ test("FileAttachment.xlsx reads sheet ranges", (t) => {
   t.same(workbook.sheet(0, {range: "2"}), entireSheet.slice(1));
   t.same(workbook.sheet(0, {range: [[undefined, 1]]}), entireSheet.slice(1));
 
+  // ":I"
+  // [,[1,]]
+  const sheetJ = [
+    { I: 8, J: 9 },
+    { I: 18, J: 19 },
+    { I: 28, J: 29 },
+    { I: 38, J: 39 }
+  ];
+  t.same(workbook.sheet(0, {range: "I"}), sheetJ);
+  t.same(workbook.sheet(0, {range: [[8, undefined], undefined]}), sheetJ);
+  t.end();
+});
+
+test("FileAttachment.xlsx throws on unknown range specifier", (t) => {
+  const workbook = new ExcelWorkbook(mockWorkbook({ Sheet1: [] }));
+  t.throws(() => workbook.sheet(0, {range: 0}));
+  t.end();
+});
+
+test("FileAttachment.xlsx derives column names such as A AA AAA…", (t) => {
+  const l0 = 26 * 26 * 26 + 26 * 26 + 26;
+  const workbook = new ExcelWorkbook(
+    mockWorkbook({
+      Sheet1: [
+        Array.from({length: l0}).fill(1),
+      ],
+    })
+  );
+  t.same(workbook.sheet(0, {headers: false}).columns.filter(d => d.match(/^A*$/)), ["A", "AA", "AAA"]);
+  const workbook1 = new ExcelWorkbook(
+    mockWorkbook({
+      Sheet1: [
+        Array.from({length: l0 + 1}).fill(1),
+      ],
+    })
+  );
+  t.same(workbook1.sheet(0, {headers: false}).columns.filter(d => d.match(/^A*$/)), ["A", "AA", "AAA", "AAAA"]);
   t.end();
 });
