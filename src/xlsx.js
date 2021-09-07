@@ -1,13 +1,15 @@
 export class ExcelWorkbook {
   constructor(workbook) {
     Object.defineProperty(this, "_", {value: workbook});
-  }
-  sheetNames() {
-    return this._.worksheets.map((sheet) => sheet.name);
+    this.sheetNames = this._.worksheets.map((sheet) => sheet.name);
   }
   sheet(name, {range, headers = false} = {}) {
-    const names = this.sheetNames();
-    const sname = typeof name === "number" ? names[name] : names.includes(name + "") ? name + "" : null;
+    const sname =
+      typeof name === "number"
+        ? this.sheetNames[name]
+        : this.sheetNames.includes(name + "")
+        ? name + ""
+        : null;
     if (sname == null) throw new Error(`Sheet not found: ${name}`);
     const sheet = this._.getWorksheet(sname);
     return extract(sheet, {range, headers});

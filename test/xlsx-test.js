@@ -20,7 +20,7 @@ function mockWorkbook(contents) {
 
 test("FileAttachment.xlsx reads sheet names", (t) => {
   const workbook = new ExcelWorkbook(mockWorkbook({Sheet1: []}));
-  t.same(workbook.sheetNames(), ["Sheet1"]);
+  t.same(workbook.sheetNames, ["Sheet1"]);
   t.end();
 });
 
