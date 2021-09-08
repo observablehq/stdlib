@@ -13,7 +13,7 @@
     "url": "https://github.com/observablehq/stdlib.git"
   },
   "scripts": {
-    "test": "tap 'test/**/*-test.js' --reporter classic",
+    "test": "tap 'test/**/*-test.js' --reporter base",
     "prepublishOnly": "rollup -c",
     "postpublish": "git push && git push --tags"
   },

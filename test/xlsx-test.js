@@ -182,18 +182,22 @@ test("FileAttachment.xlsx reads sheet ranges", (t) => {
   // ":I"
   // [,[1,]]
   const sheetJ = [
-    { I: 8, J: 9 },
-    { I: 18, J: 19 },
-    { I: 28, J: 29 },
-    { I: 38, J: 39 }
+    {I: 8, J: 9},
+    {I: 18, J: 19},
+    {I: 28, J: 29},
+    {I: 38, J: 39},
   ];
   t.same(workbook.sheet(0, {range: "I"}), sheetJ);
   t.same(workbook.sheet(0, {range: [[8, undefined], undefined]}), sheetJ);
+
+  // ":ZZ" (doesn't cause extra column fields)
+  t.same(workbook.sheet(0, {range: ":ZZ"}), entireSheet);
+
   t.end();
 });
 
 test("FileAttachment.xlsx throws on unknown range specifier", (t) => {
-  const workbook = new ExcelWorkbook(mockWorkbook({ Sheet1: [] }));
+  const workbook = new ExcelWorkbook(mockWorkbook({Sheet1: []}));
   t.throws(() => workbook.sheet(0, {range: 0}));
   t.end();
 });
@@ -202,19 +206,21 @@ test("FileAttachment.xlsx derives column names such as A AA AAA…", (t) => {
   const l0 = 26 * 26 * 26 + 26 * 26 + 26;
   const workbook = new ExcelWorkbook(
     mockWorkbook({
-      Sheet1: [
-        Array.from({length: l0}).fill(1),
-      ],
+      Sheet1: [Array.from({length: l0}).fill(1)],
     })
   );
-  t.same(workbook.sheet(0, {headers: false}).columns.filter(d => d.match(/^A*$/)), ["A", "AA", "AAA"]);
+  t.same(
+    workbook.sheet(0, {headers: false}).columns.filter((d) => d.match(/^A*$/)),
+    ["A", "AA", "AAA"]
+  );
   const workbook1 = new ExcelWorkbook(
     mockWorkbook({
-      Sheet1: [
-        Array.from({length: l0 + 1}).fill(1),
-      ],
+      Sheet1: [Array.from({length: l0 + 1}).fill(1)],
     })
   );
-  t.same(workbook1.sheet(0, {headers: false}).columns.filter(d => d.match(/^A*$/)), ["A", "AA", "AAA", "AAAA"]);
+  t.same(
+    workbook1.sheet(0, {headers: false}).columns.filter((d) => d.match(/^A*$/)),
+    ["A", "AA", "AAA", "AAAA"]
+  );
   t.end();
 });
