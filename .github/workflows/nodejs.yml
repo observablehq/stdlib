@@ -5,6 +5,7 @@ on: [push]
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest]
         node-version: [12.x, 14.x, 16.x]
