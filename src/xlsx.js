@@ -52,7 +52,7 @@ function valueOf(cell) {
       return value.hyperlink
         ? `<a href="${encodeURI(value.hyperlink)}">${value.text.replace(/</g, "&lt;")}</a>`
         : value.text;
-    return "";
+    return value;
   }
   return value;
 }

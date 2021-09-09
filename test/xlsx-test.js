@@ -6,14 +6,17 @@ function mockWorkbook(contents, overrides = {}) {
     worksheets: Object.keys(contents).map((name) => ({name})),
     getWorksheet(name) {
       const _rows = contents[name];
-      return Object.assign({
-        _rows: _rows.map((row) => ({
-          _cells: row.map((cell) => ({value: cell})),
-          hasValues: !!row.length,
-        })),
-        rowCount: _rows.length,
-        columnCount: Math.max(..._rows.map((r) => r.length)),
-      }, overrides);
+      return Object.assign(
+        {
+          _rows: _rows.map((row) => ({
+            _cells: row.map((cell) => ({value: cell})),
+            hasValues: !!row.length,
+          })),
+          rowCount: _rows.length,
+          columnCount: Math.max(..._rows.map((r) => r.length)),
+        },
+        overrides
+      );
     },
   };
 }
@@ -61,7 +64,7 @@ test("FileAttachment.xlsx reads sheets with different types", (t) => {
           2,
           {formula: "=B2*5", result: 10},
         ],
-        [ {/* empty object */} ],
+        [{}, new Date(Date.UTC(2020, 0, 1))],
         [],
       ],
     })
@@ -69,7 +72,7 @@ test("FileAttachment.xlsx reads sheets with different types", (t) => {
   t.same(workbook.sheet(0), [
     {A: "one", C: "twothree"},
     {A: "plain text", B: `<a href="https://example.com">link</a>`, C: 2, D: 10},
-    {A: ""},
+    {A: {}, B: new Date(Date.UTC(2020, 0, 1))},
     {},
   ]);
   t.end();
@@ -79,15 +82,15 @@ test("FileAttachment.xlsx reads sheets with headers", (t) => {
   const workbook = new Workbook(
     mockWorkbook({
       Sheet1: [
-        [null, "one", "one", "two", "A"],
-        [1, null, 3, 4, 5],
+        [null, "one", "one", "two", "A", "0"],
+        [1, null, 3, 4, 5, "zero"],
         [6, 7, 8, 9, 10],
       ],
     })
     // }, { columnCount: 10 })
   );
   t.same(workbook.sheet(0, {headers: true}), [
-    {A: 1, one_: 3, two: 4, A_: 5},
+    {A: 1, one_: 3, two: 4, A_: 5, 0: "zero"},
     {A: 6, one: 7, one_: 8, two: 9, A_: 10},
   ]);
   t.same(workbook.sheet(0, {headers: true}).columns, [
@@ -96,6 +99,7 @@ test("FileAttachment.xlsx reads sheets with headers", (t) => {
     "one_",
     "two",
     "A_",
+    "0",
   ]);
   t.end();
 });
@@ -208,7 +212,10 @@ test("FileAttachment.xlsx reads sheet ranges", (t) => {
   // ":2"
   // [[,],[,1]]
   t.same(workbook.sheet(0, {range: ":2"}), entireSheet.slice(0, 2));
-  t.same(workbook.sheet(0, {range: [[], [undefined, 1]]}), entireSheet.slice(0, 2));
+  t.same(
+    workbook.sheet(0, {range: [[], [undefined, 1]]}),
+    entireSheet.slice(0, 2)
+  );
 
   t.end();
 });
