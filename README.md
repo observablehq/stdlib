@@ -390,7 +390,7 @@ const db = await FileAttachment("cars.xml").xml();
 Returns a promise to an [HTMLDocument](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDocument) containing the contents of the file.
 
 ```js
-const db = await FileAttachment("cars.xml").xml();
+const db = await FileAttachment("index.html").html();
 ```
 <a href="#FileAttachments" name="FileAttachments">#</a> <b>FileAttachments</b>(<i>resolve</i>) [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
 
