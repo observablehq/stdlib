@@ -1,19 +1,19 @@
 import {test} from "tap";
 import {ExcelWorkbook} from "../src/xlsx.js";
 
-function mockWorkbook(contents) {
+function mockWorkbook(contents, overrides = {}) {
   return {
     worksheets: Object.keys(contents).map((name) => ({name})),
     getWorksheet(name) {
       const _rows = contents[name];
-      return {
+      return Object.assign({
         _rows: _rows.map((row) => ({
           _cells: row.map((cell) => ({value: cell})),
           hasValues: !!row.length,
         })),
         rowCount: _rows.length,
         columnCount: Math.max(..._rows.map((r) => r.length)),
-      };
+      }, overrides);
     },
   };
 }
@@ -56,17 +56,20 @@ test("FileAttachment.xlsx reads sheets with different types", (t) => {
       Sheet1: [
         ["one", null, {richText: [{text: "two"}, {text: "three"}]}, undefined],
         [
+          {text: "plain text"},
           {text: "link", hyperlink: "https://example.com"},
           2,
           {formula: "=B2*5", result: 10},
         ],
+        [ {/* empty object */} ],
         [],
       ],
     })
   );
   t.same(workbook.sheet(0), [
     {A: "one", C: "twothree"},
-    {A: `<a href="https://example.com">link</a>`, B: 2, C: 10},
+    {A: "plain text", B: `<a href="https://example.com">link</a>`, C: 2, D: 10},
+    {A: ""},
     {},
   ]);
   t.end();
@@ -81,10 +84,18 @@ test("FileAttachment.xlsx reads sheets with headers", (t) => {
         [6, 7, 8, 9, 10],
       ],
     })
+    // }, { columnCount: 10 })
   );
   t.same(workbook.sheet(0, {headers: true}), [
     {A: 1, one_: 3, two: 4, A_: 5},
     {A: 6, one: 7, one_: 8, two: 9, A_: 10},
+  ]);
+  t.same(workbook.sheet(0, {headers: true}).columns, [
+    "A",
+    "one",
+    "one_",
+    "two",
+    "A_",
   ]);
   t.end();
 });
@@ -113,6 +124,7 @@ test("FileAttachment.xlsx reads sheet ranges", (t) => {
   t.same(workbook.sheet(0), entireSheet);
   t.same(workbook.sheet(0, {range: ""}), entireSheet);
   t.same(workbook.sheet(0, {range: []}), entireSheet);
+  t.same(workbook.sheet(0, {range: []}).columns, Object.keys(entireSheet[0]));
 
   // "B2:C3"
   // [[1,1],[2,2]]
@@ -174,11 +186,6 @@ test("FileAttachment.xlsx reads sheet ranges", (t) => {
     {H: 37, I: 38, J: 39},
   ]);
 
-  // "2"
-  // [[,1]]
-  t.same(workbook.sheet(0, {range: "2"}), entireSheet.slice(1));
-  t.same(workbook.sheet(0, {range: [[undefined, 1]]}), entireSheet.slice(1));
-
   // ":I"
   // [,[1,]]
   const sheetJ = [
@@ -192,6 +199,16 @@ test("FileAttachment.xlsx reads sheet ranges", (t) => {
 
   // ":ZZ" (doesn't cause extra column fields)
   t.same(workbook.sheet(0, {range: ":ZZ"}), entireSheet);
+
+  // "2"
+  // [[,1]]
+  t.same(workbook.sheet(0, {range: "2"}), entireSheet.slice(1));
+  t.same(workbook.sheet(0, {range: [[undefined, 1]]}), entireSheet.slice(1));
+
+  // ":2"
+  // [[,],[,1]]
+  t.same(workbook.sheet(0, {range: ":2"}), entireSheet.slice(0, 2));
+  t.same(workbook.sheet(0, {range: [[], [undefined, 1]]}), entireSheet.slice(0, 2));
 
   t.end();
 });

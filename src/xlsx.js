@@ -48,8 +48,11 @@ function valueOf(cell) {
   if (value && typeof value === "object") {
     if (value.formula) return value.result;
     if (value.richText) return value.richText.map((d) => d.text).join("");
-    if (value.text && value.hyperlink)
-      return `<a href="${value.hyperlink}">${value.text}</a>`;
+    if (value.text)
+      return value.hyperlink
+        ? `<a href="${value.hyperlink}">${value.text}</a>`
+        : value.text;
+    return "";
   }
   return value;
 }
@@ -57,7 +60,7 @@ function valueOf(cell) {
 function parseRange(specifier = [], {columnCount, rowCount}) {
   if (typeof specifier === "string") {
     const [
-      [c0 = 0, r0 = 0] = [],
+      [c0 = 0, r0 = 0],
       [c1 = columnCount - 1, r1 = rowCount - 1] = [],
     ] = specifier.split(":").map(NN);
     return [
