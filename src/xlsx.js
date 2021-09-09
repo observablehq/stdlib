@@ -1,4 +1,4 @@
-export class ExcelWorkbook {
+export class Workbook {
   constructor(workbook) {
     Object.defineProperty(this, "_", {value: workbook});
     this.sheetNames = this._.worksheets.map((sheet) => sheet.name);
@@ -50,7 +50,7 @@ function valueOf(cell) {
     if (value.richText) return value.richText.map((d) => d.text).join("");
     if (value.text)
       return value.hyperlink
-        ? `<a href="${value.hyperlink}">${value.text}</a>`
+        ? `<a href="${encodeURI(value.hyperlink)}">${value.text.replace(/</g, "&lt;")}</a>`
         : value.text;
     return "";
   }

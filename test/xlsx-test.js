@@ -1,5 +1,5 @@
 import {test} from "tap";
-import {ExcelWorkbook} from "../src/xlsx.js";
+import {Workbook} from "../src/xlsx.js";
 
 function mockWorkbook(contents, overrides = {}) {
   return {
@@ -19,19 +19,19 @@ function mockWorkbook(contents, overrides = {}) {
 }
 
 test("FileAttachment.xlsx reads sheet names", (t) => {
-  const workbook = new ExcelWorkbook(mockWorkbook({Sheet1: []}));
+  const workbook = new Workbook(mockWorkbook({Sheet1: []}));
   t.same(workbook.sheetNames, ["Sheet1"]);
   t.end();
 });
 
 test("FileAttachment.xlsx sheet(name) throws on unknown sheet name", (t) => {
-  const workbook = new ExcelWorkbook(mockWorkbook({Sheet1: []}));
+  const workbook = new Workbook(mockWorkbook({Sheet1: []}));
   t.throws(() => workbook.sheet("bad"));
   t.end();
 });
 
 test("FileAttachment.xlsx reads sheets", (t) => {
-  const workbook = new ExcelWorkbook(
+  const workbook = new Workbook(
     mockWorkbook({
       Sheet1: [
         ["one", "two", "three"],
@@ -51,7 +51,7 @@ test("FileAttachment.xlsx reads sheets", (t) => {
 });
 
 test("FileAttachment.xlsx reads sheets with different types", (t) => {
-  const workbook = new ExcelWorkbook(
+  const workbook = new Workbook(
     mockWorkbook({
       Sheet1: [
         ["one", null, {richText: [{text: "two"}, {text: "three"}]}, undefined],
@@ -76,7 +76,7 @@ test("FileAttachment.xlsx reads sheets with different types", (t) => {
 });
 
 test("FileAttachment.xlsx reads sheets with headers", (t) => {
-  const workbook = new ExcelWorkbook(
+  const workbook = new Workbook(
     mockWorkbook({
       Sheet1: [
         [null, "one", "one", "two", "A"],
@@ -101,7 +101,7 @@ test("FileAttachment.xlsx reads sheets with headers", (t) => {
 });
 
 test("FileAttachment.xlsx reads sheet ranges", (t) => {
-  const workbook = new ExcelWorkbook(
+  const workbook = new Workbook(
     mockWorkbook({
       Sheet1: [
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -214,14 +214,14 @@ test("FileAttachment.xlsx reads sheet ranges", (t) => {
 });
 
 test("FileAttachment.xlsx throws on unknown range specifier", (t) => {
-  const workbook = new ExcelWorkbook(mockWorkbook({Sheet1: []}));
+  const workbook = new Workbook(mockWorkbook({Sheet1: []}));
   t.throws(() => workbook.sheet(0, {range: 0}));
   t.end();
 });
 
 test("FileAttachment.xlsx derives column names such as A AA AAA…", (t) => {
   const l0 = 26 * 26 * 26 + 26 * 26 + 26;
-  const workbook = new ExcelWorkbook(
+  const workbook = new Workbook(
     mockWorkbook({
       Sheet1: [Array.from({length: l0}).fill(1)],
     })
@@ -230,7 +230,7 @@ test("FileAttachment.xlsx derives column names such as A AA AAA…", (t) => {
     workbook.sheet(0, {headers: false}).columns.filter((d) => d.match(/^A*$/)),
     ["A", "AA", "AAA"]
   );
-  const workbook1 = new ExcelWorkbook(
+  const workbook1 = new Workbook(
     mockWorkbook({
       Sheet1: [Array.from({length: l0 + 1}).fill(1)],
     })
