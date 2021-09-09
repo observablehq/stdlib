@@ -45,6 +45,7 @@ function extract(sheet, {range, headers}) {
 function valueOf(cell) {
   if (!cell) return;
   const {value} = cell;
+  if (value && value instanceof Date) return value;
   if (value && typeof value === "object") {
     if (value.formula) return value.result;
     if (value.richText) return value.richText.map((d) => d.text).join("");
