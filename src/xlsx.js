@@ -45,12 +45,16 @@ function extract(sheet, {range, headers}) {
 function valueOf(cell) {
   if (!cell) return;
   const {value} = cell;
+  if (value && value instanceof Date) return value;
   if (value && typeof value === "object") {
-    if (value.formula) return value.result;
+    if (value.formula || value.sharedFormula) return value.result;
     if (value.richText) return value.richText.map((d) => d.text).join("");
     if (value.text)
       return value.hyperlink
-        ? `<a href="${encodeURI(value.hyperlink)}">${value.text.replace(/</g, "&lt;")}</a>`
+        ? `<a href="${encodeURI(value.hyperlink)}">${value.text.replace(
+            /</g,
+            "&lt;"
+          )}</a>`
         : value.text;
     return value;
   }
@@ -59,10 +63,8 @@ function valueOf(cell) {
 
 function parseRange(specifier = [], {columnCount, rowCount}) {
   if (typeof specifier === "string") {
-    const [
-      [c0 = 0, r0 = 0],
-      [c1 = columnCount - 1, r1 = rowCount - 1] = [],
-    ] = specifier.split(":").map(NN);
+    const [[c0 = 0, r0 = 0], [c1 = columnCount - 1, r1 = rowCount - 1] = []] =
+      specifier.split(":").map(NN);
     return [
       [c0, r0],
       [c1, r1],

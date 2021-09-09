@@ -63,6 +63,7 @@ test("FileAttachment.xlsx reads sheets with different types", (t) => {
           {text: "link", hyperlink: "https://example.com"},
           2,
           {formula: "=B2*5", result: 10},
+          {sharedFormula: "=B2*6", result: 12},
         ],
         [{}, new Date(Date.UTC(2020, 0, 1))],
         [],
@@ -71,7 +72,13 @@ test("FileAttachment.xlsx reads sheets with different types", (t) => {
   );
   t.same(workbook.sheet(0), [
     {A: "one", C: "twothree"},
-    {A: "plain text", B: `<a href="https://example.com">link</a>`, C: 2, D: 10},
+    {
+      A: "plain text",
+      B: `<a href="https://example.com">link</a>`,
+      C: 2,
+      D: 10,
+      E: 12,
+    },
     {A: {}, B: new Date(Date.UTC(2020, 0, 1))},
     {},
   ]);
