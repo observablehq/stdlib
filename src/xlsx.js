@@ -62,8 +62,8 @@ function parseRange(specifier = [], {columnCount, rowCount}) {
   if (typeof specifier === "string") {
     const [
       [c0 = 0, r0 = 0],
-      [c1 = columnCount - 1, r1 = rowCount - 1] = [],
-    ] = specifier.split(":").map(NN);
+      [c1 = columnCount - 1, r1 = rowCount - 1],
+    ] = NN2(specifier);
     return [
       [c0, r0],
       [c1, r1],
@@ -100,4 +100,11 @@ function NN(s) {
       c += Math.pow(26, sc.length - i - 1) * (sc.charCodeAt(i) - 64);
   }
   return [c ? c - 1 : undefined, sr ? +sr - 1 : undefined];
+}
+
+// "A" is the "A:A" column; "1" is the "1:1" row, "A1" is the "A1:A1" cell
+function NN2(s) {
+  s = s.split(":").map(NN);
+  if (s.length === 1) s[1] = s[0];
+  return s;
 }
