@@ -384,7 +384,7 @@ const db = await FileAttachment("chinook.db").sqlite();
 Returns a promise to an [XMLDocument](https://developer.mozilla.org/en-US/docs/Web/API/XMLDocument) containing the contents of the file.
 
 ```js
-const db = await FileAttachment("cars.xml").xml();
+const document = await FileAttachment("cars.xml").xml();
 ```
 
 <a href="#attachment_html" name="attachment_html">#</a> *attachment*.<b>html</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
@@ -392,7 +392,7 @@ const db = await FileAttachment("cars.xml").xml();
 Returns a promise to an [HTMLDocument](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDocument) containing the contents of the file.
 
 ```js
-const db = await FileAttachment("index.html").html();
+const document = await FileAttachment("index.html").html();
 ```
 
 <a href="#FileAttachments" name="FileAttachments">#</a> <b>FileAttachments</b>(<i>resolve</i>) [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
