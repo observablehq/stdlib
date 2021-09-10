@@ -102,6 +102,7 @@ test("FileAttachment.xlsx reads sheets with headers", (t) => {
     {A: 6, one: 7, one_: 8, two: 9, A_: 10},
   ]);
   t.same(workbook.sheet(0, {headers: true}).columns, [
+    "#",
     "A",
     "one",
     "one_",
@@ -139,7 +140,10 @@ test("FileAttachment.xlsx reads sheet ranges", (t) => {
   t.same(workbook.sheet(0), entireSheet);
   t.same(workbook.sheet(0, {range: ":"}), entireSheet);
   t.same(workbook.sheet(0, {range: []}), entireSheet);
-  t.same(workbook.sheet(0, {range: []}).columns, Object.keys(entireSheet[0]));
+  t.same(workbook.sheet(0, {range: []}).columns, [
+    "#",
+    ...Object.keys(entireSheet[0]),
+  ]);
 
   // "B2:C3"
   // [[1,1],[2,2]]
@@ -212,7 +216,7 @@ test("FileAttachment.xlsx reads sheet ranges", (t) => {
   t.same(workbook.sheet(0, {range: ":Z"}), entireSheet);
   t.same(
     workbook.sheet(0, {range: ":Z"}).columns,
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")
+    "#ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")
   );
 
   // "2:"
