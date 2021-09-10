@@ -60,7 +60,7 @@ test("FileAttachment.xlsx reads sheets with different types", (t) => {
         ["one", null, {richText: [{text: "two"}, {text: "three"}]}, undefined],
         [
           {text: "plain text"},
-          {text: "link", hyperlink: "https://example.com"},
+          {text: `link&</a>"'?`, hyperlink: 'https://example.com?q="'},
           2,
           {formula: "=B2*5", result: 10},
           {sharedFormula: "=B2*6", result: 12},
@@ -75,7 +75,7 @@ test("FileAttachment.xlsx reads sheets with different types", (t) => {
     {A: "one", C: "twothree"},
     {
       A: "plain text",
-      B: `<a href="https://example.com">link</a>`,
+      B: `<a href="https://example.com?q=%22">link&amp;&lt;/a&gt;&quot;&#39;?</a>`,
       C: 2,
       D: 10,
       E: 12,
@@ -96,7 +96,6 @@ test("FileAttachment.xlsx reads sheets with headers", (t) => {
         [6, 7, 8, 9, 10],
       ],
     })
-    // }, { columnCount: 10 })
   );
   t.same(workbook.sheet(0, {headers: true}), [
     {A: 1, one_: 3, two: 4, A_: 5, 0: "zero"},
