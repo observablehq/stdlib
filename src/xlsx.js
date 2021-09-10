@@ -47,7 +47,8 @@ function valueOf(cell) {
   const {value} = cell;
   if (value && value instanceof Date) return value;
   if (value && typeof value === "object") {
-    if (value.formula || value.sharedFormula) return value.result;
+    if (value.formula || value.sharedFormula)
+      return value.result && value.result.error ? NaN : value.result;
     if (value.richText) return value.richText.map((d) => d.text).join("");
     if (value.text)
       return value.hyperlink
