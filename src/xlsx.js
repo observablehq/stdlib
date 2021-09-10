@@ -86,7 +86,8 @@ function escapeHTML(string) {
 
 function parseRange(specifier = [], {columnCount, rowCount}) {
   if (typeof specifier === "string") {
-    const [[c0 = 0, r0 = 0], [c1 = columnCount - 1, r1 = rowCount - 1] = []] =
+    if (!specifier.includes(":")) throw new Error("Malformed range specifier");
+    const [[c0 = 0, r0 = 0], [c1 = columnCount - 1, r1 = rowCount - 1]] =
       specifier.split(":").map(NN);
     return [
       [c0, r0],
@@ -102,7 +103,7 @@ function parseRange(specifier = [], {columnCount, rowCount}) {
       [c1, r1],
     ];
   } else {
-    throw new Error(`Unknown range specifier`);
+    throw new Error("Unknown range specifier");
   }
 }
 

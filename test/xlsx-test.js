@@ -124,8 +124,11 @@ test("FileAttachment.xlsx reads sheet ranges", (t) => {
     })
   );
 
-  // undefined
   // ""
+  t.throws(() => t.same(workbook.sheet(0, {range: ""}), entireSheet));
+
+  // undefined
+  // ":"
   // []
   const entireSheet = [
     {A: 0, B: 1, C: 2, D: 3, E: 4, F: 5, G: 6, H: 7, I: 8, J: 9},
@@ -134,7 +137,7 @@ test("FileAttachment.xlsx reads sheet ranges", (t) => {
     {A: 30, B: 31, C: 32, D: 33, E: 34, F: 35, G: 36, H: 37, I: 38, J: 39},
   ];
   t.same(workbook.sheet(0), entireSheet);
-  t.same(workbook.sheet(0, {range: ""}), entireSheet);
+  t.same(workbook.sheet(0, {range: ":"}), entireSheet);
   t.same(workbook.sheet(0, {range: []}), entireSheet);
   t.same(workbook.sheet(0, {range: []}).columns, Object.keys(entireSheet[0]));
 
@@ -170,9 +173,9 @@ test("FileAttachment.xlsx reads sheet ranges", (t) => {
     {A: 20, B: 21, C: 22},
   ]);
 
-  // "B2"
+  // "B2:"
   // [[1,1]]
-  t.same(workbook.sheet(0, {range: "B2"}), [
+  t.same(workbook.sheet(0, {range: "B2:"}), [
     {B: 11, C: 12, D: 13, E: 14, F: 15, G: 16, H: 17, I: 18, J: 19},
     {B: 21, C: 22, D: 23, E: 24, F: 25, G: 26, H: 27, I: 28, J: 29},
     {B: 31, C: 32, D: 33, E: 34, F: 35, G: 36, H: 37, I: 38, J: 39},
@@ -183,38 +186,38 @@ test("FileAttachment.xlsx reads sheet ranges", (t) => {
     {B: 31, C: 32, D: 33, E: 34, F: 35, G: 36, H: 37, I: 38, J: 39},
   ]);
 
-  // "H"
+  // "H:"
   // [[7]]
-  t.same(workbook.sheet(0, {range: "H"}), [
+  const sheetH = [
     {H: 7, I: 8, J: 9},
     {H: 17, I: 18, J: 19},
     {H: 27, I: 28, J: 29},
     {H: 37, I: 38, J: 39},
-  ]);
-  t.same(workbook.sheet(0, {range: [[7]]}), [
-    {H: 7, I: 8, J: 9},
-    {H: 17, I: 18, J: 19},
-    {H: 27, I: 28, J: 29},
-    {H: 37, I: 38, J: 39},
-  ]);
-
-  // ":I"
-  // [,[1,]]
-  const sheetJ = [
-    {I: 8, J: 9},
-    {I: 18, J: 19},
-    {I: 28, J: 29},
-    {I: 38, J: 39},
   ];
-  t.same(workbook.sheet(0, {range: "I"}), sheetJ);
-  t.same(workbook.sheet(0, {range: [[8, undefined], undefined]}), sheetJ);
+  t.same(workbook.sheet(0, {range: "H:"}), sheetH);
+  t.same(workbook.sheet(0, {range: [[7]]}), sheetH);
 
-  // ":ZZ" (doesn't cause extra column fields)
-  t.same(workbook.sheet(0, {range: ":ZZ"}), entireSheet);
+  // ":C"
+  // [,[,2]]
+  const sheetC = [
+    {A: 0, B: 1, C: 2},
+    {A: 10, B: 11, C: 12},
+    {A: 20, B: 21, C: 22},
+    {A: 30, B: 31, C: 32},
+  ];
+  t.same(workbook.sheet(0, {range: ":C"}), sheetC);
+  t.same(workbook.sheet(0, {range: [undefined, [2]]}), sheetC);
 
-  // "2"
+  // ":Z"
+  t.same(workbook.sheet(0, {range: ":Z"}), entireSheet);
+  t.same(
+    workbook.sheet(0, {range: ":Z"}).columns,
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")
+  );
+
+  // "2:"
   // [[,1]]
-  t.same(workbook.sheet(0, {range: "2"}), entireSheet.slice(1));
+  t.same(workbook.sheet(0, {range: "2:"}), entireSheet.slice(1));
   t.same(workbook.sheet(0, {range: [[undefined, 1]]}), entireSheet.slice(1));
 
   // ":2"
