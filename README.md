@@ -379,6 +379,22 @@ Returns a promise to the file loaded as a [SQLite database client](https://obser
 const db = await FileAttachment("chinook.db").sqlite();
 ```
 
+<a href="#attachment_xml" name="attachment_xml">#</a> *attachment*.<b>xml</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
+
+Returns a promise to an [XMLDocument](https://developer.mozilla.org/en-US/docs/Web/API/XMLDocument) containing the contents of the file.
+
+```js
+const document = await FileAttachment("cars.xml").xml();
+```
+
+<a href="#attachment_html" name="attachment_html">#</a> *attachment*.<b>html</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
+
+Returns a promise to an [HTMLDocument](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDocument) containing the contents of the file.
+
+```js
+const document = await FileAttachment("index.html").html();
+```
+
 <a href="#FileAttachments" name="FileAttachments">#</a> <b>FileAttachments</b>(<i>resolve</i>) [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
 
 *Note: this function is not part of the Observable standard library (in notebooks), but is provided by this module as a means for defining custom file attachment implementations when working directly with the Observable runtime.*
