@@ -1,7 +1,13 @@
 export class Workbook {
   constructor(workbook) {
-    Object.defineProperty(this, "_", {value: workbook});
-    this.sheetNames = this._.worksheets.map((sheet) => sheet.name);
+    Object.defineProperties(this, {
+      _: {value: workbook},
+      sheetNames: {
+        value: workbook.worksheets.map((sheet) => sheet.name),
+        writable: false,
+        enumerable: true,
+      },
+    });
   }
   sheet(name, {range, headers = false} = {}) {
     const sname =
