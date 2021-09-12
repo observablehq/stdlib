@@ -86,27 +86,16 @@ function escapeHTML(string) {
   });
 }
 
-function parseRange(specifier = [], {columnCount, rowCount}) {
-  if (typeof specifier === "string") {
-    if (!specifier.includes(":")) throw new Error("Malformed range specifier");
-    const [[c0 = 0, r0 = 0], [c1 = columnCount - 1, r1 = rowCount - 1]] =
-      specifier.split(":").map(NN);
-    return [
-      [c0, r0],
-      [c1, r1],
-    ];
-  } else if (typeof specifier === "object") {
-    const [
-      [c0 = 0, r0 = 0] = [],
-      [c1 = columnCount - 1, r1 = rowCount - 1] = [],
-    ] = specifier;
-    return [
-      [c0, r0],
-      [c1, r1],
-    ];
-  } else {
-    throw new Error("Unknown range specifier");
-  }
+function parseRange(specifier = ":", {columnCount, rowCount}) {
+  if (typeof specifier !== "string") throw new Error("Unknown range specifier");
+  if (!specifier.match(/^[A-Z]*[0-9]*:[A-Z]*[0-9]*$/))
+    throw new Error("Malformed range specifier");
+  const [[c0 = 0, r0 = 0], [c1 = columnCount - 1, r1 = rowCount - 1]] =
+    specifier.split(":").map(NN);
+  return [
+    [c0, r0],
+    [c1, r1],
+  ];
 }
 
 function AA(c) {
