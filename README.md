@@ -385,7 +385,7 @@ Returns a promise to the file loaded as a [Workbook](https://observablehq.com/@o
 
 ```js
 const workbook = await FileAttachment("profit-and-loss.xlsx").xlsx();
-const sheet = workbook.sheet("Sheet1", { range: "B4:AF234", headers: true });
+const sheet = workbook.sheet("Sheet1", {range: "B4:AF234", headers: true});
 ```
 
 <a href="#attachment_xml" name="attachment_xml">#</a> *attachment*.<b>xml</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
