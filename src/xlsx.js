@@ -2,19 +2,15 @@ export class Workbook {
   constructor(workbook) {
     Object.defineProperties(this, {
       _: {value: workbook},
-      sheetNames: {
-        value: workbook.worksheets.map((sheet) => sheet.name),
-        writable: false,
-        enumerable: true,
-      },
+      sheetNames: {value: workbook.worksheets.map(s => s.name), enumerable: true}
     });
   }
   sheet(name, {range, headers = false} = {}) {
     const sname =
       typeof name === "number"
         ? this.sheetNames[name]
-        : this.sheetNames.includes(name + "")
-        ? name + ""
+        : this.sheetNames.includes(name += "")
+        ? name
         : null;
     if (sname == null) throw new Error(`Sheet not found: ${name}`);
     const sheet = this._.getWorksheet(sname);
