@@ -79,7 +79,7 @@ function parseRange(specifier = ":", {columnCount, rowCount}) {
 }
 
 // Returns the default column name for a zero-based column index.
-// For example: 0 => A, 1 => B, 25 => Z, 26 => AA, 27 => AB.
+// For example: 0 -> "A", 1 -> "B", 25 -> "Z", 26 -> "AA", 27 -> "AB".
 function toColumn(c) {
   let sc = "";
   c++;
