@@ -113,6 +113,23 @@ test("FileAttachment.xlsx reads sheets with headers", (t) => {
   t.end();
 });
 
+test("FileAttachment.xlsx throws on invalid ranges", (t) => {
+  const workbook = new Workbook(mockWorkbook({Sheet1: []}));
+  const malformed = new Error("Malformed range specifier");
+
+  t.throws(() => t.same(workbook.sheet(0, {range: ""})), malformed);
+  t.throws(() => t.same(workbook.sheet(0, {range: "-:"})), malformed);
+  t.throws(() => t.same(workbook.sheet(0, {range: " :"})), malformed);
+  t.throws(
+    () => t.same(workbook.sheet(0, {range: "a1:"})),
+    malformed,
+    "lowercase"
+  );
+  t.throws(() => t.same(workbook.sheet(0, {range: "1A:"})), malformed);
+
+  t.end();
+});
+
 test("FileAttachment.xlsx reads sheet ranges", (t) => {
   const workbook = new Workbook(
     mockWorkbook({
@@ -124,9 +141,6 @@ test("FileAttachment.xlsx reads sheet ranges", (t) => {
       ],
     })
   );
-
-  // ""
-  t.throws(() => t.same(workbook.sheet(0, {range: ""}), entireSheet));
 
   // undefined
   // ":"

@@ -26,7 +26,7 @@ function extract(sheet, {range, headers = false} = {}) {
   const headerRow = headers && sheet._rows[r0++];
   let names = new Set(["#"]);
   for (let n = c0; n <= c1; n++) {
-    let name = (headerRow ? valueOf(headerRow._cells[n]) : null) || AA(n);
+    let name = (headerRow ? valueOf(headerRow._cells[n]) : null) || toColumn(n);
     while (names.has(name)) name += "_";
     names.add(name);
   }
@@ -71,14 +71,16 @@ function parseRange(specifier = ":", {columnCount, rowCount}) {
   if (!specifier.match(/^[A-Z]*[0-9]*:[A-Z]*[0-9]*$/))
     throw new Error("Malformed range specifier");
   const [[c0 = 0, r0 = 0], [c1 = columnCount - 1, r1 = rowCount - 1]] =
-    specifier.split(":").map(NN);
+    specifier.split(":").map(fromCellReference);
   return [
     [c0, r0],
     [c1, r1],
   ];
 }
 
-function AA(c) {
+// Returns the default column name for a zero-based column index.
+// For example: 0 => A, 1 => B, 25 => Z, 26 => AA, 27 => AB.
+function toColumn(c) {
   let sc = "";
   c++;
   do {
@@ -87,7 +89,9 @@ function AA(c) {
   return sc;
 }
 
-function NN(s) {
+// Returns the zero-based indexes from a cell reference.
+// For example: "A1" -> [0, 0], "B2" -> [1, 1], "AA10" -> [26, 9].
+function fromCellReference(s) {
   const [, sc, sr] = s.match(/^([A-Z]*)(\d*)$/i);
   let c = undefined;
   if (sc) {
