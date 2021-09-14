@@ -54,36 +54,78 @@ test("FileAttachment.xlsx reads sheets", (t) => {
 });
 
 test("FileAttachment.xlsx reads sheets with different types", (t) => {
-  const workbook = new Workbook(
-    mockWorkbook({
-      Sheet1: [
-        ["one", null, {richText: [{text: "two"}, {text: "three"}]}, undefined],
-        [
-          {text: "plain text"},
-          {text: `link&</a>"'?`, hyperlink: 'https://example.com?q="'},
-          2,
-          {formula: "=B2*5", result: 10},
-          {sharedFormula: "=B2*6", result: 12},
-          {sharedFormula: "=Z2*6", result: {error: "#REF!"}},
+  t.same(
+    new Workbook(
+      mockWorkbook({
+        Sheet1: [
+          [],
+          [null, undefined],
+          ["hello", "", "0", "1"],
+          [1, 1.2],
+          [true, false],
+          [new Date(Date.UTC(2020, 0, 1)), {}],
         ],
-        [{}, new Date(Date.UTC(2020, 0, 1))],
-        [],
-      ],
-    })
+      })
+    ).sheet(0),
+    [
+      {},
+      {},
+      {A: "hello", B: "", C: "0", D: "1"},
+      {A: 1, B: 1.2},
+      {A: true, B: false},
+      {A: new Date(Date.UTC(2020, 0, 1)), B: {}},
+    ],
+    "nullish, strings, numbers, booleans, dates, objects"
   );
-  t.same(workbook.sheet(0), [
-    {A: "one", C: "twothree"},
-    {
-      A: "plain text",
-      B: `https://example.com?q=" link&</a>"'?`,
-      C: 2,
-      D: 10,
-      E: 12,
-      F: NaN,
-    },
-    {A: {}, B: new Date(Date.UTC(2020, 0, 1))},
-    {},
-  ]);
+  t.same(
+    new Workbook(
+      mockWorkbook({
+        Sheet1: [
+          [
+            {richText: [{text: "two"}, {text: "three"}]}, // A
+            {text: "plain text"}, // B
+            {text: "https://example.com", hyperlink: "https://example.com"}, // C
+            {
+              text: {richText: [{text: "https://example.com"}]}, // D
+              hyperlink: "https://example.com",
+            },
+            {text: `link&</a>"'?`, hyperlink: 'https://example.com?q="'}, // E
+            {
+              text: {richText: [{text: "first"}, {text: "second"}]}, // F
+              hyperlink: "https://example.com",
+            },
+          ],
+        ],
+      })
+    ).sheet(0),
+    [
+      {
+        A: "twothree",
+        B: "plain text",
+        C: "https://example.com",
+        D: "https://example.com",
+        E: `https://example.com?q=" link&</a>"'?`,
+        F: "https://example.com firstsecond",
+      },
+    ],
+    "rich text, text, hyperlink text"
+  );
+  t.same(
+    new Workbook(
+      mockWorkbook({
+        Sheet1: [
+          [
+            {formula: "=B2*5", result: 10},
+            {sharedFormula: "=B2*6", result: 12},
+            {sharedFormula: "=Z2*6", result: {error: "#REF!"}},
+          ],
+        ],
+      })
+    ).sheet(0),
+    [{A: 10, B: 12, C: NaN}],
+    "formula results, errors"
+  );
+
   t.end();
 });
 

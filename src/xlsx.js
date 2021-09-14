@@ -57,10 +57,13 @@ function valueOf(cell) {
     if (value.formula || value.sharedFormula)
       return value.result && value.result.error ? NaN : value.result;
     if (value.richText) return value.richText.map((d) => d.text).join("");
-    if (value.text)
-      return value.hyperlink && value.hyperlink !== value.text
-        ? `${value.hyperlink} ${value.text}`
-        : value.text;
+    if (value.text) {
+      let {text} = value;
+      if (text.richText) text = text.richText.map((d) => d.text).join("");
+      return value.hyperlink && value.hyperlink !== text
+        ? `${value.hyperlink} ${text}`
+        : text;
+    }
     return value;
   }
   return value;
