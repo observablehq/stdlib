@@ -75,7 +75,7 @@ test("FileAttachment.xlsx reads sheets with different types", (t) => {
     {A: "one", C: "twothree"},
     {
       A: "plain text",
-      B: `<a href="https://example.com?q=%22">link&amp;&lt;/a&gt;&quot;&#39;?</a>`,
+      B: `https://example.com?q=" link&</a>"'?`,
       C: 2,
       D: 10,
       E: 12,

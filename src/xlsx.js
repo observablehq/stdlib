@@ -55,31 +55,12 @@ function valueOf(cell) {
       return value.result && value.result.error ? NaN : value.result;
     if (value.richText) return value.richText.map((d) => d.text).join("");
     if (value.text)
-      return value.hyperlink
-        ? `<a href="${encodeURI(value.hyperlink)}">${escapeHTML(
-            value.text
-          )}</a>`
+      return value.hyperlink && value.hyperlink !== value.text
+        ? `${value.hyperlink} ${value.text}`
         : value.text;
     return value;
   }
   return value;
-}
-
-function escapeHTML(string) {
-  return string.replace(/[&<>"']/g, (m) => {
-    switch (m) {
-      case "&":
-        return "&amp;";
-      case "<":
-        return "&lt;";
-      case ">":
-        return "&gt;";
-      case '"':
-        return "&quot;";
-      case "'":
-        return "&#39;";
-    }
-  });
 }
 
 function parseRange(specifier = ":", {columnCount, rowCount}) {
