@@ -8,7 +8,7 @@ export class Workbook {
       },
     });
   }
-  sheet(name, {range, headers = false} = {}) {
+  sheet(name, options) {
     const sname =
       typeof name === "number"
         ? this.sheetNames[name]
@@ -17,11 +17,11 @@ export class Workbook {
         : null;
     if (sname == null) throw new Error(`Sheet not found: ${name}`);
     const sheet = this._.getWorksheet(sname);
-    return extract(sheet, {range, headers});
+    return extract(sheet, options);
   }
 }
 
-function extract(sheet, {range, headers}) {
+function extract(sheet, {range, headers = false} = {}) {
   let [[c0, r0], [c1, r1]] = parseRange(range, sheet);
   const headerRow = headers && sheet._rows[r0++];
   let names = new Set(["#"]);
