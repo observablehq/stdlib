@@ -68,7 +68,7 @@ function valueOf(cell) {
 
 function parseRange(specifier = ":", {columnCount, rowCount}) {
   specifier += "";
-  if (!specifier.match(/^[A-Z]*[0-9]*:[A-Z]*[0-9]*$/))
+  if (!specifier.match(/^[A-Z]*\d*:[A-Z]*\d*$/))
     throw new Error("Malformed range specifier");
   const [[c0 = 0, r0 = 0], [c1 = columnCount - 1, r1 = rowCount - 1]] =
     specifier.split(":").map(fromCellReference);
@@ -92,7 +92,7 @@ function toColumn(c) {
 // Returns the zero-based indexes from a cell reference.
 // For example: "A1" -> [0, 0], "B2" -> [1, 1], "AA10" -> [26, 9].
 function fromCellReference(s) {
-  const [, sc, sr] = s.match(/^([A-Z]*)(\d*)$/i);
+  const [, sc, sr] = s.match(/^([A-Z]*)(\d*)$/);
   let c = 0;
   if (sc)
     for (let i = 0; i < sc.length; i++)
