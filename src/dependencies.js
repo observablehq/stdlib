@@ -16,3 +16,4 @@ export const vegaliteApi = dependency("vega-lite-api", "5.0.0", "build/vega-lite
 export const arrow = dependency("apache-arrow", "4.0.1", "Arrow.es2015.min.js");
 export const arquero = dependency("arquero", "4.8.4", "dist/arquero.min.js");
 export const topojson = dependency("topojson-client", "3.1.0", "dist/topojson-client.min.js");
+export const exceljs = dependency("exceljs", "4.3.0", "dist/exceljs.min.js");

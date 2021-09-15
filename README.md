@@ -379,6 +379,15 @@ Returns a promise to the file loaded as a [SQLite database client](https://obser
 const db = await FileAttachment("chinook.db").sqlite();
 ```
 
+<a href="#attachment_xlsx" name="attachment_xlsx">#</a> *attachment*.<b>xlsx</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/xlsx.js "Source")
+
+Returns a promise to the file loaded as a [Workbook](https://observablehq.com/@observablehq/xlsx).
+
+```js
+const workbook = await FileAttachment("profit-and-loss.xlsx").xlsx();
+const sheet = workbook.sheet("Sheet1", {range: "B4:AF234", headers: true});
+```
+
 <a href="#attachment_xml" name="attachment_xml">#</a> *attachment*.<b>xml</b>() [<>](https://github.com/observablehq/stdlib/blob/master/src/fileAttachment.js "Source")
 
 Returns a promise to an [XMLDocument](https://developer.mozilla.org/en-US/docs/Web/API/XMLDocument) containing the contents of the file.
