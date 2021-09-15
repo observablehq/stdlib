@@ -39,7 +39,7 @@ function extract(sheet, {range, headers} = {}) {
     if (_row.hasValues)
       for (let c = c0; c <= c1; c++) {
         const value = valueOf(_row.findCell(c + 1));
-        if (value != null) row[names[c + 1]] = value; // what if the name is “__proto__” e.g.?
+        if (value != null) row[names[c + 1]] = value;
       }
   }
 
