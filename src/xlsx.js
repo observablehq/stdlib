@@ -15,7 +15,7 @@ export class Workbook {
         : this.sheetNames.includes((name += ""))
         ? name
         : null;
-    if (sname === null) throw new Error(`Sheet not found: ${name}`);
+    if (sname == null) throw new Error(`Sheet not found: ${name}`);
     const sheet = this._.getWorksheet(sname);
     return extract(sheet, options);
   }
