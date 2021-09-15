@@ -34,10 +34,7 @@ function extract(sheet, {range, headers} = {}) {
 
   const output = new Array(r1 - r0 + 1);
   for (let r = r0; r <= r1; r++) {
-    // Should we be using Object.create(null) instead of an empty object here?
-    const row = (output[r - r0] = Object.defineProperty({}, "#", { // what is this non-enumerable row["#"] property for?
-      value: r + 1,
-    }));
+    const row = (output[r - r0] = Object.create(null, {"#": {value: r + 1}}));
     const _row = sheet._rows[r]; // is this an internal ExcelJS API? why not sheet.getRow(r)?
     if (_row && _row.hasValues)
       for (let c = c0; c <= c1; c++) {
