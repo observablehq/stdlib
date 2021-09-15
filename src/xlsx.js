@@ -35,10 +35,10 @@ function extract(sheet, {range, headers} = {}) {
   const output = new Array(r1 - r0 + 1);
   for (let r = r0; r <= r1; r++) {
     const row = (output[r - r0] = Object.create(null, {"#": {value: r + 1}}));
-    const _row = sheet._rows[r]; // is this an internal ExcelJS API? why not sheet.getRow(r)?
-    if (_row && _row.hasValues)
+    const _row = sheet.getRow(r + 1);
+    if (_row.hasValues)
       for (let c = c0; c <= c1; c++) {
-        const value = valueOf(_row._cells[c]); // internal ExcelJS API?
+        const value = valueOf(_row.findCell(c + 1));
         if (value != null) row[names[c + 1]] = value; // what if the name is “__proto__” e.g.?
       }
   }
