@@ -15,18 +15,18 @@ export class Workbook {
         : this.sheetNames.includes((name += ""))
         ? name
         : null;
-    if (sname == null) throw new Error(`Sheet not found: ${name}`);
+    if (sname === null) throw new Error(`Sheet not found: ${name}`);
     const sheet = this._.getWorksheet(sname);
     return extract(sheet, options);
   }
 }
 
-function extract(sheet, {range, headers = false} = {}) {
+function extract(sheet, {range, headers} = {}) {
   let [[c0, r0], [c1, r1]] = parseRange(range, sheet);
-  const headerRow = headers && sheet._rows[r0++];
+  const headerRow = headers ? sheet._rows[r0++] : null;
   let names = new Set(["#"]);
   for (let n = c0; n <= c1; n++) {
-    let name = (headerRow ? valueOf(headerRow._cells[n]) : null) || toColumn(n);
+    let name = (headerRow ? valueOf(headerRow._cells[n]) : null) || toColumn(n); // should a falsey header value be ignored? or just nullish?
     while (names.has(name)) name += "_";
     names.add(name);
   }
@@ -34,14 +34,15 @@ function extract(sheet, {range, headers = false} = {}) {
 
   const output = new Array(r1 - r0 + 1);
   for (let r = r0; r <= r1; r++) {
-    const row = (output[r - r0] = Object.defineProperty({}, "#", {
+    // Should we be using Object.create(null) instead of an empty object here?
+    const row = (output[r - r0] = Object.defineProperty({}, "#", { // what is this non-enumerable row["#"] property for?
       value: r + 1,
     }));
-    const _row = sheet._rows[r];
+    const _row = sheet._rows[r]; // is this an internal ExcelJS API? why not sheet.getRow(r)?
     if (_row && _row.hasValues)
       for (let c = c0; c <= c1; c++) {
-        const value = valueOf(_row._cells[c]);
-        if (value != null) row[names[c + 1]] = value;
+        const value = valueOf(_row._cells[c]); // internal ExcelJS API?
+        if (value != null) row[names[c + 1]] = value; // what if the name is “__proto__” e.g.?
       }
   }
 
@@ -52,14 +53,16 @@ function extract(sheet, {range, headers = false} = {}) {
 function valueOf(cell) {
   if (!cell) return;
   const {value} = cell;
-  if (value && value instanceof Date) return value;
-  if (value && typeof value === "object") {
-    if (value.formula || value.sharedFormula)
+  if (value && typeof value === "object" && !(value instanceof Date)) {
+    if (value.formula || value.sharedFormula) {
       return value.result && value.result.error ? NaN : value.result;
-    if (value.richText) return value.richText.map((d) => d.text).join("");
+    }
+    if (value.richText) {
+      return richText(value);
+    }
     if (value.text) {
       let {text} = value;
-      if (text.richText) text = text.richText.map((d) => d.text).join("");
+      if (text.richText) text = richText(text);
       return value.hyperlink && value.hyperlink !== text
         ? `${value.hyperlink} ${text}`
         : text;
@@ -67,6 +70,10 @@ function valueOf(cell) {
     return value;
   }
   return value;
+}
+
+function richText(value) {
+  return value.richText.map((d) => d.text).join("");
 }
 
 function parseRange(specifier = ":", {columnCount, rowCount}) {
