@@ -257,6 +257,6 @@ test("FileAttachment.xlsx derives column names such as A AA AAA…", (t) => {
 
 test("FileAttachment.sheet headers protects __proto__ of row objects", (t) => {
   const workbook = new Workbook(exceljs({Sheet1: [["__proto__"], [{a: 1}]]}));
-  t.notEqual(workbook.sheet(0, {headers: true})[0].a, 1);
+  t.not(workbook.sheet(0, {headers: true})[0].a, 1);
   t.end();
 });
