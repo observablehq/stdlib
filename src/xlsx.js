@@ -26,8 +26,8 @@ function extract(sheet, {range, headers} = {}) {
   const headerRow = headers ? sheet._rows[r0++] : null;
   let names = new Set(["#"]);
   for (let n = c0; n <= c1; n++) {
-    const value = headerRow ? valueOf(headerRow._cells[n]) : null;
-    let name = value && (value + "") || toColumn(n);
+    const value = headerRow ? valueOf(headerRow.findCell(n + 1)) : null;
+    let name = (value && value + "") || toColumn(n);
     while (names.has(name)) name += "_";
     names.add(name);
   }
