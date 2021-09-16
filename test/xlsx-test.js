@@ -1,41 +1,31 @@
 import {test} from "tap";
 import {Workbook} from "../src/xlsx.js";
+import ExcelJS from "exceljs";
 
-function mockWorkbook(contents, overrides = {}) {
-  return {
-    worksheets: Object.keys(contents).map((name) => ({name})),
-    getWorksheet(name) {
-      const _rows = contents[name];
-      return Object.assign(
-        {
-          _rows: _rows.map((row) => ({
-            _cells: row.map((cell) => ({value: cell})),
-            hasValues: !!row.length,
-          })),
-          rowCount: _rows.length,
-          columnCount: Math.max(..._rows.map((r) => r.length)),
-        },
-        overrides
-      );
-    },
-  };
+function exceljs(contents) {
+  const workbook = new ExcelJS.Workbook();
+  for (const [sheet, rows] of Object.entries(contents)) {
+    const ws = workbook.addWorksheet(sheet);
+    for (const row of rows) ws.addRow(row);
+  }
+  return workbook;
 }
 
 test("FileAttachment.xlsx reads sheet names", (t) => {
-  const workbook = new Workbook(mockWorkbook({Sheet1: []}));
+  const workbook = new Workbook(exceljs({Sheet1: []}));
   t.same(workbook.sheetNames, ["Sheet1"]);
   t.end();
 });
 
 test("FileAttachment.xlsx sheet(name) throws on unknown sheet name", (t) => {
-  const workbook = new Workbook(mockWorkbook({Sheet1: []}));
+  const workbook = new Workbook(exceljs({Sheet1: []}));
   t.throws(() => workbook.sheet("bad"));
   t.end();
 });
 
 test("FileAttachment.xlsx reads sheets", (t) => {
   const workbook = new Workbook(
-    mockWorkbook({
+    exceljs({
       Sheet1: [
         ["one", "two", "three"],
         [1, 2, 3],
@@ -50,13 +40,15 @@ test("FileAttachment.xlsx reads sheets", (t) => {
     {A: "one", B: "two", C: "three"},
     {A: 1, B: 2, C: 3},
   ]);
+  t.equal(workbook.sheet(0)[0]["#"], 1);
+  t.equal(workbook.sheet(0)[1]["#"], 2);
   t.end();
 });
 
 test("FileAttachment.xlsx reads sheets with different types", (t) => {
   t.same(
     new Workbook(
-      mockWorkbook({
+      exceljs({
         Sheet1: [
           [],
           [null, undefined],
@@ -79,7 +71,7 @@ test("FileAttachment.xlsx reads sheets with different types", (t) => {
   );
   t.same(
     new Workbook(
-      mockWorkbook({
+      exceljs({
         Sheet1: [
           [
             {richText: [{text: "two"}, {text: "three"}]}, // A
@@ -112,7 +104,7 @@ test("FileAttachment.xlsx reads sheets with different types", (t) => {
   );
   t.same(
     new Workbook(
-      mockWorkbook({
+      exceljs({
         Sheet1: [
           [
             {formula: "=B2*5", result: 10},
@@ -131,7 +123,7 @@ test("FileAttachment.xlsx reads sheets with different types", (t) => {
 
 test("FileAttachment.xlsx reads sheets with headers", (t) => {
   const workbook = new Workbook(
-    mockWorkbook({
+    exceljs({
       Sheet1: [
         [null, "one", "one", "two", "A", "0"],
         [1, null, 3, 4, 5, "zero"],
@@ -156,9 +148,10 @@ test("FileAttachment.xlsx reads sheets with headers", (t) => {
 });
 
 test("FileAttachment.xlsx throws on invalid ranges", (t) => {
-  const workbook = new Workbook(mockWorkbook({Sheet1: []}));
+  const workbook = new Workbook(exceljs({Sheet1: []}));
   const malformed = new Error("Malformed range specifier");
 
+  t.throws(() => t.same(workbook.sheet(0, {range: 0})), malformed);
   t.throws(() => t.same(workbook.sheet(0, {range: ""})), malformed);
   t.throws(() => t.same(workbook.sheet(0, {range: "-:"})), malformed);
   t.throws(() => t.same(workbook.sheet(0, {range: " :"})), malformed);
@@ -174,7 +167,7 @@ test("FileAttachment.xlsx throws on invalid ranges", (t) => {
 
 test("FileAttachment.xlsx reads sheet ranges", (t) => {
   const workbook = new Workbook(
-    mockWorkbook({
+    exceljs({
       Sheet1: [
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
         [10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
@@ -248,41 +241,22 @@ test("FileAttachment.xlsx reads sheet ranges", (t) => {
   t.end();
 });
 
-test("FileAttachment.xlsx throws on unknown range specifier", (t) => {
-  const workbook = new Workbook(mockWorkbook({Sheet1: []}));
-  t.throws(() => workbook.sheet(0, {range: 0}));
-  t.end();
-});
-
 test("FileAttachment.xlsx derives column names such as A AA AAA…", (t) => {
-  const l0 = 26 * 26 * 26 + 26 * 26 + 26;
+  const l0 = 26 * 26 * 23;
   const workbook = new Workbook(
-    mockWorkbook({
+    exceljs({
       Sheet1: [Array.from({length: l0}).fill(1)],
     })
   );
   t.same(
-    workbook.sheet(0, {headers: false}).columns.filter((d) => d.match(/^A*$/)),
+    workbook.sheet(0).columns.filter((d) => d.match(/^A+$/)),
     ["A", "AA", "AAA"]
-  );
-  const workbook1 = new Workbook(
-    mockWorkbook({
-      Sheet1: [Array.from({length: l0 + 1}).fill(1)],
-    })
-  );
-  t.same(
-    workbook1.sheet(0, {headers: false}).columns.filter((d) => d.match(/^A*$/)),
-    ["A", "AA", "AAA", "AAAA"]
   );
   t.end();
 });
 
 test("FileAttachment.sheet headers protects __proto__ of row objects", (t) => {
-  const workbook = new Workbook(
-    mockWorkbook({
-      Sheet1: [["__proto__"], [{a: 1}]],
-    })
-  );
-  t.notEqual(workbook.sheet(0, {headers: true})[0].a, 1);
+  const workbook = new Workbook(exceljs({Sheet1: [["__proto__"], [{a: 1}]]}));
+  t.not(workbook.sheet(0, {headers: true})[0].a, 1);
   t.end();
 });
