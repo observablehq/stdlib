@@ -16,6 +16,7 @@ export default [
             "FileAttachment",
             "RequireError",
             "SQLiteDatabaseClient",
+            "Workbook",
             "ZipArchive",
             "ZipArchiveEntry"
           ]
