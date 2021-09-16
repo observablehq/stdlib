@@ -27,7 +27,7 @@ function extract(sheet, {range, headers} = {}) {
   let names = new Set(["#"]);
   for (let n = c0; n <= c1; n++) {
     const value = headerRow ? valueOf(headerRow._cells[n]) : null;
-    let name = value && (value += "") || toColumn(n);
+    let name = value && (value + "") || toColumn(n);
     while (names.has(name)) name += "_";
     names.add(name);
   }
