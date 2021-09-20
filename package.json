@@ -17,11 +17,6 @@
     "prepublishOnly": "rollup -c",
     "postpublish": "git push && git push --tags"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "eslint . && yarn test"
-    }
-  },
   "files": [
     "src/**/*.js",
     "dist/**/*.js"
@@ -33,7 +28,6 @@
   "devDependencies": {
     "eslint": "^7.18.0",
     "exceljs": "^4.3.0",
-    "husky": "^4.3.8",
     "node-fetch": "^2.6.1",
     "rollup": "^2.37.1",
     "rollup-plugin-node-resolve": "^5.2.0",
