@@ -74,6 +74,10 @@ const mains = ["unpkg", "jsdelivr", "browser", "main"];
     const package = await resolve("topojson-client");
     console.log(`export const topojson = dependency("${package.name}", "${package.version}", "${package.export}");`);
   }
+  {
+    const package = await resolve("exceljs");
+    console.log(`export const exceljs = dependency("${package.name}", "${package.version}", "${package.export}");`);
+  }
 })();
 
 async function resolve(specifier) {
