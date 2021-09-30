@@ -1,7 +1,7 @@
 import {require as requireDefault} from "d3-require";
 import DOM from "./dom/index.js";
 import Files from "./files/index.js";
-import {NoFileAttachments} from "./fileAttachment.js";
+import {AbstractFile, NoFileAttachments} from "./fileAttachment.js";
 import Generators from "./generators/index.js";
 import html from "./html.js";
 import md from "./md.js";
@@ -22,7 +22,7 @@ export default Object.assign(function Library(resolver) {
   Object.defineProperties(this, properties({
     FileAttachment: () => NoFileAttachments,
     Arrow: () => require(arrow.resolve()),
-    Inputs: () => require(inputs.resolve()),
+    Inputs: () => require(inputs.resolve()).then(Inputs => ({...Inputs, file: Inputs.fileOf(AbstractFile)})),
     Mutable: () => Mutable,
     Plot: () => require(plot.resolve()),
     SQLite: () => SQLite(require),

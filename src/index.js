@@ -1,2 +1,2 @@
-export {default as FileAttachments} from "./fileAttachment.js";
+export {default as FileAttachments, AbstractFile} from "./fileAttachment.js";
 export {default as Library} from "./library.js";
