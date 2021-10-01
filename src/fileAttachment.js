@@ -17,7 +17,7 @@ async function dsv(file, delimiter, {array = false, typed = false} = {}) {
       : (array ? csvParseRows : csvParse))(text, typed && autoType);
 }
 
-class AbstractFile {
+export class AbstractFile {
   constructor(name) {
     Object.defineProperty(this, "name", {value: name, enumerable: true});
   }
