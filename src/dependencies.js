@@ -1,6 +1,6 @@
 import dependency from "./dependency.js";
 export const d3 = dependency("d3", "7.1.1", "dist/d3.min.js");
-export const inputs = dependency("@observablehq/inputs", "0.10.2", "dist/inputs.min.js");
+export const inputs = dependency("@observablehq/inputs", "0.10.3", "dist/inputs.min.js");
 export const plot = dependency("@observablehq/plot", "0.2.9", "dist/plot.umd.min.js");
 export const graphviz = dependency("@observablehq/graphviz", "0.2.1", "dist/graphviz.min.js");
 export const highlight = dependency("@observablehq/highlight.js", "2.0.0", "highlight.min.js");
