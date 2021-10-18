@@ -42,7 +42,7 @@ export class AbstractFile {
   async tsv(options) {
     return dsv(this, "\t", options);
   }
-  async image({width, height}={}) {
+  async image({width, height} = {}) {
     const url = await this.url();
     return new Promise((resolve, reject) => {
       const i = new Image(width, height);
