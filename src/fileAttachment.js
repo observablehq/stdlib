@@ -45,7 +45,9 @@ export class AbstractFile {
   async image({width, height} = {}) {
     const url = await this.url();
     return new Promise((resolve, reject) => {
-      const i = new Image(width, height);
+      const i = new Image();
+      i.setAttribute("width", width);
+      i.setAttribute("height", height);
       if (new URL(url, document.baseURI).origin !== new URL(location).origin) {
         i.crossOrigin = "anonymous";
       }
