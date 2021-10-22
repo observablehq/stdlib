@@ -46,10 +46,10 @@ export class AbstractFile {
     const url = await this.url();
     return new Promise((resolve, reject) => {
       const i = new Image();
-      Object.assign(i, props);
       if (new URL(url, document.baseURI).origin !== new URL(location).origin) {
         i.crossOrigin = "anonymous";
       }
+      Object.assign(i, props);
       i.onload = () => resolve(i);
       i.onerror = () => reject(new Error(`Unable to load file: ${this.name}`));
       i.src = url;
