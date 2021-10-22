@@ -42,12 +42,14 @@ export class AbstractFile {
   async tsv(options) {
     return dsv(this, "\t", options);
   }
-  async image({width, height} = {}) {
+  async image({width, height, alt, title} = {}) {
     const url = await this.url();
     return new Promise((resolve, reject) => {
       const i = new Image();
-      i.setAttribute("width", width);
-      i.setAttribute("height", height);
+      width && i.setAttribute("width", width);
+      height && i.setAttribute("height", height);
+      alt && i.setAttribute("alt", alt);
+      title && i.setAttribute("title", title)
       if (new URL(url, document.baseURI).origin !== new URL(location).origin) {
         i.crossOrigin = "anonymous";
       }
