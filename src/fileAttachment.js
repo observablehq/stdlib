@@ -42,13 +42,14 @@ export class AbstractFile {
   async tsv(options) {
     return dsv(this, "\t", options);
   }
-  async image() {
+  async image(props) {
     const url = await this.url();
     return new Promise((resolve, reject) => {
-      const i = new Image;
+      const i = new Image();
       if (new URL(url, document.baseURI).origin !== new URL(location).origin) {
         i.crossOrigin = "anonymous";
       }
+      Object.assign(i, props);
       i.onload = () => resolve(i);
       i.onerror = () => reject(new Error(`Unable to load file: ${this.name}`));
       i.src = url;
