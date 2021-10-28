@@ -39,7 +39,13 @@ export class SQLiteDatabaseClient {
       element("tbody", rows.map(r => element("tr", columns.map(c => element("td", [text(r[c])])))))
     ]);
   }
+  async sql(strings, ...args) {
+    return this.query(strings.join("?"), args);
+  }
 }
+Object.defineProperty(SQLiteDatabaseClient.prototype, "dialect", {
+  value: "sqlite"
+});
 
 function load(source) {
   return typeof source === "string" ? fetch(source).then(load)
