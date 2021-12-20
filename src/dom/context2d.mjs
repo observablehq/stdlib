@@ -1,20 +1,19 @@
 export default function(width, height, options) {
-  var scale = devicePixelRatio;
+  let scale;
   if (options == null) {
-    options = {};
-  } else if (options == +options) {
-    scale = +options;
-    options = {};
+    options = undefined;
+  } else if (typeof options === "number") {
+    scale = options;
+    options = undefined;
   } else {
-    if (options.scale) scale = +options.scale;
-    delete options.scale;
+    ({scale, ...options} = options);
   }
-  var canvas = document.createElement("canvas");
+  if (scale === undefined) scale = devicePixelRatio;
+  const canvas = document.createElement("canvas");
   canvas.width = width * scale;
   canvas.height = height * scale;
   canvas.style.width = width + "px";
-  var context;
-  context = canvas.getContext("2d", options);
+  const context = canvas.getContext("2d", options);
   context.scale(scale, scale);
   return context;
 }
