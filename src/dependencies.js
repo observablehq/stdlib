@@ -1,7 +1,7 @@
 import dependency from "./dependency.js";
 export const d3 = dependency("d3", "7.3.0", "dist/d3.min.js");
 export const inputs = dependency("@observablehq/inputs", "0.10.4", "dist/inputs.min.js");
-export const plot = dependency("@observablehq/plot", "0.4.0", "dist/plot.umd.min.js");
+export const plot = dependency("@observablehq/plot", "0.4.1", "dist/plot.umd.min.js");
 export const graphviz = dependency("@observablehq/graphviz", "0.2.1", "dist/graphviz.min.js");
 export const highlight = dependency("@observablehq/highlight.js", "2.0.0", "highlight.min.js");
 export const katex = dependency("@observablehq/katex", "0.11.1", "dist/katex.min.js");
