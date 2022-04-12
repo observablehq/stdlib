@@ -21,6 +21,7 @@ test("new Library returns a library with the expected keys", async t => {
     "htl",
     "html",
     "md",
+    "mermaid",
     "now",
     "require",
     "resolve",

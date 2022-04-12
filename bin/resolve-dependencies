@@ -78,6 +78,10 @@ const mains = ["unpkg", "jsdelivr", "browser", "main"];
     const package = await resolve("exceljs");
     console.log(`export const exceljs = dependency("${package.name}", "${package.version}", "${package.export}");`);
   }
+  {
+    const package = await resolve("mermaid");
+    console.log(`export const mermaid = dependency("${package.name}", "${package.version}", "${package.export.replace(/\.core\.js$/, ".min.js")}");`);
+  }
 })();
 
 async function resolve(specifier) {
