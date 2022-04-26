@@ -39,13 +39,74 @@ export class SQLiteDatabaseClient {
       element("tbody", rows.map(r => element("tr", columns.map(c => element("td", [text(r[c])])))))
     ]);
   }
+  async schema(table) {
+    if (table === undefined) {
+      const rows = await this.query(`SELECT name FROM sqlite_master WHERE type = 'table'`);
+      return {
+        type: "object",
+        properties: Object.fromEntries(rows.map(r => [r.name, {type: "array", items: {type: "object"}}]))
+      };
+    } else {
+      const rows = await this.query(`SELECT * FROM pragma_table_info(?)`, [table]);
+      if (!rows.length) throw new Error(`table not found: ${table}`);
+      return {
+        type: "object",
+        properties: Object.fromEntries(rows.map(r => [r.name, sqliteType(r)]))
+      };
+    }
+  }
   async sql(strings, ...args) {
     return this.query(strings.join("?"), args);
   }
 }
+
 Object.defineProperty(SQLiteDatabaseClient.prototype, "dialect", {
   value: "sqlite"
 });
+
+// https://www.sqlite.org/datatype3.html
+function sqliteType({type, notnull}) {
+  let t;
+  switch (type) {
+    case "NULL":
+      return {type: "null"};
+    case "INT":
+    case "INTEGER":
+    case "TINYINT":
+    case "SMALLINT":
+    case "MEDIUMINT":
+    case "BIGINT":
+    case "UNSIGNED BIG INT":
+    case "INT2":
+    case "INT8":
+      t = "integer";
+      break;
+    case "TEXT":
+    case "CLOB":
+      t = "string";
+      break;
+    case "REAL":
+    case "DOUBLE":
+    case "DOUBLE PRECISION":
+    case "FLOAT":
+    case "NUMERIC":
+      t = "number";
+      break;
+    case "BLOB":
+      t = "buffer";
+      break;
+    case "DATE":
+    case "DATETIME":
+      t = "date";
+      break;
+    default:
+      t = /^(?:(?:(?:VARYING|NATIVE) )?CHARACTER|(?:N|VAR|NVAR)CHAR)\(/.test(type) ? "string"
+        : /^(?:DECIMAL|NUMERIC)\(/.test(type) ? "number"
+        : "other";
+      break;
+  }
+  return {type: notnull ? t : [t, "null"]};
+}
 
 function load(source) {
   return typeof source === "string" ? fetch(source).then(load)
