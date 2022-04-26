@@ -408,24 +408,7 @@ const document = await FileAttachment("index.html").html();
 
 *Note: this function is not part of the Observable standard library (in notebooks), but is provided by this module as a means for defining custom file attachment implementations when working directly with the Observable runtime.*
 
-Returns a [*FileAttachment*](#FileAttachment) function given the specified *resolve* function. The *resolve* function is an async function that takes a *name* and returns a URL at which the file of that name can be loaded. For example:
-
-```js
-const FileAttachment = FileAttachments((name) =>
-  `https://my.server/notebooks/demo/${name}`
-);
-```
-
-Or, with a more complex example, calling an API to produce temporary URLs:
-
-```js
-const FileAttachment = FileAttachments(async (name) =>
-  if (cachedUrls.has(name)) return cachedUrls.get(name);
-  const url = await fetchSignedFileUrl(notebookId, name);
-  cachedUrls.set(name, url);
-  return url;
-);
-```
+Returns a [*FileAttachment*](#FileAttachment) function given the specified *resolve* function. The *resolve* function is a function that takes a *name* and returns either an object {url, mimeType} representing the requested file if it exists, or null if the file does not exist. The url field (though not the object itself!) may be represented as a Promise if the URL is not yet known, such as for a file that is currently being uploaded. The mimeType must be a string, or undefined if the mime type is not known. For backwards compatibility, the *resolve* function may instead return just a URL, either a string or a promise.
 
 ### Generators
 

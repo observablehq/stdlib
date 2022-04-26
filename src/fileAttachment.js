@@ -18,8 +18,9 @@ async function dsv(file, delimiter, {array = false, typed = false} = {}) {
 }
 
 export class AbstractFile {
-  constructor(name) {
+  constructor(name, mimeType) {
     Object.defineProperty(this, "name", {value: name, enumerable: true});
+    if (mimeType !== undefined) Object.defineProperty(this, "mimeType", {value: mimeType + "", enumerable: true});
   }
   async blob() {
     return (await remote_fetch(this)).blob();
@@ -79,8 +80,8 @@ export class AbstractFile {
 }
 
 class FileAttachment extends AbstractFile {
-  constructor(url, name) {
-    super(name);
+  constructor(url, name, mimeType) {
+    super(name, mimeType);
     Object.defineProperty(this, "_url", {value: url});
   }
   async url() {
@@ -95,9 +96,13 @@ export function NoFileAttachments(name) {
 export default function FileAttachments(resolve) {
   return Object.assign(
     name => {
-      const url = resolve(name += ""); // Returns a Promise, string, or null.
-      if (url == null) throw new Error(`File not found: ${name}`);
-      return new FileAttachment(url, name);
+      const result = resolve(name += "");
+      if (result == null) throw new Error(`File not found: ${name}`);
+      if (typeof result === "object" && "url" in result) {
+        const {url, mimeType} = result;
+        return new FileAttachment(url, name, mimeType);
+      }
+      return new FileAttachment(result, name);
     },
     {prototype: FileAttachment.prototype} // instanceof
   );
