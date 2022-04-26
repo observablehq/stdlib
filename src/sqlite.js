@@ -28,10 +28,16 @@ export class SQLiteDatabaseClient {
       text(rows.map(row => row.detail).join("\n"))
     ]);
   }
-  async describe(object) {
-    const rows = await (object === undefined
-      ? this.query(`SELECT name FROM sqlite_master WHERE type = 'table'`)
-      : this.query(`SELECT * FROM pragma_table_info(?)`, [object]));
+  async describeTables() {
+    return this.query(`SELECT name FROM sqlite_master WHERE type = 'table'`);
+  }
+  async describeColumns({table} = {}) {
+    const rows = await this.query(`SELECT name, type, notnull FROM pragma_table_info(?) ORDER BY cid`, [table]);
+    if (!rows.length) throw new Error(`table not found: ${table}`);
+    return rows.map(({name, type, notnull}) => ({name, type: sqliteType(type), databaseType: type, nullable: !notnull}));
+  }
+  async describe(table) {
+    const rows = await (table === undefined ? this.describeTables() : this.describeColumns({table}));
     if (!rows.length) throw new Error("Not found");
     const {columns} = rows;
     return element("table", {value: rows}, [
@@ -46,9 +52,46 @@ export class SQLiteDatabaseClient {
     return [strings.join("?"), params];
   }
 }
+
 Object.defineProperty(SQLiteDatabaseClient.prototype, "dialect", {
   value: "sqlite"
 });
+
+// https://www.sqlite.org/datatype3.html
+function sqliteType(type) {
+  switch (type) {
+    case "NULL":
+      return "null";
+    case "INT":
+    case "INTEGER":
+    case "TINYINT":
+    case "SMALLINT":
+    case "MEDIUMINT":
+    case "BIGINT":
+    case "UNSIGNED BIG INT":
+    case "INT2":
+    case "INT8":
+      return "integer";
+    case "TEXT":
+    case "CLOB":
+      return "string";
+    case "REAL":
+    case "DOUBLE":
+    case "DOUBLE PRECISION":
+    case "FLOAT":
+    case "NUMERIC":
+      return "number";
+    case "BLOB":
+      return "buffer";
+    case "DATE":
+    case "DATETIME":
+      return "string"; // TODO convert strings to Date instances in sql.js
+    default:
+      return /^(?:(?:(?:VARYING|NATIVE) )?CHARACTER|(?:N|VAR|NVAR)CHAR)\(/.test(type) ? "string"
+        : /^(?:DECIMAL|NUMERIC)\(/.test(type) ? "number"
+        : "other";
+  }
+}
 
 function load(source) {
   return typeof source === "string" ? fetch(source).then(load)
