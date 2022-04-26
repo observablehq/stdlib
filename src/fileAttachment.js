@@ -20,7 +20,7 @@ async function dsv(file, delimiter, {array = false, typed = false} = {}) {
 export class AbstractFile {
   constructor(name, mimeType) {
     Object.defineProperty(this, "name", {value: name, enumerable: true});
-    if (mimeType !== undefined) Object.defineProperty(this, "mimeType", {value: mimeType, enumerable: true});
+    if (mimeType !== undefined) Object.defineProperty(this, "mimeType", {value: mimeType + "", enumerable: true});
   }
   async blob() {
     return (await remote_fetch(this)).blob();
