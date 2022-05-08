@@ -35,6 +35,7 @@ export default Object.assign(function Library(resolver) {
     tex: () => tex(require),
 
     // Recommended libraries
+    // https://observablehq.com/@observablehq/recommended-libraries
     _: () => require(lodash.resolve()),
     aq: () => require.alias({"apache-arrow": arrow.resolve()})(arquero.resolve()),
     Arrow: () => require(arrow.resolve()),
@@ -50,6 +51,7 @@ export default Object.assign(function Library(resolver) {
     vl: () => vegalite(require),
 
     // Sample datasets
+    // https://observablehq.com/@observablehq/datasets
     aapl: () => new FileAttachment("https://static.observableusercontent.com/files/3ccff97fd2d93da734e76829b2b066eafdaac6a1fafdec0faf6ebc443271cfc109d29e80dd217468fcb2aff1e6bffdc73f356cc48feb657f35378e6abbbb63b9").csv({typed: true}),
     alphabet: () => new FileAttachment("https://static.observableusercontent.com/files/75d52e6c3130b1cae83cda89305e17b50f33e7420ef205587a135e8562bcfd22e483cf4fa2fb5df6dff66f9c5d19740be1cfaf47406286e2eb6574b49ffc685d").csv({typed: true}),
     cars: () => new FileAttachment("https://static.observableusercontent.com/files/048ec3dfd528110c0665dfa363dd28bc516ffb7247231f3ab25005036717f5c4c232a5efc7bb74bc03037155cb72b1abe85a33d86eb9f1a336196030443be4f6").csv({typed: true}),
