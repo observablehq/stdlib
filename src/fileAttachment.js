@@ -79,7 +79,7 @@ export class AbstractFile {
   }
 }
 
-class FileAttachment extends AbstractFile {
+export class FileAttachment extends AbstractFile {
   constructor(url, name, mimeType) {
     super(name, mimeType);
     Object.defineProperty(this, "_url", {value: url});
