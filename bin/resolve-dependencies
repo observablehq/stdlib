@@ -82,6 +82,10 @@ const mains = ["unpkg", "jsdelivr", "browser", "main"];
     const package = await resolve("mermaid");
     console.log(`export const mermaid = dependency("${package.name}", "${package.version}", "${package.export.replace(/\.core\.js$/, ".min.js")}");`);
   }
+  {
+    const package = await resolve("leaflet");
+    console.log(`export const leaflet = dependency("${package.name}", "${package.version}", "${package.export.replace(/-src\.js$/, ".js")}");`);
+  }
 })();
 
 async function resolve(specifier) {

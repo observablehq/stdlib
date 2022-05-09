@@ -9,6 +9,7 @@ test("new Library returns a library with the expected keys", async t => {
     "Files",
     "Generators",
     "Inputs",
+    "L",
     "Mutable",
     "Plot",
     "Promises",
