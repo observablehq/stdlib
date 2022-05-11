@@ -105,7 +105,10 @@ function sqliteType({type, notnull}) {
         : "other";
       break;
   }
-  return {type: notnull ? t : [t, "null"]};
+  return {
+    type: notnull ? t : [t, "null"],
+    databaseType: type
+  };
 }
 
 function load(source) {
