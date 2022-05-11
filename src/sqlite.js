@@ -51,7 +51,13 @@ export class SQLiteDatabaseClient {
       if (!rows.length) throw new Error(`table not found: ${table}`);
       return {
         type: "object",
-        properties: Object.fromEntries(rows.map(r => [r.name, sqliteType(r)]))
+        properties: Object.fromEntries(rows.map(({name, type, notnull}) => {
+          const t = sqliteType(type);
+          return [name, {
+            type: notnull || t === "null" ? t : [t, "null"],
+            databaseType: type
+          }];
+        }))
       };
     }
   }
@@ -65,11 +71,10 @@ Object.defineProperty(SQLiteDatabaseClient.prototype, "dialect", {
 });
 
 // https://www.sqlite.org/datatype3.html
-function sqliteType({type, notnull}) {
-  let t;
+function sqliteType(type) {
   switch (type) {
     case "NULL":
-      return {type: "null"};
+      return "null";
     case "INT":
     case "INTEGER":
     case "TINYINT":
@@ -79,36 +84,26 @@ function sqliteType({type, notnull}) {
     case "UNSIGNED BIG INT":
     case "INT2":
     case "INT8":
-      t = "integer";
-      break;
+      return "integer";
     case "TEXT":
     case "CLOB":
-      t = "string";
-      break;
+      return "string";
     case "REAL":
     case "DOUBLE":
     case "DOUBLE PRECISION":
     case "FLOAT":
     case "NUMERIC":
-      t = "number";
-      break;
+      return "number";
     case "BLOB":
-      t = "buffer";
-      break;
+      return "buffer";
     case "DATE":
     case "DATETIME":
-      t = "date";
-      break;
+      return "string"; // TODO convert strings to Date instances
     default:
-      t = /^(?:(?:(?:VARYING|NATIVE) )?CHARACTER|(?:N|VAR|NVAR)CHAR)\(/.test(type) ? "string"
+      return /^(?:(?:(?:VARYING|NATIVE) )?CHARACTER|(?:N|VAR|NVAR)CHAR)\(/.test(type) ? "string"
         : /^(?:DECIMAL|NUMERIC)\(/.test(type) ? "number"
         : "other";
-      break;
   }
-  return {
-    type: notnull ? t : [t, "null"],
-    databaseType: type
-  };
 }
 
 function load(source) {
