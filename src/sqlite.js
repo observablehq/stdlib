@@ -39,27 +39,20 @@ export class SQLiteDatabaseClient {
       element("tbody", rows.map(r => element("tr", columns.map(c => element("td", [text(r[c])])))))
     ]);
   }
-  async schema(table) {
-    if (table === undefined) {
-      const rows = await this.query(`SELECT name FROM sqlite_master WHERE type = 'table'`);
+  async describeSchema() {
+    return await this.query(`SELECT name FROM sqlite_master WHERE type = 'table'`);
+  }
+  async describeTable(specifier) {
+    const rows = await this.query(`SELECT * FROM pragma_table_info(?)`, [specifier]);
+    if (!rows.length) throw new Error(`table not found: ${specifier}`);
+    return rows.map(({name, type, notnull}) => {
+      const t = sqliteType(type);
       return {
-        type: "object",
-        properties: Object.fromEntries(rows.map(r => [r.name, {type: "array", items: {type: "object"}}]))
+        name,
+        type: notnull || t === "null" ? t : [t, "null"],
+        databaseType: type
       };
-    } else {
-      const rows = await this.query(`SELECT * FROM pragma_table_info(?)`, [table]);
-      if (!rows.length) throw new Error(`table not found: ${table}`);
-      return {
-        type: "object",
-        properties: Object.fromEntries(rows.map(({name, type, notnull}) => {
-          const t = sqliteType(type);
-          return [name, {
-            type: notnull || t === "null" ? t : [t, "null"],
-            databaseType: type
-          }];
-        }))
-      };
-    }
+    });
   }
   async sql(strings, ...args) {
     return this.query(strings.join("?"), args);
