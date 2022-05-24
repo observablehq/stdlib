@@ -39,8 +39,11 @@ export class SQLiteDatabaseClient {
       element("tbody", rows.map(r => element("tr", columns.map(c => element("td", [text(r[c])])))))
     ]);
   }
-  async sql(strings, ...args) {
-    return this.query(strings.join("?"), args);
+  async sql() {
+    return this.query(...this.queryTag.apply(this, arguments));
+  }
+  queryTag(strings, ...params) {
+    return [strings.join("?"), params];
   }
 }
 Object.defineProperty(SQLiteDatabaseClient.prototype, "dialect", {
