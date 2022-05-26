@@ -1,6 +1,6 @@
 import {autoType, csvParse, csvParseRows, tsvParse, tsvParseRows} from "d3-dsv";
-import {require as requireDefault} from "d3-require";
 import {arrow, jszip, exceljs} from "./dependencies.js";
+import {requireDefault} from "./require.js";
 import {SQLiteDatabaseClient} from "./sqlite.js";
 import {Workbook} from "./xlsx.js";
 
