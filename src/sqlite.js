@@ -2,10 +2,7 @@ import {sql} from "./dependencies.js";
 import {requireDefault} from "./require.js";
 
 export default async function sqlite(require) {
-  const [init, dist] = await Promise.all([
-    require(sql.resolve()),
-    require.resolve(sql.resolve("dist/")).then(dist => dist.replace(/\.js$/, "")) // fixed in d3-require 1.3.0
-  ]);
+  const [init, dist] = await Promise.all([require(sql.resolve()), require.resolve(sql.resolve("dist/"))]);
   return init({locateFile: file => `${dist}${file}`});
 }
 

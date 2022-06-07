@@ -1,4 +1,4 @@
-import {require as initialRequire} from "d3-require";
+import {require as initialRequire, requireFrom} from "d3-require";
 
 export let requireDefault = initialRequire;
 
