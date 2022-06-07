@@ -31,11 +31,12 @@ export class SQLiteDatabaseClient {
       text(rows.map(row => row.detail).join("\n"))
     ]);
   }
-  async describeTables() {
-    return this.query(`SELECT name FROM sqlite_master WHERE type = 'table'`);
+  async describeTables({schema} = {}) {
+    return this.query(`SELECT schema, name FROM pragma_table_list() WHERE type = 'table'${schema == null ? "" : ` AND schema = ?`}`, schema == null ? [] : [schema]);
   }
-  async describeColumns({table} = {}) {
-    const rows = await this.query(`SELECT name, type, "notnull" FROM pragma_table_info(?) ORDER BY cid`, [table]);
+  async describeColumns({schema, table} = {}) {
+    if (table == null) throw new Error(`missing table`);
+    const rows = await this.query(`SELECT name, type, "notnull" FROM pragma_table_info(?${schema == null ? "" : `, ?`}) ORDER BY cid`, schema == null ? [table] : [table, schema]);
     if (!rows.length) throw new Error(`table not found: ${table}`);
     return rows.map(({name, type, notnull}) => ({name, type: sqliteType(type), databaseType: type, nullable: !notnull}));
   }
