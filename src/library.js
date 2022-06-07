@@ -1,4 +1,3 @@
-import {require as requireDefault} from "d3-require";
 import DOM from "./dom/index.js";
 import Files from "./files/index.js";
 import {AbstractFile, FileAttachment, NoFileAttachments} from "./fileAttachment.js";
@@ -11,7 +10,7 @@ import Mutable from "./mutable.js";
 import now from "./now.js";
 import Promises from "./promises/index.js";
 import resolve from "./resolve.js";
-import requirer from "./require.js";
+import requirer, {requireDefault, setDefaultRequire} from "./require.js";
 import SQLite, {SQLiteDatabaseClient} from "./sqlite.js";
 import svg from "./svg.js";
 import tex from "./tex.js";
@@ -74,7 +73,11 @@ export default Object.assign(function Library(resolver) {
     Generators,
     Promises
   }));
-}, {resolve: requireDefault.resolve});
+}, {
+  get resolve() { return requireDefault.resolve; },
+  get require() { return requireDefault; },
+  set require(r) { setDefaultRequire(r); }
+});
 
 function properties(values) {
   return Object.fromEntries(Object.entries(values).map(property));

@@ -1,5 +1,5 @@
-import {require as requireDefault} from "d3-require";
-import {sql} from "./dependencies";
+import {sql} from "./dependencies.js";
+import {requireDefault} from "./require.js";
 
 export default async function sqlite(require) {
   const init = await require(sql.resolve());
