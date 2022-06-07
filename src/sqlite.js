@@ -38,7 +38,6 @@ export class SQLiteDatabaseClient {
   }
   async describe(table) {
     const rows = await (table === undefined ? this.describeTables() : this.describeColumns({table}));
-    if (!rows.length) throw new Error("Not found");
     const {columns} = rows;
     return element("table", {value: rows}, [
       element("thead", [element("tr", columns.map(c => element("th", [text(c)])))]),
