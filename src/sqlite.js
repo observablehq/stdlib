@@ -32,7 +32,7 @@ export class SQLiteDatabaseClient {
     return this.query(`SELECT name FROM sqlite_master WHERE type = 'table'`);
   }
   async describeColumns({table} = {}) {
-    const rows = await this.query(`SELECT name, type, notnull FROM pragma_table_info(?) ORDER BY cid`, [table]);
+    const rows = await this.query(`SELECT name, type, "notnull" FROM pragma_table_info(?) ORDER BY cid`, [table]);
     if (!rows.length) throw new Error(`table not found: ${table}`);
     return rows.map(({name, type, notnull}) => ({name, type: sqliteType(type), databaseType: type, nullable: !notnull}));
   }
