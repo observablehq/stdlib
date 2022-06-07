@@ -5,7 +5,7 @@ export default async function leaflet(require) {
   if (!L._style) {
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = ll.resolve("dist/leaflet.css");
+    link.href = await require.resolve(ll.resolve("dist/leaflet.css"));
     L._style = document.head.appendChild(link);
   }
   return L;
