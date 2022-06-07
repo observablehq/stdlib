@@ -1,3 +1,4 @@
+import {requireFrom, resolveFrom} from "d3-require";
 import DOM from "./dom/index.js";
 import Files from "./files/index.js";
 import {AbstractFile, FileAttachment, NoFileAttachments} from "./fileAttachment.js";
@@ -18,7 +19,7 @@ import vegalite from "./vegalite.js";
 import width from "./width.js";
 import {arquero, arrow, d3, graphviz, htl, inputs, lodash, plot, topojson} from "./dependencies.js";
 
-export default Object.defineProperties(function Library(resolver) {
+export default Object.assign(Object.defineProperties(function Library(resolver) {
   const require = requirer(resolver);
   Object.defineProperties(this, properties({
     FileAttachment: () => NoFileAttachments,
@@ -85,6 +86,9 @@ export default Object.defineProperties(function Library(resolver) {
     enumerable: true,
     configurable: true
   }
+}), {
+  resolveFrom,
+  requireFrom
 });
 
 function properties(values) {
