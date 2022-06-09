@@ -37,8 +37,11 @@ export class SQLiteDatabaseClient {
     if (!rows.length) throw new Error(`table not found: ${table}`);
     return rows.map(({name, type, notnull}) => ({name, type: sqliteType(type), databaseType: type, nullable: !notnull}));
   }
-  async describe(table) {
-    const rows = await (table === undefined ? this.describeTables() : this.describeColumns({table}));
+  async describe(object) {
+    const rows = await (object === undefined
+      ? this.query(`SELECT name FROM sqlite_master WHERE type = 'table'`)
+      : this.query(`SELECT * FROM pragma_table_info(?)`, [object]));
+    if (!rows.length) throw new Error("Not found");
     const {columns} = rows;
     return element("table", {value: rows}, [
       element("thead", [element("tr", columns.map(c => element("th", [text(c)])))]),
