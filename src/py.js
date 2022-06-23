@@ -3,14 +3,14 @@ import {pyodide as Pyodide} from "./dependencies.js";
 export default async function py(require) {
   const pyodide = await (await require(Pyodide.resolve())).loadPyodide();
   let patch; // a promise for patching matplotlib (if needed)
-  return async function py(strings, ...values) {
+  return async function py(strings) {
     const globals = {};
-    const code = strings.reduce((code, string, i) => {
-      if (!(i in values)) return code + string;
+    let code = strings[0];
+    for (let i = 1, n = arguments.length; i < n; ++i) {
       const name = `_${i}`;
-      globals[name] = values[i];
-      return code + string + name;
-    }, "");
+      globals[name] = arguments[i];
+      code += name + strings[i];
+    }
     const imports = findImports(pyodide, code);
     if (imports.includes("matplotlib") && !patch) await (patch = patchMatplotlib(require, pyodide));
     if (imports.length) await pyodide.loadPackagesFromImports(code);
