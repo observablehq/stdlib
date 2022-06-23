@@ -34,6 +34,7 @@ test("new Library returns a library with the expected keys", async t => {
     "now",
     "olympians",
     "penguins",
+    "py",
     "require",
     "resolve",
     "svg",
