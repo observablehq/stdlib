@@ -12,7 +12,7 @@ export default async function py(require) {
       return code + string + name;
     }, "");
     const imports = findImports(pyodide, code);
-    if (imports.includes("matplotlib") && !patch) await (patch = patchMatplotlib(pyodide));
+    if (imports.includes("matplotlib") && !patch) await (patch = patchMatplotlib(require, pyodide));
     if (imports.length) await pyodide.loadPackagesFromImports(code);
     const value = await pyodide.runPythonAsync(code, {globals: pyodide.toPy(globals)});
     return pyodide.isPyProxy(value) ? value.toJs() : value;
@@ -31,7 +31,13 @@ function findImports(pyodide, code) {
 
 // Overrides matplotlib’s show function to return a DIV such that when used as
 // the last expression in an Observable cell, the inspector will display it.
-async function patchMatplotlib(pyodide) {
+async function patchMatplotlib(require, pyodide) {
+  require.resolve("font-awesome@4.7.0/css/font-awesome.min.css").then(href => {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = href;
+    document.head.appendChild(link);
+  });
   await pyodide.loadPackage("matplotlib");
   await pyodide.runPythonAsync(`from matplotlib import pyplot as plt
 
