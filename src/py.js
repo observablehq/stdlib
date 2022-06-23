@@ -45,15 +45,14 @@ _show = plt.show
 
 def show(self):
   from js import document
-  div = None
   def create_root_element(self):
-    nonlocal div
     div = document.createElement("div")
     document.body.appendChild(div)
     return div
   c = plt.gcf().canvas
   c.create_root_element = create_root_element.__get__(c, c.__class__)
   _show()
+  div = c.get_element("")
   div.remove()
   return div
 
