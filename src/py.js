@@ -40,23 +40,24 @@ async function patchMatplotlib(require, pyodide) {
   });
   await pyodide.loadPackage("matplotlib");
   await pyodide.runPythonAsync(`from matplotlib import pyplot as plt
+from js import document
 
 _show = plt.show
 
+def create_root_element(self):
+  div = document.createElement("div")
+  document.body.appendChild(div)
+  return div
+
 def show(self):
-  from js import document
-  def create_root_element(self):
-    div = document.createElement("div")
-    document.body.appendChild(div)
-    return div
   c = plt.gcf().canvas
   c.create_root_element = create_root_element.__get__(c, c.__class__)
   _show()
   div = c.get_element("")
-  div.remove()
+  if (div.parentNode == document.body):
+    document.body.removeChild(div)
   return div
 
-plt._show = _show
 plt.show = show.__get__(plt, plt.__class__)
 `);
 }
