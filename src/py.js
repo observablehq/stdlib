@@ -50,12 +50,17 @@ def create_root_element(self):
   return div
 
 def show(self):
-  c = plt.gcf().canvas
+  f = plt.gcf()
+  c = f.canvas
   c.create_root_element = create_root_element.__get__(c, c.__class__)
   _show()
+  plt.close(f)
+  top = c.get_element("top")
+  if (top):
+    top.remove()
   div = c.get_element("")
   if (div.parentNode == document.body):
-    document.body.removeChild(div)
+    div.remove()
   return div
 
 plt.show = show.__get__(plt, plt.__class__)
