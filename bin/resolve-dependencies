@@ -88,7 +88,7 @@ const mains = ["unpkg", "jsdelivr", "browser", "main"];
   }
   {
     const package = await resolve("pyodide");
-    console.log(`export const pyodide = {resolve: () => "https://cdn.jsdelivr.net/pyodide/v${package.version}/full/pyodide.js"};`);
+    console.log(`export const pyodide = "https://cdn.jsdelivr.net/pyodide/v${package.version}/full/pyodide.js";`);
   }
 })();
 

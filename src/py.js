@@ -1,7 +1,7 @@
 import {pyodide as Pyodide} from "./dependencies.js";
 
 export default async function py(require) {
-  const pyodide = await (await require(Pyodide.resolve())).loadPyodide();
+  const pyodide = await (await require(Pyodide)).loadPyodide();
   let patch; // a promise for patching matplotlib (if needed)
   return async function py(strings) {
     const globals = {};
