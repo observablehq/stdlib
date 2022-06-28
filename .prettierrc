@@ -1,3 +1,4 @@
 {
-  "bracketSpacing": false
+  "bracketSpacing": false,
+  "trailingComma": "none"
 }

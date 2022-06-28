@@ -3,7 +3,7 @@
   "version": "3.19.5",
   "license": "ISC",
   "main": "dist/stdlib.js",
-  "module": "src/index.js",
+  "module": "src/index.mjs",
   "author": {
     "name": "Observable, Inc.",
     "url": "https://observablehq.com"
@@ -13,12 +13,12 @@
     "url": "https://github.com/observablehq/stdlib.git"
   },
   "scripts": {
-    "test": "tap 'test/**/*-test.js' --reporter classic",
+    "test": "mocha 'test/**/*-test.mjs' && eslint src test --ext mjs",
     "prepublishOnly": "rollup -c",
     "postpublish": "git push && git push --tags"
   },
   "files": [
-    "src/**/*.js",
+    "src/**/*.mjs",
     "dist/**/*.js"
   ],
   "dependencies": {
@@ -26,12 +26,12 @@
     "d3-require": "^1.3.0"
   },
   "devDependencies": {
-    "eslint": "^7.18.0",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "eslint": "^8.18.0",
     "exceljs": "^4.3.0",
+    "mocha": "^10.0.0",
     "node-fetch": "^2.6.1",
     "rollup": "^2.37.1",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-terser": "^7.0.2",
-    "tap": "^14.11.0"
+    "rollup-plugin-terser": "^7.0.2"
   }
 }
