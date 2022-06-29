@@ -2,17 +2,19 @@
   "extends": "eslint:recommended",
   "parserOptions": {
     "sourceType": "module",
-    "ecmaVersion": 8
+    "ecmaVersion": 2020
   },
   "env": {
-    "browser": true,
     "es6": true,
-    "node": true
+    "node": true,
+    "browser": true
   },
   "rules": {
-    "semi": 2,
-    "no-process-env": 2,
     "no-cond-assign": 0,
-    "no-redeclare": 0
+    "no-constant-condition": 0,
+    "no-sparse-arrays": 0,
+    "no-unexpected-multiline": 0,
+    "comma-dangle": ["error", "never"],
+    "semi": [2, "always"]
   }
 }
