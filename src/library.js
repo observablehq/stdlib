@@ -10,6 +10,7 @@ import mermaid from "./mermaid.js";
 import Mutable from "./mutable.js";
 import now from "./now.js";
 import Promises from "./promises/index.js";
+import py from "./py.js";
 import resolve from "./resolve.js";
 import requirer, {requireDefault, setDefaultRequire} from "./require.js";
 import SQLite, {SQLiteDatabaseClient} from "./sqlite.js";
@@ -44,6 +45,7 @@ export default Object.assign(Object.defineProperties(function Library(resolver) 
     Inputs: () => require(inputs.resolve()).then(Inputs => ({...Inputs, file: Inputs.fileOf(AbstractFile)})),
     L: () => leaflet(require),
     mermaid: () => mermaid(require),
+    py: () => py(require),
     Plot: () => require(plot.resolve()),
     require: () => require,
     resolve: () => resolve, // deprecated; use async require.resolve instead

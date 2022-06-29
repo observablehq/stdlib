@@ -19,3 +19,4 @@ export const topojson = dependency("topojson-client", "3.1.0", "dist/topojson-cl
 export const exceljs = dependency("exceljs", "4.3.0", "dist/exceljs.min.js");
 export const mermaid = dependency("mermaid", "9.1.1", "dist/mermaid.min.js");
 export const leaflet = dependency("leaflet", "1.8.0", "dist/leaflet.js");
+export const pyodide = "https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js";
