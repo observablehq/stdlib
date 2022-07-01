@@ -73,7 +73,7 @@ async function* accumulateQuery(queryRequest) {
  * of sub-strings and params are the parameter values to be inserted between each
  * sub-string.
  */
- function makeQueryTemplate(operations, source) {
+ export function makeQueryTemplate(operations, source) {
   const escaper =
     source && typeof source.escape === "function" ? source.escape : (i) => i;
   const {select, from, filter, sort, slice} = operations;
