@@ -1,7 +1,7 @@
 export const __query = Object.assign(
   // This function is used by table cells.
   async (source, operations, invalidation) => {
-    const args = operationsToSqlTemplate(operations, await source);
+    const args = makeQueryTemplate(operations, await source);
     if (!args) return null; // the empty state
     return evaluateQuery(await source, args, invalidation);
   },
@@ -73,7 +73,7 @@ async function* accumulateQuery(queryRequest) {
  * of sub-strings and params are the parameter values to be inserted between each
  * sub-string.
  */
- function operationsToSqlTemplate(operations, source) {
+ function makeQueryTemplate(operations, source) {
   const escaper =
     source && typeof source.escape === "function" ? source.escape : (i) => i;
   const {select, from, filter, sort, slice} = operations;

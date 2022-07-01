@@ -1,4 +1,4 @@
-import {operationsToSqlTemplate} from "../src/table.mjs";
+import {makeQueryTemplate} from "../src/table.mjs";
 import assert from "assert";
 
 export const EMPTY_TABLE_DATA = {
@@ -35,20 +35,20 @@ const baseOperations = {
   }
 };
 
-it("operationsToSqlTemplate null table", () => {
+it("makeQueryTemplate null table", () => {
   const source = {};
-  assert.strictEqual(operationsToSqlTemplate(EMPTY_TABLE_DATA.operations, source), undefined);
+  assert.strictEqual(makeQueryTemplate(EMPTY_TABLE_DATA.operations, source), undefined);
 });
 
-it("operationsToSqlTemplate no selected columns", () => {
+it("makeQueryTemplate no selected columns", () => {
   const source = {name: "db", dialect: "postgres"};
   const operationsColumnsNull = {...baseOperations, select: {columns: null}};
-  assert.strictEqual(operationsToSqlTemplate(operationsColumnsNull, source), undefined);
+  assert.strictEqual(makeQueryTemplate(operationsColumnsNull, source), undefined);
   const operationsColumnsEmpty = {...baseOperations, select: {columns: []}};
-  assert.strictEqual(operationsToSqlTemplate(operationsColumnsEmpty, source), undefined);
+  assert.strictEqual(makeQueryTemplate(operationsColumnsEmpty, source), undefined);
 });
 
-it("operationsToSqlTemplate invalid filter operation", () => {
+it("makeQueryTemplate invalid filter operation", () => {
   const source = {name: "db", dialect: "postgres"};
   const invalidFilters = [
     {
@@ -77,11 +77,11 @@ it("operationsToSqlTemplate invalid filter operation", () => {
       ...baseOperations,
       filter: [filter]
     };
-    assert.throws(() => operationsToSqlTemplate(operations, source), /Invalid filter operation/);
+    assert.throws(() => makeQueryTemplate(operations, source), /Invalid filter operation/);
   });
 });
 
-it("operationsToSqlTemplate filter", () => {
+it("makeQueryTemplate filter", () => {
   const source = {name: "db", dialect: "postgres"};
   const operations = {
     ...baseOperations,
@@ -96,12 +96,12 @@ it("operationsToSqlTemplate filter", () => {
     ]
   };
 
-  const [parts, ...params] = operationsToSqlTemplate(operations, source);
+  const [parts, ...params] = makeQueryTemplate(operations, source);
   assert.deepStrictEqual(parts.join("?"), "SELECT t.col1,t.col2 FROM table1 t\nWHERE t.col1 = ?");
   assert.deepStrictEqual(params, ["val1"]);
 });
 
-it("operationsToSqlTemplate filter list", () => {
+it("makeQueryTemplate filter list", () => {
   const source = {name: "db", dialect: "postgres"};
   const operations = {
     ...baseOperations,
@@ -125,12 +125,12 @@ it("operationsToSqlTemplate filter list", () => {
     ]
   };
 
-  const [parts, ...params] = operationsToSqlTemplate(operations, source);
+  const [parts, ...params] = makeQueryTemplate(operations, source);
   assert.deepStrictEqual(parts.join("?"), "SELECT t.col1,t.col2 FROM table1 t\nWHERE t.col1 IN (?,?,?)\nAND t.col1 NOT IN (?)");
   assert.deepStrictEqual(params, ["val1", "val2", "val3", "val4"]);
 });
 
-it("operationsToSqlTemplate select", () => {
+it("makeQueryTemplate select", () => {
   const source = {name: "db", dialect: "mysql"};
   const operations = {
     ...baseOperations,
@@ -139,12 +139,12 @@ it("operationsToSqlTemplate select", () => {
     }
   };
 
-  const [parts, ...params] = operationsToSqlTemplate(operations, source);
+  const [parts, ...params] = makeQueryTemplate(operations, source);
   assert.deepStrictEqual(parts.join("?"), "SELECT t.col1,t.col2,t.col3 FROM table1 t");
   assert.deepStrictEqual(params, []);
 });
 
-it("operationsToSqlTemplate sort", () => {
+it("makeQueryTemplate sort", () => {
   const source = {name: "db", dialect: "mysql"};
   const operations = {
     ...baseOperations,
@@ -154,32 +154,32 @@ it("operationsToSqlTemplate sort", () => {
     ]
   };
 
-  const [parts, ...params] = operationsToSqlTemplate(operations, source);
+  const [parts, ...params] = makeQueryTemplate(operations, source);
   assert.deepStrictEqual(parts.join("?"), "SELECT t.col1,t.col2 FROM table1 t\nORDER BY t.col1 ASC, t.col2 DESC");
   assert.deepStrictEqual(params, []);
 });
 
-it("operationsToSqlTemplate slice", () => {
+it("makeQueryTemplate slice", () => {
   const source = {name: "db", dialect: "mysql"};
   const operations = {...baseOperations};
 
   operations.slice = {from: 10, to: 20};
-  let [parts, ...params] = operationsToSqlTemplate(operations, source);
+  let [parts, ...params] = makeQueryTemplate(operations, source);
   assert.deepStrictEqual(parts.join("?"), "SELECT t.col1,t.col2 FROM table1 t\nLIMIT 10 OFFSET 10");
   assert.deepStrictEqual(params, []);
 
   operations.slice = {from: null, to: 20};
-  [parts, ...params] = operationsToSqlTemplate(operations, source);
+  [parts, ...params] = makeQueryTemplate(operations, source);
   assert.deepStrictEqual(parts.join("?"), "SELECT t.col1,t.col2 FROM table1 t\nLIMIT 20");
   assert.deepStrictEqual(params, []);
 
   operations.slice = {from: 10, to: null};
-  [parts, ...params] = operationsToSqlTemplate(operations, source);
+  [parts, ...params] = makeQueryTemplate(operations, source);
   assert.deepStrictEqual(parts.join("?"), `SELECT t.col1,t.col2 FROM table1 t\nLIMIT ${1e9} OFFSET 10`);
   assert.deepStrictEqual(params, []);
 });
 
-it("operationsToSqlTemplate select, sort, slice, filter indexed", () => {
+it("makeQueryTemplate select, sort, slice, filter indexed", () => {
   const source = {name: "db", dialect: "postgres"};
   const operations = {
     ...baseOperations,
@@ -206,7 +206,7 @@ it("operationsToSqlTemplate select, sort, slice, filter indexed", () => {
     ]
   };
 
-  const [parts, ...params] = operationsToSqlTemplate(operations, source);
+  const [parts, ...params] = makeQueryTemplate(operations, source);
   assert.deepStrictEqual(parts.join("?"), "SELECT t.col1,t.col2,t.col3 FROM table1 t\nWHERE t.col1 >= ?\nAND t.col2 = ?\nORDER BY t.col1 ASC\nLIMIT 90 OFFSET 10");
   assert.deepStrictEqual(params, ["val1", "val2"]);
 });
