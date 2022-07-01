@@ -18,6 +18,7 @@ import tex from "./tex.mjs";
 import vegalite from "./vegalite.mjs";
 import width from "./width.mjs";
 import {arquero, arrow, d3, graphviz, htl, inputs, lodash, plot, topojson} from "./dependencies.mjs";
+import {__query} from "./table.mjs";
 
 export default Object.assign(Object.defineProperties(function Library(resolver) {
   const require = requirer(resolver);
@@ -45,6 +46,7 @@ export default Object.assign(Object.defineProperties(function Library(resolver) 
     L: () => leaflet(require),
     mermaid: () => mermaid(require),
     Plot: () => require(plot.resolve()),
+    __query: () => __query,
     require: () => require,
     resolve: () => resolve, // deprecated; use async require.resolve instead
     SQLite: () => SQLite(require),
