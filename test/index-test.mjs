@@ -16,6 +16,7 @@ it("new Library returns a library with the expected keys", () => {
     "SQLite",
     "SQLiteDatabaseClient",
     "_",
+    "__query",
     "aapl",
     "alphabet",
     "aq",
