@@ -80,7 +80,7 @@ async function* accumulateQuery(queryRequest) {
   if (
     from.table === null ||
     select.columns === null ||
-    select.columns?.length === 0
+    (select.columns && select.columns.length === 0)
   )
     return;
   const columns = select.columns.map((c) => `t.${escaper(c)}`);
@@ -97,7 +97,7 @@ async function* accumulateQuery(queryRequest) {
   }
   if (slice.to !== null || slice.from !== null) {
     appendSql(
-      `\nLIMIT ${slice.to !== null ? slice.to - (slice.from ?? 0) : 1e9}`,
+      `\nLIMIT ${slice.to !== null ? slice.to - (slice.from || 0) : 1e9}`,
       args
     );
   }
