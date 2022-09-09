@@ -480,7 +480,7 @@ This method assumes that the specified *iterator* is synchronous; if the *iterat
 
 <a href="#Generators_observe" name="Generators_observe">#</a> Generators.<b>observe</b>(<i>initialize</i>) [<>](https://github.com/observablehq/stdlib/blob/main/src/generators/observe.mjs "Source")
 
-Returns a generator that yields promises to an observable value, adapting a push-based data source (such as an [Observable](https://github.com/tc39/proposal-observable/blob/main/README.md), an [EventEmitter](https://nodejs.org/api/events.html#events_class_eventemitter) or an [EventTarget](https://developer.mozilla.org/docs/Web/API/EventTarget)) to a pull-based one.
+Returns a generator that yields promises to an observable value, adapting a push-based data source (such as an [Observable](https://github.com/tc39/proposal-observable/blob/master/README.md), an [EventEmitter](https://nodejs.org/api/events.html#events_class_eventemitter) or an [EventTarget](https://developer.mozilla.org/docs/Web/API/EventTarget)) to a pull-based one.
 
 The specified *initialize* function is invoked before Generators.observe returns, being passed a *change* function; calling *change* triggers the resolution of the current promise with the passed value. The *initialize* function may also return a *dispose* function; this function will be called when the generator is [disposed](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Generator/return). (See [invalidation](#invalidation).)
 
