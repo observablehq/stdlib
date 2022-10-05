@@ -6,7 +6,10 @@ export default function (width, height, options = {}) {
   canvas.width = width * scale;
   canvas.height = height * scale;
   canvas.style.width = width + "px";
-  const context = canvas.getContext("2d", !options ? options : contextOptions);
+  const context = canvas.getContext(
+    "2d",
+    options === null ? options : contextOptions
+  );
   context.scale(scale, scale);
   return context;
 }
