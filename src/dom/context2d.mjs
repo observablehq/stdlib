@@ -1,19 +1,12 @@
-export default function(width, height, options) {
-  let scale;
-  if (options == null) {
-    options = undefined;
-  } else if (typeof options === "number") {
-    scale = options;
-    options = undefined;
-  } else {
-    ({scale, ...options} = options);
-  }
-  if (scale === undefined) scale = devicePixelRatio;
+export default function (width, height, options = {}) {
+  const {scale = devicePixelRatio, ...contextOptions} = !isNaN(options)
+    ? {...(options != null && {scale: options})}
+    : options;
   const canvas = document.createElement("canvas");
   canvas.width = width * scale;
   canvas.height = height * scale;
   canvas.style.width = width + "px";
-  const context = canvas.getContext("2d", options);
+  const context = canvas.getContext("2d", !options ? options : contextOptions);
   context.scale(scale, scale);
   return context;
 }
