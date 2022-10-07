@@ -1,7 +1,14 @@
+import {ascending, descending, reverse} from "d3-array";
+
 export const __query = Object.assign(
   // This function is used by table cells.
   async (source, operations, invalidation) => {
-    const args = makeQueryTemplate(operations, await source);
+    // For cells whose data source is an in-memory table, we use JavaScript to
+    // apply the table cell operations, instead of composing a SQL query.
+    // TODO Do we need to do a more comprehensive isArray check, like the one
+    // we do in the worker?
+    if (Array.isArray(source)) return __table(source, operations);
+    const args = makeQueryTemplate(await source, operations);
     if (!args) return null; // the empty state
     return evaluateQuery(await source, args, invalidation);
   },
@@ -73,7 +80,7 @@ async function* accumulateQuery(queryRequest) {
  * of sub-strings and params are the parameter values to be inserted between each
  * sub-string.
  */
- export function makeQueryTemplate(operations, source) {
+ export function makeQueryTemplate(source, operations) {
   const escaper =
     source && typeof source.escape === "function" ? source.escape : (i) => i;
   const {select, from, filter, sort, slice} = operations;
@@ -231,3 +238,91 @@ function likeOperand(operand) {
   return {...operand, value: `%${operand.value}%`};
 }
 
+// This function applies table cell operations to an in-memory table (array of objects).
+export function __table(source, operations) {
+  let {schema, columns} = source;
+  for (const {type, operands} of operations.filter) {
+    const column = operands.find(({type}) => type === "column").value;
+    const resolved = operands.filter(({type}) => type === "resolved");
+    switch (type) {
+      case "eq": {
+        const [{value}] = resolved;
+        source = source.filter((d) => d[column] === value);
+        break;
+      }
+      case "ne": {
+        const [{value}] = resolved;
+        source = source.filter((d) => d[column] !== value);
+        break;
+      }
+      case "c": {
+        const [{value}] = resolved;
+        source = source.filter(
+          (d) => typeof d[column] === "string" && d[column].includes(value)
+        );
+        break;
+      }
+      case "nc": {
+        const [{value}] = resolved;
+        source = source.filter(
+          (d) => typeof d[column] === "string" && !d[column].includes(value)
+        );
+        break;
+      }
+      case "in": {
+        const values = new Set(resolved.map(({value}) => value));
+        source = source.filter((d) => values.has(d[column]));
+        break;
+      }
+      case "nin": {
+        const values = new Set(resolved.map(({value}) => value));
+        source = source.filter((d) => !values.has(d[column]));
+        break;
+      }
+      case "n": {
+        source = source.filter((d) => d[column] == null);
+        break;
+      }
+      case "nn": {
+        source = source.filter((d) => d[column] != null);
+        break;
+      }
+      case "lt": {
+        const [{value}] = resolved;
+        source = source.filter((d) => d[column] < value);
+        break;
+      }
+      case "gt": {
+        const [{value}] = resolved;
+        source = source.filter((d) => d[column] > value);
+        break;
+      }
+      default:
+        throw new Error(`unknown filter type: ${type}`);
+    }
+  }
+  for (const {column, direction} of reverse(operations.sort)) {
+    const compare = direction === "desc" ? descending : ascending;
+    source.sort((a, b) => compare(a[column], b[column]));
+  }
+  if (operations.slice) {
+    source = source.slice(
+      operations.slice.from ?? 0,
+      operations.slice.to ?? Infinity
+    );
+  }
+  if (operations.select?.columns) {
+    if (schema) {
+      const schemaByName = new Map(schema.map((s) => [s.name, s]));
+      schema = operations.select.columns.map((c) => schemaByName.get(c));
+    } else if (columns) {
+      columns = operations.select.columns;
+    }
+    source = source.map((d) =>
+      Object.fromEntries(operations.select.columns.map((c) => [c, d[c]]))
+    );
+  }
+  if (schema) source.schema = schema;
+  else if (columns) source.columns = columns;
+  return source;
+}
