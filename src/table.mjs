@@ -1,13 +1,26 @@
 import {ascending, descending, reverse} from "d3-array";
 
+export function isTypedArray(value) {
+  return (
+    value instanceof Int8Array ||
+    value instanceof Int16Array ||
+    value instanceof Int32Array ||
+    value instanceof Uint8Array ||
+    value instanceof Uint8ClampedArray ||
+    value instanceof Uint16Array ||
+    value instanceof Uint32Array ||
+    value instanceof Float32Array
+  );
+}
+
 export const __query = Object.assign(
   // This function is used by table cells.
   async (source, operations, invalidation) => {
     // For cells whose data source is an in-memory table, we use JavaScript to
     // apply the table cell operations, instead of composing a SQL query.
-    // TODO Do we need to do a more comprehensive isArray check, like the one
-    // we do in the worker?
-    if (Array.isArray(source)) return __table(source, operations);
+    // TODO Do we need to port over all the logic from canDisplayTable, or is
+    // this sufficient?
+    if (Array.isArray(source) || isTypedArray(source)) return __table(source, operations);
     const args = makeQueryTemplate(await source, operations);
     if (!args) return null; // the empty state
     return evaluateQuery(await source, args, invalidation);
