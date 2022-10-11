@@ -1,5 +1,25 @@
 import {ascending, descending, reverse} from "d3-array";
 
+// We support two levels of DatabaseClient. The simplest DatabaseClient
+// implements only the client.sql tagged template literal. More advanced
+// DatabaseClients implement client.query and client.queryStream, which support
+// streaming and abort, and the client.queryTag tagged template literal is used
+// to translate the contents of a SQL cell or Table cell into the appropriate
+// arguments for calling client.query or client.queryStream. For table cells, we
+// additionally require client.describeColumns. The client.describeTables method is
+// optional.
+export function isDatabaseClient(value, mode) {
+  return (
+    value &&
+    (typeof value.sql === "function" ||
+      (typeof value.queryTag === "function" &&
+        (typeof value.query === "function" ||
+          typeof value.queryStream === "function"))) &&
+    (mode !== "table" || typeof value.describeColumns === "function") &&
+    value !== __query // don’t match our internal helper
+  );
+}
+
 export function isTypedArray(value) {
   return (
     value instanceof Int8Array ||
@@ -9,7 +29,8 @@ export function isTypedArray(value) {
     value instanceof Uint8ClampedArray ||
     value instanceof Uint16Array ||
     value instanceof Uint32Array ||
-    value instanceof Float32Array
+    value instanceof Float32Array ||
+    value instanceof Float64Array
   );
 }
 
@@ -18,10 +39,9 @@ export const __query = Object.assign(
   async (source, operations, invalidation) => {
     // For cells whose data source is an in-memory table, we use JavaScript to
     // apply the table cell operations, instead of composing a SQL query.
-    // TODO Do we need to port over all the logic from canDisplayTable, or is
-    // this sufficient?
     if (Array.isArray(source) || isTypedArray(source)) return __table(source, operations);
-    const args = makeQueryTemplate(await source, operations);
+    if (!isDatabaseClient(source)) throw new Error("invalid source");
+    const args = makeQueryTemplate(operations, await source);
     if (!args) return null; // the empty state
     return evaluateQuery(await source, args, invalidation);
   },
@@ -93,7 +113,7 @@ async function* accumulateQuery(queryRequest) {
  * of sub-strings and params are the parameter values to be inserted between each
  * sub-string.
  */
- export function makeQueryTemplate(source, operations) {
+ export function makeQueryTemplate(operations, source) {
   const escaper =
     source && typeof source.escape === "function" ? source.escape : (i) => i;
   const {select, from, filter, sort, slice} = operations;
