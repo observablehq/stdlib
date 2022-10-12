@@ -20,7 +20,7 @@ export function isDatabaseClient(value, mode) {
   );
 }
 
-export function isTypedArray(value) {
+function isTypedArray(value) {
   return (
     value instanceof Int8Array ||
     value instanceof Int16Array ||
