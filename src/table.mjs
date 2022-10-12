@@ -113,7 +113,7 @@ async function* accumulateQuery(queryRequest) {
  * of sub-strings and params are the parameter values to be inserted between each
  * sub-string.
  */
- export function makeQueryTemplate(operations, source) {
+export function makeQueryTemplate(operations, source) {
   const escaper =
     source && typeof source.escape === "function" ? source.escape : (i) => i;
   const {select, from, filter, sort, slice} = operations;
@@ -273,43 +273,44 @@ function likeOperand(operand) {
 
 // This function applies table cell operations to an in-memory table (array of objects).
 export function __table(source, operations) {
+  const input = source;
   let {schema, columns} = source;
   for (const {type, operands} of operations.filter) {
-    const column = operands.find(({type}) => type === "column").value;
-    const resolved = operands.filter(({type}) => type === "resolved");
+    const [{value: column}] = operands;
+    const values = operands.slice(1).map(({value}) => value);
     switch (type) {
       case "eq": {
-        const [{value}] = resolved;
+        const [value] = values;
         source = source.filter((d) => d[column] === value);
         break;
       }
       case "ne": {
-        const [{value}] = resolved;
+        const [value] = values;
         source = source.filter((d) => d[column] !== value);
         break;
       }
       case "c": {
-        const [{value}] = resolved;
+        const [value] = values;
         source = source.filter(
           (d) => typeof d[column] === "string" && d[column].includes(value)
         );
         break;
       }
       case "nc": {
-        const [{value}] = resolved;
+        const [value] = values;
         source = source.filter(
           (d) => typeof d[column] === "string" && !d[column].includes(value)
         );
         break;
       }
       case "in": {
-        const values = new Set(resolved.map(({value}) => value));
-        source = source.filter((d) => values.has(d[column]));
+        const set = new Set(values);
+        source = source.filter((d) => set.has(d[column]));
         break;
       }
       case "nin": {
-        const values = new Set(resolved.map(({value}) => value));
-        source = source.filter((d) => !values.has(d[column]));
+        const set = new Set(values);
+        source = source.filter((d) => !set.has(d[column]));
         break;
       }
       case "n": {
@@ -321,12 +322,12 @@ export function __table(source, operations) {
         break;
       }
       case "lt": {
-        const [{value}] = resolved;
+        const [value] = values;
         source = source.filter((d) => d[column] < value);
         break;
       }
       case "gt": {
-        const [{value}] = resolved;
+        const [value] = values;
         source = source.filter((d) => d[column] > value);
         break;
       }
@@ -336,26 +337,30 @@ export function __table(source, operations) {
   }
   for (const {column, direction} of reverse(operations.sort)) {
     const compare = direction === "desc" ? descending : ascending;
+    if (source === input) source = source.slice(); // defensive copy
     source.sort((a, b) => compare(a[column], b[column]));
   }
-  if (operations.slice) {
-    source = source.slice(
-      operations.slice.from ?? 0,
-      operations.slice.to ?? Infinity
-    );
+  let {from, to} = operations.slice;
+  from = from == null ? 0 : Math.max(0, from);
+  to = to == null ? Infinity : Math.max(0, to);
+  if (from > 0 || to < Infinity) {
+    source = source.slice(Math.max(0, from), Math.max(0, to));
   }
-  if (operations.select?.columns) {
+  if (operations.select.columns) {
     if (schema) {
       const schemaByName = new Map(schema.map((s) => [s.name, s]));
       schema = operations.select.columns.map((c) => schemaByName.get(c));
-    } else if (columns) {
+    }
+    if (columns) {
       columns = operations.select.columns;
     }
     source = source.map((d) =>
       Object.fromEntries(operations.select.columns.map((c) => [c, d[c]]))
     );
   }
-  if (schema) source.schema = schema;
-  else if (columns) source.columns = columns;
+  if (source !== input) {
+    if (schema) source.schema = schema;
+    if (columns) source.columns = columns;
+  }
   return source;
 }
