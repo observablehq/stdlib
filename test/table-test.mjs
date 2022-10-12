@@ -56,7 +56,7 @@ describe("makeQueryTemplate", () => {
         type: "n",
         operands: [
           {type: "column", value: "col1"},
-          {type: "primitive", value: "val1"}
+          {type: "resolved", value: "val1"}
         ]
       },
       {
@@ -67,8 +67,8 @@ describe("makeQueryTemplate", () => {
         type: "lt",
         operands: [
           {type: "column", value: "col1"},
-          {type: "primitive", value: "val1"},
-          {type: "primitive", value: "val2"}
+          {type: "resolved", value: "val1"},
+          {type: "resolved", value: "val2"}
         ]
       }
     ];
@@ -91,7 +91,7 @@ describe("makeQueryTemplate", () => {
           type: "eq",
           operands: [
             {type: "column", value: "col1"},
-            {type: "primitive", value: "val1"}
+            {type: "resolved", value: "val1"}
           ]
         }
       ]
@@ -111,16 +111,16 @@ describe("makeQueryTemplate", () => {
           type: "in",
           operands: [
             {type: "column", value: "col1"},
-            {type: "primitive", value: "val1"},
-            {type: "primitive", value: "val2"},
-            {type: "primitive", value: "val3"}
+            {type: "resolved", value: "val1"},
+            {type: "resolved", value: "val2"},
+            {type: "resolved", value: "val3"}
           ]
         },
         {
           type: "nin",
           operands: [
             {type: "column", value: "col1"},
-            {type: "primitive", value: "val4"}
+            {type: "resolved", value: "val4"}
           ]
         }
       ]
@@ -194,14 +194,14 @@ describe("makeQueryTemplate", () => {
           type: "gte",
           operands: [
             {type: "column", value: "col1"},
-            {type: "primitive", value: "val1"}
+            {type: "resolved", value: "val1"}
           ]
         },
         {
           type: "eq",
           operands: [
             {type: "column", value: "col2"},
-            {type: "primitive", value: "val2"}
+            {type: "resolved", value: "val2"}
           ]
         }
       ]
@@ -244,14 +244,14 @@ describe("__table", () => {
   it("__table filter", () => {
     const operationsEquals = {
       ...EMPTY_TABLE_DATA.operations,
-      filter: [{type: "eq", operands: [{type: "column", value: "a"}, {type: "primitive", value: 1}]}]
+      filter: [{type: "eq", operands: [{type: "column", value: "a"}, {type: "resolved", value: 1}]}]
     };
     assert.deepStrictEqual(__table(source, operationsEquals), [{a: 1, b: 2, c: 3}]);
     const operationsComparison = {
       ...EMPTY_TABLE_DATA.operations,
       filter: [
-        {type: "lt", operands: [{type: "column", value: "a"}, {type: "primitive", value: 3}]},
-        {type: "gt", operands: [{type: "column", value: "b"}, {type: "primitive", value: 2}]}
+        {type: "lt", operands: [{type: "column", value: "a"}, {type: "resolved", value: 3}]},
+        {type: "gt", operands: [{type: "column", value: "b"}, {type: "resolved", value: 2}]}
       ]
     };
     assert.deepStrictEqual(__table(source, operationsComparison), [{a: 2, b: 4, c: 6}]);
