@@ -245,7 +245,7 @@ describe("__table", () => {
     assert.throws(() => __table(source, operations), /unknown filter type: xyz/);
   });
 
-  it("__table filter", () => {
+  it("__table filter lt + gt", () => {
     const operationsEquals = {
       ...EMPTY_TABLE_DATA.operations,
       filter: [{type: "eq", operands: [{type: "column", value: "a"}, {type: "resolved", value: 1}]}]
@@ -259,6 +259,31 @@ describe("__table", () => {
       ]
     };
     assert.deepStrictEqual(__table(source, operationsComparison), [{a: 2, b: 4, c: 6}]);
+  });
+
+  it("__table filter lte + gte", () => {
+    const operationsEquals = {
+      ...EMPTY_TABLE_DATA.operations,
+      filter: [{type: "eq", operands: [{type: "column", value: "a"}, {type: "resolved", value: 1}]}]
+    };
+    assert.deepStrictEqual(__table(source, operationsEquals), [{a: 1, b: 2, c: 3}]);
+    const operationsComparison = {
+      ...EMPTY_TABLE_DATA.operations,
+      filter: [
+        {type: "lte", operands: [{type: "column", value: "a"}, {type: "resolved", value: 2.5}]},
+        {type: "gte", operands: [{type: "column", value: "b"}, {type: "resolved", value: 2.5}]}
+      ]
+    };
+    assert.deepStrictEqual(__table(source, operationsComparison), [{a: 2, b: 4, c: 6}]);
+  });
+
+  it("__table filter eq date", () => {
+    const operationsEquals = {
+      ...EMPTY_TABLE_DATA.operations,
+      filter: [{type: "eq", operands: [{type: "column", value: "a"}, {type: "resolved", value: new Date("2021-01-02")}]}]
+    };
+    const source = [{a: new Date("2021-01-01")}, {a: new Date("2021-01-02")}, {a: new Date("2021-01-03")}];
+    assert.deepStrictEqual(__table(source, operationsEquals), [{a: new Date("2021-01-02")}]);
   });
 
   it("__table sort", () => {

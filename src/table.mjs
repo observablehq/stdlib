@@ -277,7 +277,12 @@ export function __table(source, operations) {
     switch (type) {
       case "eq": {
         const [value] = values;
-        source = source.filter((d) => d[column] === value);
+        if (value instanceof Date) {
+          const time = +value; // compare as primitive
+          source = source.filter((d) => +d[column] === time);
+        } else {
+          source = source.filter((d) => d[column] === value);
+        }
         break;
       }
       case "ne": {
@@ -300,12 +305,12 @@ export function __table(source, operations) {
         break;
       }
       case "in": {
-        const set = new Set(values);
+        const set = new Set(values); // TODO support dates?
         source = source.filter((d) => set.has(d[column]));
         break;
       }
       case "nin": {
-        const set = new Set(values);
+        const set = new Set(values); // TODO support dates?
         source = source.filter((d) => !set.has(d[column]));
         break;
       }
@@ -322,9 +327,19 @@ export function __table(source, operations) {
         source = source.filter((d) => d[column] < value);
         break;
       }
+      case "lte": {
+        const [value] = values;
+        source = source.filter((d) => d[column] <= value);
+        break;
+      }
       case "gt": {
         const [value] = values;
         source = source.filter((d) => d[column] > value);
+        break;
+      }
+      case "gte": {
+        const [value] = values;
+        source = source.filter((d) => d[column] >= value);
         break;
       }
       default:
