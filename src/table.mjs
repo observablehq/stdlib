@@ -144,8 +144,8 @@ export const __query = Object.assign(
     source = await source;
     if (isDatabaseClient(source)) return evaluateQuery(source, makeQueryTemplate(operations, source), invalidation);
     if (isDataArray(source)) return __table(source, operations);
-    if (!source) throw new Error("missing source");
-    throw new Error("invalid source");
+    if (!source) throw new Error("missing data source");
+    throw new Error("invalid data source");
   },
   {
     sql(source, invalidation) {
@@ -157,7 +157,7 @@ export const __query = Object.assign(
 );
 
 async function evaluateQuery(source, args, invalidation) {
-  if (!source) throw new Error("missing source");
+  if (!source) throw new Error("missing data source");
 
   // If this DatabaseClient supports abort and streaming, use that.
   if (typeof source.queryTag === "function") {
