@@ -1,5 +1,7 @@
 import {ascending, descending, reverse} from "d3-array";
 
+const nChecks = 20; // number of values to check in each array
+
 // We support two levels of DatabaseClient. The simplest DatabaseClient
 // implements only the client.sql tagged template literal. More advanced
 // DatabaseClients implement client.query and client.queryStream, which support
@@ -18,6 +20,108 @@ export function isDatabaseClient(value, mode) {
     (mode !== "table" || typeof value.describeColumns === "function") &&
     value !== __query // don’t match our internal helper
   );
+}
+
+// Returns true if the value is a typed array (for a single-column table), or if
+// it’s an array. In the latter case, the elements of the array must be
+// consistently typed: either plain objects or primitives or dates.
+export function isDataArray(value) {
+  return (
+    (Array.isArray(value) &&
+      (isQueryResultSetSchema(value.schema) ||
+        isQueryResultSetColumns(value.columns) ||
+        arrayContainsObjects(value) ||
+        arrayContainsPrimitives(value) ||
+        arrayContainsDates(value))) ||
+    isTypedArray(value)
+  );
+}
+
+// Given an array, checks that the given value is an array that does not contain
+// any primitive values (at least for the first few values that we check), and
+// that the first object contains enumerable keys (see computeSchema for how we
+// infer the columns). We assume that the contents of the table are homogenous,
+// but we don’t currently enforce this.
+// https://observablehq.com/@observablehq/database-client-specification#§1
+function arrayContainsObjects(value) {
+  const n = Math.min(nChecks, value.length);
+  for (let i = 0; i < n; ++i) {
+    const v = value[i];
+    if (v === null || typeof v !== "object") return false;
+  }
+  return n > 0 && objectHasEnumerableKeys(value[0]);
+}
+
+// Using a for-in loop here means that we can abort after finding at least one
+// enumerable key (whereas Object.keys would require materializing the array of
+// all keys, which would be considerably slower if the value has many keys!).
+// This function assumes that value is an object; see arrayContainsObjects.
+function objectHasEnumerableKeys(value) {
+  for (const _ in value) return true;
+  return false;
+}
+
+function isQueryResultSetSchema(schemas) {
+  return (Array.isArray(schemas) && schemas.every((s) => s && typeof s.name === "string"));
+}
+
+function isQueryResultSetColumns(columns) {
+  return (Array.isArray(columns) && columns.every((name) => typeof name === "string"));
+}
+
+// Returns true if the value represents an array of primitives (i.e., a
+// single-column table). This should only be passed values for which
+// canDisplayTable returns true.
+function arrayIsPrimitive(value) {
+  return (
+    isTypedArray(value) ||
+    arrayContainsPrimitives(value) ||
+    arrayContainsDates(value)
+  );
+}
+
+// Given an array, checks that the first n elements are primitives (number,
+// string, boolean, bigint) of a consistent type.
+function arrayContainsPrimitives(value) {
+  const n = Math.min(nChecks, value.length);
+  if (!(n > 0)) return false;
+  let type;
+  let hasPrimitive = false; // ensure we encounter 1+ primitives
+  for (let i = 0; i < n; ++i) {
+    const v = value[i];
+    if (v == null) continue; // ignore null and undefined
+    const t = typeof v;
+    if (type === undefined) {
+      switch (t) {
+        case "number":
+        case "boolean":
+        case "string":
+        case "bigint":
+          type = t;
+          break;
+        default:
+          return false;
+      }
+    } else if (t !== type) {
+      return false;
+    }
+    hasPrimitive = true;
+  }
+  return hasPrimitive;
+}
+
+// Given an array, checks that the first n elements are dates.
+function arrayContainsDates(value) {
+  const n = Math.min(nChecks, value.length);
+  if (!(n > 0)) return false;
+  let hasDate = false; // ensure we encounter 1+ dates
+  for (let i = 0; i < n; ++i) {
+    const v = value[i];
+    if (v == null) continue; // ignore null and undefined
+    if (!(v instanceof Date)) return false;
+    hasDate = true;
+  }
+  return hasDate;
 }
 
 function isTypedArray(value) {
@@ -40,9 +144,10 @@ export const __query = Object.assign(
     source = await source;
     // For cells whose data source is an in-memory table, we use JavaScript to
     // apply the table cell operations, instead of composing a SQL query.
-    if (Array.isArray(source) || isTypedArray(source)) return __table(source, operations);
-    if (!isDatabaseClient(source)) throw new Error("invalid source");
-    return evaluateQuery(source, makeQueryTemplate(operations, source), invalidation);
+    if (isDatabaseClient(source)) return evaluateQuery(source, makeQueryTemplate(operations, source), invalidation);
+    if (isDataArray(source)) return __table(source, operations);
+    if (!source) throw new Error("missing source");
+    throw new Error("invalid source");
   },
   {
     sql(source, invalidation) {
@@ -269,6 +374,7 @@ function likeOperand(operand) {
 
 // This function applies table cell operations to an in-memory table (array of objects).
 export function __table(source, operations) {
+  if (arrayIsPrimitive(source)) source = Array.from(source, (value) => ({value}));
   const input = source;
   let {schema, columns} = source;
   for (const {type, operands} of operations.filter) {
