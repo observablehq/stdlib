@@ -277,6 +277,17 @@ describe("__table", () => {
     assert.deepStrictEqual(__table(source, operationsComparison), [{a: 2, b: 4, c: 6}]);
   });
 
+  it("__table filter primitive lte + gte", () => {
+    assert.deepStrictEqual(__table([1, 2, 3], {
+      ...EMPTY_TABLE_DATA.operations,
+      filter: [{type: "eq", operands: [{type: "column", value: "value"}, {type: "resolved", value: 1}]}]
+    }), [1]);
+    assert.deepStrictEqual(__table(Uint32Array.of(1, 2, 3), {
+      ...EMPTY_TABLE_DATA.operations,
+      filter: [{type: "eq", operands: [{type: "column", value: "value"}, {type: "resolved", value: 1}]}]
+    }), [1]);
+  });
+
   it("__table filter eq date", () => {
     const operationsEquals = {
       ...EMPTY_TABLE_DATA.operations,

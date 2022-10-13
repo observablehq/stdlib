@@ -71,8 +71,8 @@ function isQueryResultSetColumns(columns) {
 
 // Returns true if the value represents an array of primitives (i.e., a
 // single-column table). This should only be passed values for which
-// canDisplayTable returns true.
-function arrayIsPrimitive(value) {
+// isDataArray returns true.
+export function arrayIsPrimitive(value) {
   return (
     isTypedArray(value) ||
     arrayContainsPrimitives(value) ||
@@ -373,9 +373,10 @@ function likeOperand(operand) {
 // This function applies table cell operations to an in-memory table (array of
 // objects); it should be equivalent to the corresponding SQL query.
 export function __table(source, operations) {
-  if (arrayIsPrimitive(source)) source = Array.from(source, (value) => ({value}));
   const input = source;
   let {schema, columns} = source;
+  let primitive = arrayIsPrimitive(source);
+  if (primitive) source = Array.from(source, (value) => ({value}));
   for (const {type, operands} of operations.filter) {
     const [{value: column}] = operands;
     const values = operands.slice(1).map(({value}) => value);
@@ -474,6 +475,7 @@ export function __table(source, operations) {
       Object.fromEntries(operations.select.columns.map((c) => [c, d[c]]))
     );
   }
+  if (primitive) source = source.map((d) => d.value);
   if (source !== input) {
     if (schema) source.schema = schema;
     if (columns) source.columns = columns;
