@@ -142,8 +142,6 @@ function isTypedArray(value) {
 export const __query = Object.assign(
   async (source, operations, invalidation) => {
     source = await source;
-    // For cells whose data source is an in-memory table, we use JavaScript to
-    // apply the table cell operations, instead of composing a SQL query.
     if (isDatabaseClient(source)) return evaluateQuery(source, makeQueryTemplate(operations, source), invalidation);
     if (isDataArray(source)) return __table(source, operations);
     if (!source) throw new Error("missing source");
@@ -372,7 +370,8 @@ function likeOperand(operand) {
   return {...operand, value: `%${operand.value}%`};
 }
 
-// This function applies table cell operations to an in-memory table (array of objects).
+// This function applies table cell operations to an in-memory table (array of
+// objects); it should be equivalent to the corresponding SQL query.
 export function __table(source, operations) {
   if (arrayIsPrimitive(source)) source = Array.from(source, (value) => ({value}));
   const input = source;
