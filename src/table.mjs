@@ -6,8 +6,8 @@ import {ascending, descending, reverse} from "d3-array";
 // streaming and abort, and the client.queryTag tagged template literal is used
 // to translate the contents of a SQL cell or Table cell into the appropriate
 // arguments for calling client.query or client.queryStream. For table cells, we
-// additionally require client.describeColumns. The client.describeTables method is
-// optional.
+// additionally require client.describeColumns. The client.describeTables method
+// is optional.
 export function isDatabaseClient(value, mode) {
   return (
     value &&
@@ -34,19 +34,17 @@ function isTypedArray(value) {
   );
 }
 
+// __query is used by table cells; __query.sql is used by SQL cells.
 export const __query = Object.assign(
-  // This function is used by table cells.
   async (source, operations, invalidation) => {
+    source = await source;
     // For cells whose data source is an in-memory table, we use JavaScript to
     // apply the table cell operations, instead of composing a SQL query.
     if (Array.isArray(source) || isTypedArray(source)) return __table(source, operations);
     if (!isDatabaseClient(source)) throw new Error("invalid source");
-    const args = makeQueryTemplate(operations, await source);
-    if (!args) return null; // the empty state
-    return evaluateQuery(await source, args, invalidation);
+    return evaluateQuery(source, makeQueryTemplate(operations, source), invalidation);
   },
   {
-    // This function is used by SQL cells.
     sql(source, invalidation) {
       return async function () {
         return evaluateQuery(source, arguments, invalidation);
@@ -56,7 +54,7 @@ export const __query = Object.assign(
 );
 
 async function evaluateQuery(source, args, invalidation) {
-  if (!source) return;
+  if (!source) throw new Error("missing source");
 
   // If this DatabaseClient supports abort and streaming, use that.
   if (typeof source.queryTag === "function") {
@@ -115,15 +113,13 @@ async function* accumulateQuery(queryRequest) {
  */
 export function makeQueryTemplate(operations, source) {
   const escaper =
-    source && typeof source.escape === "function" ? source.escape : (i) => i;
+    typeof source.escape === "function" ? source.escape : (i) => i;
   const {select, from, filter, sort, slice} = operations;
-  if (
-    from.table === null ||
-    select.columns === null ||
-    (select.columns && select.columns.length === 0)
-  )
-    return;
-  const columns = select.columns.map((c) => `t.${escaper(c)}`);
+  if (!from.table)
+    throw new Error("missing from table");
+  if (select.columns?.length === 0)
+    throw new Error("at least one column must be selected");
+  const columns = select.columns ? select.columns.map((c) => `t.${escaper(c)}`) : "*";
   const args = [
     [`SELECT ${columns} FROM ${formatTable(from.table, escaper)} t`]
   ];
@@ -148,7 +144,7 @@ export function makeQueryTemplate(operations, source) {
 }
 
 function formatTable(table, escaper) {
-  if (typeof table === "object") {
+  if (typeof table === "object") { // i.e., not a bare string specifier
     let from = "";
     if (table.database != null) from += escaper(table.database) + ".";
     if (table.schema != null) from += escaper(table.schema) + ".";

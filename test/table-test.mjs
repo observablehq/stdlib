@@ -38,15 +38,19 @@ const baseOperations = {
 describe("makeQueryTemplate", () => {
   it("makeQueryTemplate null table", () => {
     const source = {};
-    assert.strictEqual(makeQueryTemplate(EMPTY_TABLE_DATA.operations, source), undefined);
+    assert.throws(() => makeQueryTemplate(EMPTY_TABLE_DATA.operations, source), /missing from table/);
   });
 
   it("makeQueryTemplate no selected columns", () => {
     const source = {name: "db", dialect: "postgres"};
-    const operationsColumnsNull = {...baseOperations, select: {columns: null}};
-    assert.strictEqual(makeQueryTemplate(operationsColumnsNull, source), undefined);
     const operationsColumnsEmpty = {...baseOperations, select: {columns: []}};
-    assert.strictEqual(makeQueryTemplate(operationsColumnsEmpty, source), undefined);
+    assert.throws(() => makeQueryTemplate(operationsColumnsEmpty, source), /at least one column must be selected/);
+  });
+
+  it("makeQueryTemplate select all", () => {
+    const source = {name: "db", dialect: "postgres"};
+    const operationsColumnsNull = {...baseOperations, select: {columns: null}};
+    assert.deepStrictEqual(makeQueryTemplate(operationsColumnsNull, source), [["SELECT * FROM table1 t"]]);
   });
 
   it("makeQueryTemplate invalid filter operation", () => {
