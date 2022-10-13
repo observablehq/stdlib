@@ -220,7 +220,7 @@ export function makeQueryTemplate(operations, source) {
   const {select, from, filter, sort, slice} = operations;
   if (!from.table)
     throw new Error("missing from table");
-  if (select.columns?.length === 0)
+  if (select.columns && select.columns.length === 0)
     throw new Error("at least one column must be selected");
   const columns = select.columns ? select.columns.map((c) => `t.${escaper(c)}`) : "*";
   const args = [
