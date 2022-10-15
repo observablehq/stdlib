@@ -1,4 +1,5 @@
 import {ascending, descending, reverse} from "./array.mjs";
+import {FileAttachment} from "./fileAttachment.mjs";
 
 const nChecks = 20; // number of values to check in each array
 
@@ -141,7 +142,7 @@ function isTypedArray(value) {
 // __query is used by table cells; __query.sql is used by SQL cells.
 export const __query = Object.assign(
   async (source, operations, invalidation) => {
-    source = await source;
+    source = await loadDataSource(await source, "table");
     if (isDatabaseClient(source)) return evaluateQuery(source, makeQueryTemplate(operations, source), invalidation);
     if (isDataArray(source)) return __table(source, operations);
     if (!source) throw new Error("missing data source");
@@ -150,11 +151,30 @@ export const __query = Object.assign(
   {
     sql(source, invalidation) {
       return async function () {
-        return evaluateQuery(source, arguments, invalidation);
+        return evaluateQuery(await loadDataSource(await source, "sql"), arguments, invalidation);
       };
     }
   }
 );
+
+export async function loadDataSource(source, mode) {
+  if (source instanceof FileAttachment) {
+    if (mode === "table") {
+      switch (source.mimeType) {
+        case "text/csv": return source.csv({typed: true});
+        case "text/tab-separated-values": return source.tsv({typed: true});
+        case "application/json": return source.json();
+      }
+    }
+    if (mode === "table" || mode === "sql") {
+      switch (source.mimeType) {
+        case "application/x-sqlite3": return source.sqlite();
+      }
+    }
+    throw new Error(`unsupported file type: ${source.mimeType}`);
+  }
+  return source;
+}
 
 async function evaluateQuery(source, args, invalidation) {
   if (!source) throw new Error("missing data source");
