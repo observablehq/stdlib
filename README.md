@@ -336,10 +336,10 @@ If <i>array</i> is true, an array of arrays is returned; otherwise, the first ro
 
 <a href="#attachment_image" name="attachment_image">#</a> *attachment*.<b>image</b>() [<>](https://github.com/observablehq/stdlib/blob/main/src/fileAttachment.mjs "Source")
 
-Returns a promise to a file loaded as an [Image](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/Image). The promise resolves when the image has finished loading, making this useful for reading the image pixels in Canvas, or for loading the image into a WebGL texture. Consider [*attachment*.url](#attachment_url) if you want to embed an image in HTML or Markdown.
+Returns a promise to a file loaded as an [Image](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/Image). The promise resolves when the image has finished loading, making this useful for reading the image pixels in Canvas, or for loading the image into a WebGL texture. Consider [*attachment*.url](#attachment_url) if you want to embed an image in HTML or Markdown. Image properties can be passed in as JavaScript properties.
 
 ```js
-const image = await FileAttachment("sunset.jpg").image();
+const image = await FileAttachment("sunset.jpg").image({width: 400, style: "border: 1px solid black"});
 ```
 
 <a href="#attachment_arrayBuffer" name="attachment_arrayBuffer">#</a> *attachment*.<b>arrayBuffer</b>() [<>](https://github.com/observablehq/stdlib/blob/main/src/fileAttachment.mjs "Source")
@@ -399,6 +399,16 @@ const document = await FileAttachment("cars.xml").xml();
 <a href="#attachment_html" name="attachment_html">#</a> *attachment*.<b>html</b>() [<>](https://github.com/observablehq/stdlib/blob/main/src/fileAttachment.mjs "Source")
 
 Returns a promise to an [HTMLDocument](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDocument) containing the contents of the file.
+
+```js
+const archive = await FileAttachment("archive.zip").zip();
+const fileNames = archive.filenames;
+const readMe = archive.file("Readme.txt").text();
+```
+
+<a href="#attachment_zip" name="attachment_zip">#</a> *attachment*.<b>zip</b>() [<>](https://github.com/observablehq/stdlib/blob/main/src/fileAttachment.mjs "Source")
+
+Returns a promise to a list of Files in the ZIP archive. Files can be read from the archive.
 
 ```js
 const document = await FileAttachment("index.html").html();
