@@ -25,6 +25,7 @@ it("new Library returns a library with the expected keys", () => {
     "d3",
     "diamonds",
     "dot",
+    "duckdb",
     "flare",
     "htl",
     "html",
@@ -42,6 +43,6 @@ it("new Library returns a library with the expected keys", () => {
     "topojson",
     "vl",
     "weather",
-    "width"
+    "width"    
   ]);
 });

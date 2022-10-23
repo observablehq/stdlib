@@ -3,6 +3,7 @@ import DOM from "./dom/index.mjs";
 import Files from "./files/index.mjs";
 import {AbstractFile, FileAttachment, NoFileAttachments} from "./fileAttachment.mjs";
 import Generators from "./generators/index.mjs";
+import duckdb from "./duckdb.mjs";
 import html from "./html.mjs";
 import leaflet from "./leaflet.mjs";
 import md from "./md.mjs";
@@ -53,6 +54,7 @@ export default Object.assign(Object.defineProperties(function Library(resolver) 
     SQLiteDatabaseClient: () => SQLiteDatabaseClient,
     topojson: () => require(topojson.resolve()),
     vl: () => vegalite(require),
+    duckdb: () => duckdb(require), 
 
     // Sample datasets
     // https://observablehq.com/@observablehq/datasets
