@@ -1,5 +1,5 @@
 import dependency from "./dependency.mjs";
-import * as ddb from "@duckdb/duckdb-wasm"
+import * as ddb from "@duckdb/duckdb-wasm";
 export const d3 = dependency("d3", "7.6.1", "dist/d3.min.js");
 export const inputs = dependency("@observablehq/inputs", "0.10.4", "dist/inputs.min.js");
 export const plot = dependency("@observablehq/plot", "0.6.0", "dist/plot.umd.min.js");

@@ -43,6 +43,7 @@ export default Object.assign(Object.defineProperties(function Library(resolver) 
     aq: () => require.alias({"apache-arrow": arrow.resolve()})(arquero.resolve()),
     Arrow: () => require(arrow.resolve()),
     d3: () => require(d3.resolve()),
+    DuckDBClient: () => duckdb(require),
     Inputs: () => require(inputs.resolve()).then(Inputs => ({...Inputs, file: Inputs.fileOf(AbstractFile)})),
     L: () => leaflet(require),
     mermaid: () => mermaid(require),
@@ -54,7 +55,6 @@ export default Object.assign(Object.defineProperties(function Library(resolver) 
     SQLiteDatabaseClient: () => SQLiteDatabaseClient,
     topojson: () => require(topojson.resolve()),
     vl: () => vegalite(require),
-    duckdb: () => duckdb(require), 
 
     // Sample datasets
     // https://observablehq.com/@observablehq/datasets
