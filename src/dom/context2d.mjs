@@ -1,10 +1,15 @@
-export default function(width, height, dpi) {
-  if (dpi == null) dpi = devicePixelRatio;
-  var canvas = document.createElement("canvas");
-  canvas.width = width * dpi;
-  canvas.height = height * dpi;
+export default function (width, height, options = {}) {
+  const {scale = devicePixelRatio, ...contextOptions} = !isNaN(options)
+    ? {...(options != null && {scale: options})}
+    : options;
+  const canvas = document.createElement("canvas");
+  canvas.width = width * scale;
+  canvas.height = height * scale;
   canvas.style.width = width + "px";
-  var context = canvas.getContext("2d");
-  context.scale(dpi, dpi);
+  const context = canvas.getContext(
+    "2d",
+    options === null ? options : contextOptions
+  );
+  context.scale(scale, scale);
   return context;
 }

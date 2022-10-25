@@ -41,9 +41,9 @@ html`<canvas width=960 height=500>`
 
 If you are using [2D Canvas](https://www.w3.org/TR/2dcontext/) (rather than [WebGL](https://webglfundamentals.org/)), you should use [DOM.context2d](#DOM_context2d) instead of DOM.canvas for automatic pixel density scaling.
 
-<a href="#DOM_context2d" name="DOM_context2d">#</a> DOM.<b>context2d</b>(<i>width</i>, <i>height</i>[, <i>dpi</i>]) [<>](https://github.com/observablehq/stdlib/blob/main/src/dom/context2d.mjs "Source")
+<a href="#DOM_context2d" name="DOM_context2d">#</a> DOM.<b>context2d</b>(<i>width</i>, <i>height</i>[, <i>options</i>]) [<>](https://github.com/observablehq/stdlib/blob/main/src/dom/context2d.mjs "Source")
 
-Returns a new canvas context with the specified *width* and *height* and the specified device pixel ratio *dpi*. If *dpi* is not specified, it defaults to [*window*.devicePixelRatio](https://developer.mozilla.org/docs/Web/API/Window/devicePixelRatio). To access the context’s canvas, use [*context*.canvas](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/canvas). For example, to create a 960×500 canvas:
+Returns a new canvas context with the specified *width* and *height* and the specified *options*. The scale property of the options object defines the device pixel ratio, and defaults to [*window*.devicePixelRatio](https://developer.mozilla.org/docs/Web/API/Window/devicePixelRatio). The remaining options are passed through as contextAttributes to [getContext](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext). As a shorthand notation, *options* having only scale can be specified as a number. To access the context’s canvas, use [*context*.canvas](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/canvas). For example, to create a 960×500 canvas:
 
 ```js
 {
