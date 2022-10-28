@@ -334,12 +334,18 @@ const data = await FileAttachment("cars.tsv").tsv();
 
 If <i>array</i> is true, an array of arrays is returned; otherwise, the first row is assumed to be the header row and an array of objects is returned, and the returned array has a <i>data</i>.columns property that is an array of column names. (See <a href="https://github.com/d3/d3-dsv/blob/main/README.md#dsv_parseRows">d3.tsvParseRows</a>.) If <i>typed</i> is true, [automatic type inference](https://observablehq.com/@d3/d3-autotype) is applied; only use this feature if you know your data is compatible.
 
-<a href="#attachment_image" name="attachment_image">#</a> *attachment*.<b>image</b>() [<>](https://github.com/observablehq/stdlib/blob/main/src/fileAttachment.mjs "Source")
+<a href="#attachment_image" name="attachment_image">#</a> *attachment*.<b>image</b>(<i>options</i>) [<>](https://github.com/observablehq/stdlib/blob/main/src/fileAttachment.mjs "Source")
 
 Returns a promise to a file loaded as an [Image](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/Image). The promise resolves when the image has finished loading, making this useful for reading the image pixels in Canvas, or for loading the image into a WebGL texture. Consider [*attachment*.url](#attachment_url) if you want to embed an image in HTML or Markdown.
 
 ```js
 const image = await FileAttachment("sunset.jpg").image();
+```
+
+If desired, additional image properties can be passed in as *options*.
+
+```js
+const image = await FileAttachment("sunset.jpg").image({width: 400, height: 400});
 ```
 
 <a href="#attachment_arrayBuffer" name="attachment_arrayBuffer">#</a> *attachment*.<b>arrayBuffer</b>() [<>](https://github.com/observablehq/stdlib/blob/main/src/fileAttachment.mjs "Source")
@@ -404,11 +410,39 @@ Returns a promise to an [HTMLDocument](https://developer.mozilla.org/en-US/docs/
 const document = await FileAttachment("index.html").html();
 ```
 
+<a href="#attachment_zip" name="attachment_zip">#</a> *attachment*.<b>zip</b>() [<>](https://github.com/observablehq/stdlib/blob/main/src/fileAttachment.mjs "Source")
+
+Returns a promise to a [ZipArchive](#zip-archives) containing the contents of the file.
+
+```js
+const archive = await FileAttachment("archive.zip").zip();
+```
+
 <a href="#FileAttachments" name="FileAttachments">#</a> <b>FileAttachments</b>(<i>resolve</i>) [<>](https://github.com/observablehq/stdlib/blob/main/src/fileAttachment.mjs "Source")
 
 *Note: this function is not part of the Observable standard library (in notebooks), but is provided by this module as a means for defining custom file attachment implementations when working directly with the Observable runtime.*
 
 Returns a [*FileAttachment*](#FileAttachment) function given the specified *resolve* function. The *resolve* function is a function that takes a *name* and returns either an object {url, mimeType} representing the requested file if it exists, or null if the file does not exist. The url field (though not the object itself!) may be represented as a Promise if the URL is not yet known, such as for a file that is currently being uploaded. The mimeType must be a string, or undefined if the mime type is not known. For backwards compatibility, the *resolve* function may instead return just a URL, either a string or a promise.
+
+#### Zip archives
+
+<a href="#ZipArchive_filenames" name="ZipArchive_filenames">#</a> *archive*.<b>filenames</b> [<>](https://github.com/observablehq/stdlib/blob/main/src/fileAttachment.mjs "Source")
+
+Returns an array of paths representing the files contained within the archive.
+
+```js
+const archive = await FileAttachment("archive.zip").zip();
+console.log(archive.filenames);
+```
+
+<a href="#ZipArchive_file" name="ZipArchive_file">#</a> *archive*.<b>file</b>(<i>path</i>) [<>](https://github.com/observablehq/stdlib/blob/main/src/fileAttachment.mjs "Source")
+
+Returns a [file attachment](#file-attachments) for the file with the specified *path*. One of the file attachment methods can then be called to access the contents of the file. For example, to read a text file, use [*attachment*.text](#attachment_text).
+
+```js
+const archive = await FileAttachment("archive.zip").zip();
+const text = await archive.file("readme.txt").text();
+```
 
 ### Generators
 
