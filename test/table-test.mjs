@@ -223,7 +223,7 @@ describe("makeQueryTemplate", () => {
       select: {
         columns: ["col1", "col2", "col3"]
       },
-      slice: {from: 10, to: 100},
+      slice: {from: 10, to: 100}
     };
 
     const [parts] = makeQueryTemplate(operations, source);
