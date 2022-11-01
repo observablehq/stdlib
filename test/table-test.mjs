@@ -215,6 +215,52 @@ describe("makeQueryTemplate", () => {
     assert.deepStrictEqual(parts.join("?"), "SELECT t.col1,t.col2,t.col3 FROM table1 t\nWHERE t.col1 >= ?\nAND t.col2 = ?\nORDER BY t.col1 ASC\nLIMIT 90 OFFSET 10");
     assert.deepStrictEqual(params, ["val1", "val2"]);
   });
+
+  it("makeQueryTemplate select, slice with mssql syntax", () => {
+    const source = {name: "db", dialect: "mssql"};
+    const operations = {
+      ...baseOperations,
+      select: {
+        columns: ["col1", "col2", "col3"]
+      },
+      slice: {from: 10, to: 100},
+    };
+
+    const [parts] = makeQueryTemplate(operations, source);
+    assert.deepStrictEqual(parts.join("?"), "SELECT t.col1,t.col2,t.col3 FROM table1 t\nORDER BY t.col1 ASC\nOFFSET 10 ROWS\nFETCH NEXT 90 ROWS ONLY");
+  });
+
+  it("makeQueryTemplate select, sort, slice, filter indexed with mssql syntax", () => {
+    const source = {name: "db", dialect: "mssql"};
+    const operations = {
+      ...baseOperations,
+      select: {
+        columns: ["col1", "col2", "col3"]
+      },
+      sort: [{column: "col2", direction: "desc"}],
+      slice: {from: 10, to: 100},
+      filter: [
+        {
+          type: "gte",
+          operands: [
+            {type: "column", value: "col1"},
+            {type: "resolved", value: "val1"}
+          ]
+        },
+        {
+          type: "eq",
+          operands: [
+            {type: "column", value: "col2"},
+            {type: "resolved", value: "val2"}
+          ]
+        }
+      ]
+    };
+
+    const [parts, ...params] = makeQueryTemplate(operations, source);
+    assert.deepStrictEqual(parts.join("?"), "SELECT t.col1,t.col2,t.col3 FROM table1 t\nWHERE t.col1 >= ?\nAND t.col2 = ?\nORDER BY t.col2 DESC\nOFFSET 10 ROWS\nFETCH NEXT 90 ROWS ONLY");
+    assert.deepStrictEqual(params, ["val1", "val2"]);
+  });
 });
 
 describe("__table", () => {
