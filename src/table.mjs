@@ -254,15 +254,30 @@ export function makeQueryTemplate(operations, source) {
     appendSql(i ? `, ` : `\nORDER BY `, args);
     appendOrderBy(sort[i], args);
   }
-  if (slice.to !== null || slice.from !== null) {
-    appendSql(
-      `\nLIMIT ${slice.to !== null ? slice.to - (slice.from || 0) : 1e9}`,
-      args
-    );
+  if(source.dialect==='mssql'){
+    if(!sort.length){
+      appendSql(`\nORDER BY `, args);
+      appendOrderBy({column: select.columns[0], direction: 'ASC'}, args);
+    }
+    if (slice.to !== null || slice.from !== null) {
+      appendSql(`\nOFFSET ${slice.from ? slice.from : 0} ROWS`, args);
+      appendSql(
+          `\nFETCH NEXT ${slice.to !== null ? slice.to - (slice.from || 0) : 1e9} ROWS ONLY`,
+          args
+      );
+    }
+  }else{
+    if (slice.to !== null || slice.from !== null) {
+      appendSql(
+          `\nLIMIT ${slice.to !== null ? slice.to - (slice.from || 0) : 1e9}`,
+          args
+      );
+    }
+    if (slice.from !== null) {
+      appendSql(` OFFSET ${slice.from}`, args);
+    }
   }
-  if (slice.from !== null) {
-    appendSql(` OFFSET ${slice.from}`, args);
-  }
+
   return args;
 }
 
