@@ -223,11 +223,11 @@ describe("makeQueryTemplate", () => {
       select: {
         columns: ["col1", "col2", "col3"]
       },
-      slice: {from: 10, to: 100}
+      slice: {to: 100}
     };
 
     const [parts] = makeQueryTemplate(operations, source);
-    assert.deepStrictEqual(parts.join("?"), "SELECT t.col1,t.col2,t.col3 FROM table1 t\nORDER BY t.col1 ASC\nOFFSET 10 ROWS\nFETCH NEXT 90 ROWS ONLY");
+    assert.deepStrictEqual(parts.join("?"), "SELECT t.col1,t.col2,t.col3 FROM table1 t\nORDER BY t.col1 ASC\nOFFSET 0 ROWS\nFETCH NEXT 100 ROWS ONLY");
   });
 
   it("makeQueryTemplate select, sort, slice, filter indexed with mssql syntax", () => {
