@@ -255,11 +255,11 @@ export function makeQueryTemplate(operations, source) {
     appendOrderBy(sort[i], args);
   }
   if(source.dialect==='mssql'){
-    if(!sort.length){
-      appendSql(`\nORDER BY `, args);
-      appendOrderBy({column: select.columns[0], direction: 'ASC'}, args);
-    }
     if (slice.to !== null || slice.from !== null) {
+      if(!sort.length){
+        appendSql(`\nORDER BY `, args);
+        appendOrderBy({column: select.columns[0], direction: 'ASC'}, args);
+      }
       appendSql(`\nOFFSET ${slice.from ? slice.from : 0} ROWS`, args);
       appendSql(
           `\nFETCH NEXT ${slice.to !== null ? slice.to - (slice.from || 0) : 1e9} ROWS ONLY`,
