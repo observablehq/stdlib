@@ -254,7 +254,7 @@ export function makeQueryTemplate(operations, source) {
     appendSql(i ? `, ` : `\nORDER BY `, args);
     appendOrderBy(sort[i], args);
   }
-  if(source.dialect==='mssql'){
+  if(source.dialect === 'mssql'){
     if (slice.to !== null || slice.from !== null) {
       if(!sort.length){
         appendSql(`\nORDER BY `, args);
