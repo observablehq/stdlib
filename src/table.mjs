@@ -260,7 +260,7 @@ export function makeQueryTemplate(operations, source) {
         appendSql(`\nORDER BY `, args);
         appendOrderBy({column: select.columns[0], direction: 'ASC'}, args);
       }
-      appendSql(`\nOFFSET ${slice.from ? slice.from : 0} ROWS`, args);
+      appendSql(`\nOFFSET ${slice.from || 0} ROWS`, args);
       appendSql(
           `\nFETCH NEXT ${slice.to !== null ? slice.to - (slice.from || 0) : 1e9} ROWS ONLY`,
           args
