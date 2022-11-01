@@ -277,7 +277,6 @@ export function makeQueryTemplate(operations, source) {
       appendSql(` OFFSET ${slice.from}`, args);
     }
   }
-
   return args;
 }
 
