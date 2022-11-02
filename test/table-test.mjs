@@ -261,6 +261,38 @@ describe("makeQueryTemplate", () => {
     assert.deepStrictEqual(parts.join("?"), "SELECT t.col1,t.col2,t.col3 FROM table1 t\nWHERE t.col1 >= ?\nAND t.col2 = ?\nORDER BY t.col2 DESC\nOFFSET 10 ROWS\nFETCH NEXT 90 ROWS ONLY");
     assert.deepStrictEqual(params, ["val1", "val2"]);
   });
+
+  it("makeQueryTemplate throw if no columns are explicitly specified for mssql dialect", () => {
+    const source = {name: "db", dialect: "mssql"};
+    const operations = {
+      ...baseOperations,
+      select: {
+        columns: []
+      },
+      sort: [{column: "col2", direction: "desc"}],
+      slice: {from: 10, to: 100},
+      filter: [
+        {
+          type: "gte",
+          operands: [
+            {type: "column", value: "col1"},
+            {type: "resolved", value: "val1"}
+          ]
+        },
+        {
+          type: "eq",
+          operands: [
+            {type: "column", value: "col2"},
+            {type: "resolved", value: "val2"}
+          ]
+        }
+      ]
+    };
+    
+    assert.throws(() =>{
+      makeQueryTemplate(operations, source);
+    }, Error);
+  });
 });
 
 describe("__table", () => {
