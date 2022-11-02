@@ -122,7 +122,10 @@ describe("makeQueryTemplate", () => {
     };
 
     const [parts, ...params] = makeQueryTemplate(operations, source);
-    assert.deepStrictEqual(parts.join("?"), "SELECT t._col1_,t._col2_ FROM table1 t\nWHERE t._col2_ = ?");
+    assert.deepStrictEqual(
+      parts.join("?"),
+      "SELECT t._col1_,t._col2_ FROM table1 t\nWHERE t._col2_ = ?"
+    );
     assert.deepStrictEqual(params, ["val1"]);
   });
 
@@ -195,7 +198,10 @@ describe("makeQueryTemplate", () => {
     };
 
     const [parts, ...params] = makeQueryTemplate(operations, source);
-    assert.deepStrictEqual(parts.join("?"), "SELECT t._col1_,t._col2_ FROM table1 t\nORDER BY t._col1_ ASC, t._col2_ DESC");
+    assert.deepStrictEqual(
+      parts.join("?"),
+      "SELECT t._col1_,t._col2_ FROM table1 t\nORDER BY t._col1_ ASC, t._col2_ DESC"
+    );
     assert.deepStrictEqual(params, []);
   });
 
@@ -252,7 +258,7 @@ describe("makeQueryTemplate", () => {
   });
 
   it("makeQueryTemplate select, slice and escape column name with mssql syntax", () => {
-    const source = {name: "db", dialect: "mssql",  escape: (i) => `_${i}_`};
+    const source = {name: "db", dialect: "mssql", escape: (i) => `_${i}_`};
     const operations = {
       ...baseOperations,
       select: {
@@ -262,7 +268,10 @@ describe("makeQueryTemplate", () => {
     };
 
     const [parts] = makeQueryTemplate(operations, source);
-    assert.deepStrictEqual(parts.join("?"), "SELECT t._col1_,t._col2_,t._col3_ FROM table1 t\nORDER BY t._col1_ ASC\nOFFSET 0 ROWS\nFETCH NEXT 100 ROWS ONLY");
+    assert.deepStrictEqual(
+      parts.join("?"),
+      "SELECT t._col1_,t._col2_,t._col3_ FROM table1 t\nORDER BY t._col1_ ASC\nOFFSET 0 ROWS\nFETCH NEXT 100 ROWS ONLY"
+    );
   });
 
   it("makeQueryTemplate select, sort, slice, filter indexed with mssql syntax", () => {
@@ -323,8 +332,8 @@ describe("makeQueryTemplate", () => {
         }
       ]
     };
-    
-    assert.throws(() =>{
+
+    assert.throws(() => {
       makeQueryTemplate(operations, source);
     }, Error);
   });
