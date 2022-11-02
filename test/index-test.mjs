@@ -43,6 +43,6 @@ it("new Library returns a library with the expected keys", () => {
     "topojson",
     "vl",
     "weather",
-    "width"    
+    "width"
   ]);
 });

@@ -15,6 +15,7 @@ export default [
           reserved: [
             "FileAttachment",
             "RequireError",
+            "DuckDBClient",
             "SQLiteDatabaseClient",
             "Workbook",
             "ZipArchive",

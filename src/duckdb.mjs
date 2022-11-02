@@ -1,361 +1,225 @@
-// TODO I wasn't able to use the `.resolve()` approach with a .mjs file
-import {
-  arrow as arr,
-  duckdb as duck
-} from "./dependencies.mjs";
+import {arrow9 as arrow, duckdb} from "./dependencies.mjs";
+import {FileAttachment} from "./fileAttachment.mjs";
 
-export default async function duckdb(require) {
+// Adapted from https://observablehq.com/@cmudig/duckdb-client
+// Copyright 2021 CMU Data Interaction Group
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//
+// 1. Redistributions of source code must retain the above copyright notice,
+//    this list of conditions and the following disclaimer.
+//
+// 2. Redistributions in binary form must reproduce the above copyright notice,
+//    this list of conditions and the following disclaimer in the documentation
+//    and/or other materials provided with the distribution.
+//
+// 3. Neither the name of the copyright holder nor the names of its contributors
+//    may be used to endorse or promote products derived from this software
+//    without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
 
-  const arrow = await require(arr.resolve()); // TODO is this right...?
-  const bundles = await duck.getJsDelivrBundles();
-  const bundle = await duck.selectBundle(bundles);
-  async function makeDB() {
-    const logger = new duck.ConsoleLogger();
-    const worker = await duck.createWorker(bundle.mainWorker);
-    const db = new duck.AsyncDuckDB(logger, worker);
-    await db.instantiate(bundle.mainModule);
-    return db;
+// TODO Allow this to be overridden using the Library’s resolver.
+const cdn = "https://cdn.observableusercontent.com/npm/";
+
+export class DuckDBClient {
+  constructor(db) {
+    Object.defineProperties(this, {
+      _db: {value: db}
+    });
   }
 
-  // Adapted from: https://observablehq.com/@cmudig/duckdb-client
-  // Follows the DatabaseClient specification: https://observablehq.com/@observablehq/database-client-specification
-  class DuckDBClient {
-    constructor(_db) {
-      this._db = _db;
-      this._counter = 0;
+  async queryStream(query, params) {
+    const connection = await this._db.connect();
+    let reader, schema, batch;
+    try {
+      reader = await connection.send(query, params);
+      batch = await reader.next();
+      if (batch.done) throw new Error("missing first batch");
+      schema = batch.value.schema;
+    } catch (error) {
+      await connection.close();
+      throw error;
     }
-
-    async queryStream(query, params) {
-      const conn = await this.connection();
-      let result;
-
-      if (params) {
-        const stmt = await conn.prepare(query);
-        result = await stmt.query(...params);
-      } else {
-        result = await conn.query(query);
-      }
-      // Populate the schema of the results
-      const schema = result.schema.fields.map(({
-        name,
-        type
-      }) => ({
+    return {
+      schema: schema.fields.map(({name, type}) => ({
         name,
         type: getType(String(type)),
         databaseType: String(type)
-      }));
-      return {
-        schema,
-        async *readRows() {
-          let rows = result.toArray().map((r) => Object.fromEntries(r));
-          yield rows;
+      })),
+      async *readRows() {
+        try {
+          while (!batch.done) {
+            yield batch.value.toArray();
+            batch = await reader.next();
+          }
+        } finally {
+          await connection.close();
         }
-      };
-    }
-
-    // This function gets called to prepare the `query` parameter of the `queryStream` method
-    queryTag(strings, ...params) {
-      return [strings.join("?"), params];
-    }
-
-    escape(name) {
-      return `"${name}"`;
-    }
-
-    async describeTables() {
-      const conn = await this.connection();
-      const tables = (await conn.query(`SHOW TABLES`)).toArray();
-      return tables.map(({
-        name
-      }) => ({
-        name
-      }));
-    }
-
-    async describeColumns({
-      table
-    } = {}) {
-      const conn = await this.connection();
-      const columns = (await conn.query(`DESCRIBE ${table}`)).toArray();
-      return columns.map(({
-        column_name,
-        column_type
-      }) => {
-        return {
-          name: column_name,
-          type: getType(column_type),
-          databaseType: column_type
-        };
-      });
-    }
-
-    async db() {
-      if (!this._db) {
-        this._db = await makeDB();
-        await this._db.open({
-          query: {
-            castTimestampToDate: true
-          }
-        });
       }
-      return this._db;
-    }
-
-    async connection() {
-      if (!this._conn) {
-        const db = await this.db();
-        this._conn = await db.connect();
-      }
-      return this._conn;
-    }
-
-    async reconnect() {
-      if (this._conn) {
-        this._conn.close();
-      }
-      delete this._conn;
-    }
-
-    // The `.queryStream` function will supercede this for SQL and Table cells
-    // Keeping this for backwards compatibility
-    async query(query, params) {
-      const conn = await this.connection();
-      let result;
-
-      if (params) {
-        const stmt = await conn.prepare(query);
-        result = stmt.query(...params);
-      } else {
-        result = await conn.query(query);
-      }
-      return result;
-    }
-
-    // The `.queryStream` function will supercede this for SQL and Table cells
-    // Keeping this for backwards compatibility
-    async sql(strings, ...args) {
-      // expected to be used like db.sql`select * from table where foo = ${param}`
-
-      const results = await this.query(strings.join("?"), args);
-
-      // return rows as a JavaScript array of objects for now
-      let rows = results.toArray().map(Object.fromEntries);
-      rows.columns = results.schema.fields.map((d) => d.name);
-      return rows;
-    }
-
-    async table(query, params, opts) {
-      const result = await this.query(query, params);
-      return Inputs.table(result, {
-        layout: "auto",
-        ...(opts || {})
-      });
-    }
-
-    // get the client after the query ran
-    async client(query, params) {
-      await this.query(query, params);
-      return this;
-    }
-
-    // query a single row
-    async queryRow(query, params) {
-      const key = `Query ${this._counter++}: ${query}`;
-      const conn = await this.connection();
-      // use send as we can stop iterating after we get the first batch
-      const result = await conn.send(query, params);
-      const batch = (await result.next()).value;
-      return batch && batch.get(0);
-    }
-
-    async explain(query, params) {
-      const row = await this.queryRow(`EXPLAIN ${query}`, params);
-      return element("pre", {
-        className: "observablehq--inspect"
-      }, [
-        text(row["explain_value"])
-      ]);
-    }
-
-    // Describe the database (no arg) or a table
-    async describe(object) {
-      const result = await (object === undefined ?
-        this.query(`SHOW TABLES`) :
-        this.query(`DESCRIBE ${object}`));
-      return Inputs.table(result);
-    }
-
-    // Summarize a query result
-    async summarize(query) {
-      const result = await this.query(`SUMMARIZE ${query}`);
-      return Inputs.table(result);
-    }
-
-    async insertJSON(name, buffer, options) {
-      const db = await this.db();
-      await db.registerFileBuffer(name, new Uint8Array(buffer));
-      const conn = await db.connect();
-      await conn.insertJSONFromPath(name, {
-        name,
-        schema: "main",
-        ...options
-      });
-      await conn.close();
-
-      return this;
-    }
-
-    async insertCSV(name, buffer, options) {
-      const db = await this.db();
-      await db.registerFileBuffer(name, new Uint8Array(buffer));
-      const conn = await db.connect();
-      await conn.insertCSVFromPath(name, {
-        name,
-        schema: "main",
-        ...options
-      });
-      await conn.close();
-
-      return this;
-    }
-
-    async insertParquet(name, buffer) {
-      const db = await this.db();
-      await db.registerFileBuffer(name, new Uint8Array(buffer));
-      const conn = await db.connect();
-      await conn.query(
-        `CREATE VIEW '${name}' AS SELECT * FROM parquet_scan('${name}')`
-      );
-      await conn.close();
-
-      return this;
-    }
-
-    async insertArrowTable(name, table, options) {
-      const buffer = arrow.tableToIPC(table);
-      return this.insertArrowFromIPCStream(name, buffer, options);
-    }
-
-    async insertArrowFromIPCStream(name, buffer, options) {
-      const db = await this.db();
-      const conn = await db.connect();
-      await conn.insertArrowFromIPCStream(buffer, {
-        name,
-        schema: "main",
-        ...options
-      });
-      await conn.close();
-
-      return this;
-    }
-
-    // Create a database from FileArrachments
-    static async of(files = []) {
-      const db = await makeDB();
-      await db.open({
-        query: {
-          castTimestampToDate: true
-        }
-      });
-
-      const toName = (file) =>
-        file.name.split(".").slice(0, -1).join(".").replace(/\@.+?/, ""); // remove the "@X" versions Observable adds to file names
-
-      if (files.constructor.name === "FileAttachment") {
-        files = [
-          [toName(files), files]
-        ];
-      } else if (!Array.isArray(files)) {
-        files = Object.entries(files);
-      }
-
-      // Add all files to the database. Import JSON and CSV. Create view for Parquet.
-      await Promise.all(
-        files.map(async (entry) => {
-          let file;
-          let name;
-          let options = {};
-
-          if (Array.isArray(entry)) {
-            [name, file] = entry;
-            if (file.hasOwnProperty("file")) {
-              ({
-                file,
-                ...options
-              } = file);
-            }
-          } else if (entry.constructor.name === "FileAttachment") {
-            [name, file] = [toName(entry), entry];
-          } else if (typeof entry === "object") {
-            ({
-              file,
-              name,
-              ...options
-            } = entry);
-            name = name ? ? toName(file);
-          } else {
-            console.error("Unrecognized entry", entry);
-          }
-
-          if (!file.url && Array.isArray(file)) {
-            const data = file;
-            // file = { name: name + ".json" };
-            // db.registerFileText(`${name}.json`, JSON.stringify(data));
-
-            const table = arrow.tableFromJSON(data);
-            const buffer = arrow.tableToIPC(table);
-
-            const conn = await db.connect();
-            await conn.insertArrowFromIPCStream(buffer, {
-              name,
-              schema: "main",
-              ...options
-            });
-            await conn.close();
-            return;
-          } else {
-            const url = await file.url();
-            if (url.indexOf("blob:") === 0) {
-              const buffer = await file.arrayBuffer();
-              await db.registerFileBuffer(file.name, new Uint8Array(buffer));
-            } else {
-              await db.registerFileURL(file.name, url);
-            }
-          }
-
-          const conn = await db.connect();
-          if (file.name.endsWith(".csv")) {
-            await conn.insertCSVFromPath(file.name, {
-              name,
-              schema: "main",
-              ...options
-            });
-          } else if (file.name.endsWith(".json")) {
-            await conn.insertJSONFromPath(file.name, {
-              name,
-              schema: "main",
-              ...options
-            });
-          } else if (file.name.endsWith(".parquet")) {
-            await conn.query(
-              `CREATE VIEW '${name}' AS SELECT * FROM parquet_scan('${file.name}')`
-            );
-          } else {
-            console.warn(`Don't know how to handle file type of ${file.name}`);
-          }
-          await conn.close();
-        })
-      );
-
-      return new DuckDBClient(db);
-    }
+    };
   }
-  return DuckDBClient;
+
+  async query(query, params) {
+    const result = await this.queryStream(query, params);
+    const results = [];
+    for await (const rows of result.readRows()) {
+      for (const row of rows) {
+        results.push(row);
+      }
+    }
+    results.schema = result.schema;
+    return results;
+  }
+
+  async queryRow(query, params) {
+    const results = await this.query(query, params);
+    return results.length ? results[0] : null;
+  }
+
+  async sql(strings, ...args) {
+    return await this.query(strings.join("?"), args);
+  }
+
+  queryTag(strings, ...params) {
+    return [strings.join("?"), params];
+  }
+
+  escape(name) {
+    return `"${name}"`;
+  }
+
+  async describeTables() {
+    const tables = await this.query(`SHOW TABLES`);
+    return tables.map(({name}) => ({name}));
+  }
+
+  async describeColumns({table} = {}) {
+    const columns = await this.query(`DESCRIBE ${table}`);
+    return columns.map(({column_name, column_type}) => {
+      return {
+        name: column_name,
+        type: getType(column_type),
+        databaseType: column_type
+      };
+    });
+  }
+
+  static async of(sources = {}, config = {}) {
+    const db = await createDuckDB();
+    await db.open(config);
+    await Promise.all(
+      Object.entries(sources).map(async ([name, source]) => {
+        if ("array" in source) { // array + options
+          const {array, ...options} = source;
+          await insertArray(db, name, array, options);
+        } else if ("file" in source) { // file + options
+          const {file, ...options} = source;
+          await insertFile(db, name, file, options);
+        } else if (source instanceof FileAttachment) { // bare file
+          await insertFile(db, name, source);
+        } else if (Array.isArray(source)) { // bare data
+          await insertArray(db, name, source);
+        } else {
+          throw new Error(`invalid source: ${source}`);
+        }
+      })
+    );
+    return new DuckDBClient(db);
+  }
+}
+
+async function insertFile(database, name, file, options) {
+  const url = await file.url();
+  if (url.startsWith("blob:")) {
+    const buffer = await file.arrayBuffer();
+    await database.registerFileBuffer(file.name, new Uint8Array(buffer));
+  } else {
+    await database.registerFileURL(file.name, url);
+  }
+  const connection = await database.connect();
+  try {
+    switch (file.mimeType) {
+      case "text/csv":
+        await connection.insertCSVFromPath(file.name, {
+          name,
+          schema: "main",
+          ...options
+        });
+        break;
+      case "application/json":
+        await connection.insertJSONFromPath(file.name, {
+          name,
+          schema: "main",
+          ...options
+        });
+        break;
+      default:
+        if (file.name.endsWith(".parquet")) {
+          await connection.query(
+            `CREATE VIEW '${name}' AS SELECT * FROM parquet_scan('${file.name}')`
+          );
+        } else {
+          throw new Error(`unknown file type: ${file.mimeType}`);
+        }
+    }
+  } finally {
+    await connection.close();
+  }
+}
+
+async function insertArray(database, name, array, options) {
+  const arrow = await loadArrow();
+  const table = arrow.tableFromJSON(array);
+  const buffer = arrow.tableToIPC(table);
+  const connection = await database.connect();
+  try {
+    await connection.insertArrowFromIPCStream(buffer, {
+      name,
+      schema: "main",
+      ...options
+    });
+  } finally {
+    await connection.close();
+  }
+}
+
+async function createDuckDB() {
+  const duck = await import(`${cdn}${duckdb.resolve()}`);
+  const bundle = await duck.selectBundle({
+    mvp: {
+      mainModule: `${cdn}${duckdb.resolve("dist/duckdb-mvp.wasm")}`,
+      mainWorker: `${cdn}${duckdb.resolve("dist/duckdb-browser-mvp.worker.js")}`
+    },
+    eh: {
+      mainModule: `${cdn}${duckdb.resolve("dist/duckdb-eh.wasm")}`,
+      mainWorker: `${cdn}${duckdb.resolve("dist/duckdb-browser-eh.worker.js")}`
+    }
+  });
+  const logger = new duck.ConsoleLogger();
+  const worker = await duck.createWorker(bundle.mainWorker);
+  const db = new duck.AsyncDuckDB(logger, worker);
+  await db.instantiate(bundle.mainModule);
+  return db;
+}
+
+async function loadArrow() {
+  return await import(`${cdn}${arrow.resolve()}`);
 }
 
 function getType(type) {
-  const typeLower = type.toLowerCase();
-  switch (typeLower) {
+  switch (type.toLowerCase()) {
     case "bigint":
     case "int8":
     case "long":
@@ -369,17 +233,12 @@ function getType(type) {
     case "real":
     case "float4":
     case "float":
+    case "float32":
     case "float64":
       return "number";
 
     case "hugeint":
     case "integer":
-    case "smallint":
-    case "tinyint":
-    case "ubigint":
-    case "uinteger":
-    case "usmallint":
-    case "utinyint":
     case "smallint":
     case "tinyint":
     case "ubigint":
@@ -408,6 +267,7 @@ function getType(type) {
     case "timestamp with time zone":
     case "datetime":
     case "timestamptz":
+    case "date64<millisecond>":
       return "date";
 
     case "uuid":
@@ -421,18 +281,4 @@ function getType(type) {
     default:
       return "other";
   }
-}
-
-function element(name, props, children) {
-  if (arguments.length === 2) children = props, props = undefined;
-  const element = document.createElement(name);
-  if (props !== undefined)
-    for (const p in props) element[p] = props[p];
-  if (children !== undefined)
-    for (const c of children) element.appendChild(c);
-  return element;
-}
-
-function text(value) {
-  return document.createTextNode(value);
 }

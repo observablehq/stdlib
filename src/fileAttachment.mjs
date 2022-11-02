@@ -1,5 +1,5 @@
 import {autoType, csvParse, csvParseRows, tsvParse, tsvParseRows} from "d3-dsv";
-import {arrow, jszip, exceljs} from "./dependencies.mjs";
+import {arrow4, jszip, exceljs} from "./dependencies.mjs";
 import {requireDefault} from "./require.mjs";
 import {SQLiteDatabaseClient} from "./sqlite.mjs";
 import {Workbook} from "./xlsx.mjs";
@@ -57,7 +57,7 @@ export class AbstractFile {
     });
   }
   async arrow() {
-    const [Arrow, response] = await Promise.all([requireDefault(arrow.resolve()), remote_fetch(this)]);
+    const [Arrow, response] = await Promise.all([requireDefault(arrow4.resolve()), remote_fetch(this)]); // TODO upgrade to apache-arrow@9
     return Arrow.Table.from(response);
   }
   async sqlite() {
