@@ -106,6 +106,26 @@ describe("makeQueryTemplate", () => {
     assert.deepStrictEqual(params, ["val1"]);
   });
 
+  it("makeQueryTemplate filter and escape filters column", () => {
+    const source = {name: "db", dialect: "postgres", escape: (i) => `_${i}_`};
+    const operations = {
+      ...baseOperations,
+      filter: [
+        {
+          type: "eq",
+          operands: [
+            {type: "column", value: "col2"},
+            {type: "resolved", value: "val1"}
+          ]
+        }
+      ]
+    };
+
+    const [parts, ...params] = makeQueryTemplate(operations, source);
+    assert.deepStrictEqual(parts.join("?"), "SELECT t._col1_,t._col2_ FROM table1 t\nWHERE t._col2_ = ?");
+    assert.deepStrictEqual(params, ["val1"]);
+  });
+
   it("makeQueryTemplate filter list", () => {
     const source = {name: "db", dialect: "postgres"};
     const operations = {
@@ -164,6 +184,21 @@ describe("makeQueryTemplate", () => {
     assert.deepStrictEqual(params, []);
   });
 
+  it("makeQueryTemplate sort and escape sort column", () => {
+    const source = {name: "db", dialect: "mysql", escape: (i) => `_${i}_`};
+    const operations = {
+      ...baseOperations,
+      sort: [
+        {column: "col1", direction: "asc"},
+        {column: "col2", direction: "desc"}
+      ]
+    };
+
+    const [parts, ...params] = makeQueryTemplate(operations, source);
+    assert.deepStrictEqual(parts.join("?"), "SELECT t._col1_,t._col2_ FROM table1 t\nORDER BY t._col1_ ASC, t._col2_ DESC");
+    assert.deepStrictEqual(params, []);
+  });
+
   it("makeQueryTemplate slice", () => {
     const source = {name: "db", dialect: "mysql"};
     const operations = {...baseOperations};
@@ -216,8 +251,8 @@ describe("makeQueryTemplate", () => {
     assert.deepStrictEqual(params, ["val1", "val2"]);
   });
 
-  it("makeQueryTemplate select, slice with mssql syntax", () => {
-    const source = {name: "db", dialect: "mssql"};
+  it("makeQueryTemplate select, slice and escape column name with mssql syntax", () => {
+    const source = {name: "db", dialect: "mssql",  escape: (i) => `_${i}_`};
     const operations = {
       ...baseOperations,
       select: {
@@ -227,7 +262,7 @@ describe("makeQueryTemplate", () => {
     };
 
     const [parts] = makeQueryTemplate(operations, source);
-    assert.deepStrictEqual(parts.join("?"), "SELECT t.col1,t.col2,t.col3 FROM table1 t\nORDER BY t.col1 ASC\nOFFSET 0 ROWS\nFETCH NEXT 100 ROWS ONLY");
+    assert.deepStrictEqual(parts.join("?"), "SELECT t._col1_,t._col2_,t._col3_ FROM table1 t\nORDER BY t._col1_ ASC\nOFFSET 0 ROWS\nFETCH NEXT 100 ROWS ONLY");
   });
 
   it("makeQueryTemplate select, sort, slice, filter indexed with mssql syntax", () => {
