@@ -248,17 +248,24 @@ export function makeQueryTemplate(operations, source) {
   ];
   for (let i = 0; i < filter.length; ++i) {
     appendSql(i ? `\nAND ` : `\nWHERE `, args);
+    filter[i].operands.forEach(op => {
+      if(op.type === 'column')
+        op.value = escaper(op.value);
+    });
     appendWhereEntry(filter[i], args);
   }
   for (let i = 0; i < sort.length; ++i) {
     appendSql(i ? `, ` : `\nORDER BY `, args);
+    sort[i].column = escaper(sort[i].column);
     appendOrderBy(sort[i], args);
   }
   if(source.dialect === 'mssql'){
     if (slice.to !== null || slice.from !== null) {
       if(!sort.length){
+        if (columns[0] === "*")
+          throw new Error("at least one column must be explicitly specified. Received '*'.");
         appendSql(`\nORDER BY `, args);
-        appendOrderBy({column: select.columns[0], direction: 'ASC'}, args);
+        appendOrderBy({column: escaper(select.columns[0]), direction: 'ASC'}, args);
       }
       appendSql(`\nOFFSET ${slice.from || 0} ROWS`, args);
       appendSql(
