@@ -259,25 +259,32 @@ export function makeQueryTemplate(operations, source) {
     sort[i].column = escaper(sort[i].column);
     appendOrderBy(sort[i], args);
   }
-  if(source.dialect === 'mssql'){
+  if (source.dialect === "mssql") {
     if (slice.to !== null || slice.from !== null) {
-      if(!sort.length){
+      if (!sort.length) {
         if (columns[0] === "*")
-          throw new Error("at least one column must be explicitly specified. Received '*'.");
+          throw new Error(
+            "at least one column must be explicitly specified. Received '*'."
+          );
         appendSql(`\nORDER BY `, args);
-        appendOrderBy({column: escaper(select.columns[0]), direction: 'ASC'}, args);
+        appendOrderBy(
+          {column: escaper(select.columns[0]), direction: "ASC"},
+          args
+        );
       }
       appendSql(`\nOFFSET ${slice.from || 0} ROWS`, args);
       appendSql(
-          `\nFETCH NEXT ${slice.to !== null ? slice.to - (slice.from || 0) : 1e9} ROWS ONLY`,
-          args
+        `\nFETCH NEXT ${
+          slice.to !== null ? slice.to - (slice.from || 0) : 1e9
+        } ROWS ONLY`,
+        args
       );
     }
-  }else{
+  } else {
     if (slice.to !== null || slice.from !== null) {
       appendSql(
-          `\nLIMIT ${slice.to !== null ? slice.to - (slice.from || 0) : 1e9}`,
-          args
+        `\nLIMIT ${slice.to !== null ? slice.to - (slice.from || 0) : 1e9}`,
+        args
       );
     }
     if (slice.from !== null) {
