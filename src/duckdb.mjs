@@ -118,6 +118,9 @@ export class DuckDBClient {
 
   static async of(sources = {}, config = {}) {
     const db = await createDuckDB();
+    if (config.query?.castTimestampToDate === undefined) {
+      config = {...config, query: {...config.query, castTimestampToDate: true}};
+    }
     await db.open(config);
     await Promise.all(
       Object.entries(sources).map(async ([name, source]) => {
