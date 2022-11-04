@@ -256,7 +256,6 @@ export function makeQueryTemplate(operations, source) {
   }
   if (source.dialect === "mssql") {
     if (slice.to !== null || slice.from !== null) {
-
       if (!sort.length) {
         if (!select.columns)
           throw new Error(
