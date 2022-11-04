@@ -248,9 +248,9 @@ export function makeQueryTemplate(operations, source) {
   ];
   for (let i = 0; i < filter.length; ++i) {
     appendSql(i ? `\nAND ` : `\nWHERE `, args);
-    filter[i].operands.forEach(op => {
-      if(op.type === 'column')
-        op.value = escaper(op.value);
+    if (!filter[i].operands) throw new Error("missing operands");
+    filter[i].operands.forEach((op) => {
+      if (op.type === "column") op.value = escaper(op.value);
     });
     appendWhereEntry(filter[i], args);
   }

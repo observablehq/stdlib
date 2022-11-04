@@ -158,6 +158,29 @@ describe("makeQueryTemplate", () => {
     assert.deepStrictEqual(params, ["val1", "val2", "val3", "val4"]);
   });
 
+  it("makeQueryTemplate throw if filter is missing operands", () => {
+    const source = {name: "db", dialect: "postgres"};
+    const operations = {
+      ...baseOperations,
+      filter: [
+        {
+          type: "in"
+        },
+        {
+          type: "nin",
+          operands: [
+            {type: "column", value: "col1"},
+            {type: "resolved", value: "val4"}
+          ]
+        }
+      ]
+    };
+
+    assert.throws(() => {
+      makeQueryTemplate(operations, source);
+    }, Error);
+  });
+
   it("makeQueryTemplate select", () => {
     const source = {name: "db", dialect: "mysql"};
     const operations = {
