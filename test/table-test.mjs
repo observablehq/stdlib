@@ -335,7 +335,7 @@ describe("makeQueryTemplate", () => {
     const operations = {
       ...baseOperations,
       select: {
-        columns: []
+        columns: null
       },
       sort: [{column: "col2", direction: "desc"}],
       slice: {from: 10, to: 100},

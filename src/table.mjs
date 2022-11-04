@@ -256,11 +256,11 @@ export function makeQueryTemplate(operations, source) {
   }
   if (source.dialect === "mssql") {
     if (slice.to !== null || slice.from !== null) {
-      if (!sort.length) {
-        if (columns[0] === "*")
-          throw new Error(
+      if (columns === "*")
+        throw new Error(
             "at least one column must be explicitly specified. Received '*'."
-          );
+        );
+      if (!sort.length) {
         appendSql(`\nORDER BY `, args);
         appendOrderBy(
           {column: select.columns[0], direction: "ASC"},
