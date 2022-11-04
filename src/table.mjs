@@ -246,17 +246,13 @@ export function makeQueryTemplate(operations, source) {
   const args = [
     [`SELECT ${columns} FROM ${formatTable(from.table, escaper)} t`]
   ];
+  args.escaper = escaper;
   for (let i = 0; i < filter.length; ++i) {
     appendSql(i ? `\nAND ` : `\nWHERE `, args);
-    if (!filter[i].operands) throw new Error("missing operands");
-    filter[i].operands.forEach((op) => {
-      if (op.type === "column") op.value = escaper(op.value);
-    });
     appendWhereEntry(filter[i], args);
   }
   for (let i = 0; i < sort.length; ++i) {
     appendSql(i ? `, ` : `\nORDER BY `, args);
-    sort[i].column = escaper(sort[i].column);
     appendOrderBy(sort[i], args);
   }
   if (source.dialect === "mssql") {
@@ -268,7 +264,7 @@ export function makeQueryTemplate(operations, source) {
           );
         appendSql(`\nORDER BY `, args);
         appendOrderBy(
-          {column: escaper(select.columns[0]), direction: "ASC"},
+          {column: select.columns[0], direction: "ASC"},
           args
         );
       }
@@ -291,6 +287,7 @@ export function makeQueryTemplate(operations, source) {
       appendSql(` OFFSET ${slice.from}`, args);
     }
   }
+  delete args.escaper;
   return args;
 }
 
@@ -311,7 +308,8 @@ function appendSql(sql, args) {
 }
 
 function appendOrderBy({column, direction}, args) {
-  appendSql(`t.${column} ${direction.toUpperCase()}`, args);
+  const escaper = args.escaper;
+  appendSql(`t.${escaper(column)} ${direction.toUpperCase()}`, args);
 }
 
 function appendWhereEntry({type, operands}, args) {
@@ -396,7 +394,8 @@ function appendWhereEntry({type, operands}, args) {
 
 function appendOperand(o, args) {
   if (o.type === "column") {
-    appendSql(`t.${o.value}`, args);
+    const escaper = args.escaper;
+    appendSql(`t.${escaper(o.value)}`, args);
   } else {
     args.push(o.value);
     args[0].push("");

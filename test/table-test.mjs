@@ -129,6 +129,30 @@ describe("makeQueryTemplate", () => {
     assert.deepStrictEqual(params, ["val1"]);
   });
 
+  it("makeQueryTemplate filter and escape filters column only once", () => {
+    const source = {name: "db", dialect: "postgres", escape: (i) => `_${i}_`};
+    const operations = {
+      ...baseOperations,
+      filter: [
+        {
+          type: "eq",
+          operands: [
+            {type: "column", value: "col2"},
+            {type: "resolved", value: "val1"}
+          ]
+        }
+      ]
+    };
+
+    makeQueryTemplate(operations, source);
+    const [parts, ...params] = makeQueryTemplate(operations, source);
+    assert.deepStrictEqual(
+        parts.join("?"),
+        "SELECT t._col1_,t._col2_ FROM table1 t\nWHERE t._col2_ = ?"
+    );
+    assert.deepStrictEqual(params, ["val1"]);
+  });
+
   it("makeQueryTemplate filter list", () => {
     const source = {name: "db", dialect: "postgres"};
     const operations = {
@@ -156,29 +180,6 @@ describe("makeQueryTemplate", () => {
     const [parts, ...params] = makeQueryTemplate(operations, source);
     assert.deepStrictEqual(parts.join("?"), "SELECT t.col1,t.col2 FROM table1 t\nWHERE t.col1 IN (?,?,?)\nAND t.col1 NOT IN (?)");
     assert.deepStrictEqual(params, ["val1", "val2", "val3", "val4"]);
-  });
-
-  it("makeQueryTemplate throw if filter is missing operands", () => {
-    const source = {name: "db", dialect: "postgres"};
-    const operations = {
-      ...baseOperations,
-      filter: [
-        {
-          type: "in"
-        },
-        {
-          type: "nin",
-          operands: [
-            {type: "column", value: "col1"},
-            {type: "resolved", value: "val4"}
-          ]
-        }
-      ]
-    };
-
-    assert.throws(() => {
-      makeQueryTemplate(operations, source);
-    }, Error);
   });
 
   it("makeQueryTemplate select", () => {
