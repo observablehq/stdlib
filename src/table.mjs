@@ -246,14 +246,13 @@ export function makeQueryTemplate(operations, source) {
   const args = [
     [`SELECT ${columns} FROM ${formatTable(from.table, escaper)} t`]
   ];
-  args.escaper = escaper;
   for (let i = 0; i < filter.length; ++i) {
     appendSql(i ? `\nAND ` : `\nWHERE `, args);
-    appendWhereEntry(filter[i], args);
+    appendWhereEntry(filter[i], args, escaper);
   }
   for (let i = 0; i < sort.length; ++i) {
     appendSql(i ? `, ` : `\nORDER BY `, args);
-    appendOrderBy(sort[i], args);
+    appendOrderBy(sort[i], args, escaper);
   }
   if (source.dialect === "mssql") {
     if (slice.to !== null || slice.from !== null) {
@@ -265,7 +264,8 @@ export function makeQueryTemplate(operations, source) {
         appendSql(`\nORDER BY `, args);
         appendOrderBy(
           {column: select.columns[0], direction: "ASC"},
-          args
+          args,
+          escaper
         );
       }
       appendSql(`\nOFFSET ${slice.from || 0} ROWS`, args);
@@ -287,7 +287,6 @@ export function makeQueryTemplate(operations, source) {
       appendSql(` OFFSET ${slice.from}`, args);
     }
   }
-  delete args.escaper;
   return args;
 }
 
@@ -307,17 +306,16 @@ function appendSql(sql, args) {
   strings[strings.length - 1] += sql;
 }
 
-function appendOrderBy({column, direction}, args) {
-  const escaper = args.escaper;
+function appendOrderBy({column, direction}, args, escaper) {
   appendSql(`t.${escaper(column)} ${direction.toUpperCase()}`, args);
 }
 
-function appendWhereEntry({type, operands}, args) {
+function appendWhereEntry({type, operands}, args, escaper) {
   if (operands.length < 1) throw new Error("Invalid operand length");
 
   // Unary operations
   if (operands.length === 1) {
-    appendOperand(operands[0], args);
+    appendOperand(operands[0], args, escaper);
     switch (type) {
       case "n":
         appendSql(` IS NULL`, args);
@@ -336,7 +334,7 @@ function appendWhereEntry({type, operands}, args) {
       // Fallthrough to next parent block.
     } else if (["c", "nc"].includes(type)) {
       // TODO: Case (in)sensitive?
-      appendOperand(operands[0], args);
+      appendOperand(operands[0], args, escaper);
       switch (type) {
         case "c":
           appendSql(` LIKE `, args);
@@ -345,10 +343,10 @@ function appendWhereEntry({type, operands}, args) {
           appendSql(` NOT LIKE `, args);
           break;
       }
-      appendOperand(likeOperand(operands[1]), args);
+      appendOperand(likeOperand(operands[1]), args, escaper);
       return;
     } else {
-      appendOperand(operands[0], args);
+      appendOperand(operands[0], args, escaper);
       switch (type) {
         case "eq":
           appendSql(` = `, args);
@@ -371,13 +369,13 @@ function appendWhereEntry({type, operands}, args) {
         default:
           throw new Error("Invalid filter operation");
       }
-      appendOperand(operands[1], args);
+      appendOperand(operands[1], args, escaper);
       return;
     }
   }
 
   // List operations
-  appendOperand(operands[0], args);
+  appendOperand(operands[0], args, escaper);
   switch (type) {
     case "in":
       appendSql(` IN (`, args);
@@ -392,9 +390,8 @@ function appendWhereEntry({type, operands}, args) {
   appendSql(")", args);
 }
 
-function appendOperand(o, args) {
+function appendOperand(o, args, escaper) {
   if (o.type === "column") {
-    const escaper = args.escaper;
     appendSql(`t.${escaper(o.value)}`, args);
   } else {
     args.push(o.value);
