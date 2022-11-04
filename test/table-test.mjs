@@ -337,29 +337,29 @@ describe("makeQueryTemplate", () => {
       select: {
         columns: null
       },
-      sort: [{column: "col2", direction: "desc"}],
-      slice: {from: 10, to: 100},
-      filter: [
-        {
-          type: "gte",
-          operands: [
-            {type: "column", value: "col1"},
-            {type: "resolved", value: "val1"}
-          ]
-        },
-        {
-          type: "eq",
-          operands: [
-            {type: "column", value: "col2"},
-            {type: "resolved", value: "val2"}
-          ]
-        }
-      ]
+      sort: [],
+      slice: {from: 10, to: 100}
     };
 
     assert.throws(() => {
       makeQueryTemplate(operations, source);
     }, Error);
+  });
+
+  it("makeQueryTemplate the sort and slice if no columns are explicitly BUT sort has value for mssql dialect", () => {
+    const source = {name: "db", dialect: "mssql"};
+    const operations = {
+      ...baseOperations,
+      select: {
+        columns: null
+      },
+      sort: [{column: "col2", direction: "desc"}],
+      slice: {from: 10, to: 100}
+    };
+
+    const [parts, ...params] = makeQueryTemplate(operations, source);
+    assert.deepStrictEqual(parts.join("?"), "SELECT * FROM table1 t\nORDER BY t.col2 DESC\nOFFSET 10 ROWS\nFETCH NEXT 90 ROWS ONLY");
+    assert.deepStrictEqual(params, []);
   });
 });
 
