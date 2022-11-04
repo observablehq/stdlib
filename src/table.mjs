@@ -256,7 +256,7 @@ export function makeQueryTemplate(operations, source) {
   }
   if (source.dialect === "mssql") {
     if (slice.to !== null || slice.from !== null) {
-      if (columns === "*")
+      if (!select.columns)
         throw new Error(
             "at least one column must be explicitly specified. Received '*'."
         );
