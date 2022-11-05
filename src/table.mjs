@@ -23,6 +23,20 @@ export function isDatabaseClient(value, mode) {
   );
 }
 
+// Returns true if the vaue is an Apache Arrow table. This uses a “duck” test
+// (instead of strict instanceof) because we want it to work with a range of
+// Apache Arrow versions at least 7.0.0 or above.
+// https://arrow.apache.org/docs/7.0/js/classes/Arrow_dom.Table.html
+export function isArrowTable(value) {
+  return (
+    value &&
+    typeof value.getChild === "function" &&
+    typeof value.toArray === "function" &&
+    value.schema &&
+    Array.isArray(value.schema.fields)
+  );
+}
+
 // Returns true if the value is a typed array (for a single-column table), or if
 // it’s an array. In the latter case, the elements of the array must be
 // consistently typed: either plain objects or primitives or dates.
@@ -145,6 +159,7 @@ export const __query = Object.assign(
     source = await loadDataSource(await source, "table");
     if (isDatabaseClient(source)) return evaluateQuery(source, makeQueryTemplate(operations, source), invalidation);
     if (isDataArray(source)) return __table(source, operations);
+    if (isArrowTable(source)) return __arrow(source, operations);
     if (!source) throw new Error("missing data source");
     throw new Error("invalid data source");
   },
@@ -164,6 +179,7 @@ export async function loadDataSource(source, mode) {
         case "text/csv": return source.csv({typed: true});
         case "text/tab-separated-values": return source.tsv({typed: true});
         case "application/json": return source.json();
+        default: if (/\.arrow$/i.test(source.name)) return source.arrow({version: 9});
       }
     }
     if (mode === "table" || mode === "sql") {
@@ -390,8 +406,17 @@ function likeOperand(operand) {
   return {...operand, value: `%${operand.value}%`};
 }
 
+// This function applies table cell operations to an in-memory Apache Arrow
+// table; it should be equivalent to the corresponding SQL query.
+function __arrow(source, operations) {
+  operations;
+  return source; // TODO
+}
+
 // This function applies table cell operations to an in-memory table (array of
-// objects); it should be equivalent to the corresponding SQL query.
+// objects); it should be equivalent to the corresponding SQL query. TODO This
+// is only exported for testing, but we should be testing the public __query
+// instead of this internal method.
 export function __table(source, operations) {
   const input = source;
   let {schema, columns} = source;
