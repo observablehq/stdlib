@@ -84,8 +84,14 @@ export class DuckDBClient {
   }
 
   async queryRow(query, params) {
-    const results = await this.query(query, params);
-    return results.length ? results[0] : null;
+    const result = await this.queryStream(query, params);
+    const reader = result.readRows();
+    try {
+      const {done, value} = await reader.next();
+      return done || !value.length ? null : value[0];
+    } finally {
+      await reader.return();
+    }
   }
 
   async sql(strings, ...args) {
