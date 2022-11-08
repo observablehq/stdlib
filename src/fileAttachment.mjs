@@ -10,11 +10,38 @@ async function remote_fetch(file) {
   return response;
 }
 
-async function dsv(file, delimiter, {array = false, typed = false} = {}) {
+function asTyper(type) {
+  if (typeof type === "function") {
+    return type;
+  }
+  switch (`${type}`) {
+    case "number": return Number;
+    case "string": return String;
+    case "boolean": return Boolean;
+    case "date": return NewDate;
+    default: throw new Error(`unknown type: ${type}`);
+  }
+}
+
+function NewDate(value) {
+  return new Date(value);
+}
+
+function asTypers(types) {
+  const typers = Object.create(null);
+  for (const key in types) typers[key] = asTyper(types[key]);
+  return (d, i) => {
+    const object = Object.create(null);
+    for (const key in typers) object[key] = typers[key](d[key], i);
+    return object;
+  };
+}
+
+async function dsv(file, delimiter, {array = false, type, typed = false} = {}) {
   const text = await file.text();
   return (delimiter === "\t"
       ? (array ? tsvParseRows : tsvParse)
-      : (array ? csvParseRows : csvParse))(text, typed && autoType);
+      : (array ? csvParseRows : csvParse))(text, type ? asTypers(type) : typed ? autoType : null);
 }
 
 export class AbstractFile {
