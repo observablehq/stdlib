@@ -1,6 +1,7 @@
-import {getArrowTableSchema} from "./arrow.mjs";
+import {getArrowTableSchema, isArrowTable} from "./arrow.mjs";
 import {arrow9 as arrow, duckdb} from "./dependencies.mjs";
 import {FileAttachment} from "./fileAttachment.mjs";
+import {cdn} from "./require.mjs";
 
 // Adapted from https://observablehq.com/@cmudig/duckdb-client
 // Copyright 2021 CMU Data Interaction Group
@@ -30,9 +31,6 @@ import {FileAttachment} from "./fileAttachment.mjs";
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
-// TODO Allow this to be overridden using the Library’s resolver.
-const cdn = "https://cdn.observableusercontent.com/npm/";
 
 export class DuckDBClient {
   constructor(db) {
@@ -125,16 +123,22 @@ export class DuckDBClient {
     await db.open(config);
     await Promise.all(
       Object.entries(sources).map(async ([name, source]) => {
-        if ("array" in source) { // array + options
-          const {array, ...options} = source;
-          await insertArray(db, name, array, options);
+        if (source instanceof FileAttachment) { // bare file
+          await insertFile(db, name, source);
+        } else if (isArrowTable(source)) { // bare arrow table
+          await insertArrowTable(db, name, source);
+        } else if (Array.isArray(source)) { // bare array of objects
+          await insertArray(db, name, source);
+        } else if ("data" in source) { // data + options
+          const {data, ...options} = source;
+          if (isArrowTable(data)) {
+            await insertArrowTable(db, name, data, options);
+          } else {
+            await insertArray(db, name, data, options);
+          }
         } else if ("file" in source) { // file + options
           const {file, ...options} = source;
           await insertFile(db, name, file, options);
-        } else if (source instanceof FileAttachment) { // bare file
-          await insertFile(db, name, source);
-        } else if (Array.isArray(source)) { // bare data
-          await insertArray(db, name, source);
         } else {
           throw new Error(`invalid source: ${source}`);
         }
@@ -156,36 +160,40 @@ async function insertFile(database, name, file, options) {
   try {
     switch (file.mimeType) {
       case "text/csv":
-        await connection.insertCSVFromPath(file.name, {
+        return await connection.insertCSVFromPath(file.name, {
           name,
           schema: "main",
           ...options
         });
-        break;
       case "application/json":
-        await connection.insertJSONFromPath(file.name, {
+        return await connection.insertJSONFromPath(file.name, {
           name,
           schema: "main",
           ...options
         });
-        break;
       default:
-        if (file.name.endsWith(".parquet")) {
-          await connection.query(
+        if (/\.arrow$/i.test(file.name)) {
+          const buffer = new Uint8Array(await file.arrayBuffer());
+          return await connection.insertArrowFromIPCStream(buffer, {
+            name,
+            schema: "main",
+            ...options
+          });
+        }
+        if (/\.parquet$/i.test(file.name)) {
+          return await connection.query(
             `CREATE VIEW '${name}' AS SELECT * FROM parquet_scan('${file.name}')`
           );
-        } else {
-          throw new Error(`unknown file type: ${file.mimeType}`);
         }
+        throw new Error(`unknown file type: ${file.mimeType}`);
     }
   } finally {
     await connection.close();
   }
 }
 
-async function insertArray(database, name, array, options) {
+async function insertArrowTable(database, name, table, options) {
   const arrow = await loadArrow();
-  const table = arrow.tableFromJSON(array);
   const buffer = arrow.tableToIPC(table);
   const connection = await database.connect();
   try {
@@ -197,6 +205,12 @@ async function insertArray(database, name, array, options) {
   } finally {
     await connection.close();
   }
+}
+
+async function insertArray(database, name, array, options) {
+  const arrow = await loadArrow();
+  const table = arrow.tableFromJSON(array);
+  return await insertArrowTable(database, name, table, options);
 }
 
 async function createDuckDB() {

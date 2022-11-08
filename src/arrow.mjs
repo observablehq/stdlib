@@ -1,3 +1,17 @@
+// Returns true if the vaue is an Apache Arrow table. This uses a “duck” test
+// (instead of strict instanceof) because we want it to work with a range of
+// Apache Arrow versions at least 7.0.0 or above.
+// https://arrow.apache.org/docs/7.0/js/classes/Arrow_dom.Table.html
+export function isArrowTable(value) {
+  return (
+    value &&
+    typeof value.getChild === "function" &&
+    typeof value.toArray === "function" &&
+    value.schema &&
+    Array.isArray(value.schema.fields)
+  );
+}
+
 export function getArrowTableSchema(table) {
   return table.schema.fields.map(getArrowFieldSchema);
 }
