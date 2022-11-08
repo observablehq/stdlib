@@ -1,3 +1,4 @@
+import {getArrowTableSchema} from "./arrow.mjs";
 import {arrow9 as arrow, duckdb} from "./dependencies.mjs";
 import {FileAttachment} from "./fileAttachment.mjs";
 
@@ -42,22 +43,17 @@ export class DuckDBClient {
 
   async queryStream(query, params) {
     const connection = await this._db.connect();
-    let reader, schema, batch;
+    let reader, batch;
     try {
       reader = await connection.send(query, params);
       batch = await reader.next();
       if (batch.done) throw new Error("missing first batch");
-      schema = batch.value.schema;
     } catch (error) {
       await connection.close();
       throw error;
     }
     return {
-      schema: schema.fields.map(({name, type}) => ({
-        name,
-        type: getType(String(type)),
-        databaseType: String(type)
-      })),
+      schema: getArrowTableSchema(batch.value),
       async *readRows() {
         try {
           while (!batch.done) {
@@ -113,13 +109,12 @@ export class DuckDBClient {
 
   async describeColumns({table} = {}) {
     const columns = await this.query(`DESCRIBE ${table}`);
-    return columns.map(({column_name, column_type}) => {
-      return {
-        name: column_name,
-        type: getType(column_type),
-        databaseType: column_type
-      };
-    });
+    return columns.map(({column_name, column_type, null: nullable}) => ({
+      name: column_name,
+      type: getDuckDBType(column_type),
+      nullable: nullable !== "NO",
+      databaseType: column_type
+    }));
   }
 
   static async of(sources = {}, config = {}) {
@@ -227,67 +222,37 @@ async function loadArrow() {
   return await import(`${cdn}${arrow.resolve()}`);
 }
 
-function getType(type) {
-  switch (type.toLowerCase()) {
-    case "bigint":
-    case "int8":
-    case "long":
+// https://duckdb.org/docs/sql/data_types/overview
+function getDuckDBType(type) {
+  switch (type) {
+    case "BIGINT":
+    case "HUGEINT":
+    case "UBIGINT":
       return "bigint";
-
-    case "double":
-    case "float8":
-    case "numeric":
-    case "decimal":
-    case "decimal(s, p)":
-    case "real":
-    case "float4":
-    case "float":
-    case "float32":
-    case "float64":
+    case "DOUBLE":
+    case "REAL":
       return "number";
-
-    case "hugeint":
-    case "integer":
-    case "smallint":
-    case "tinyint":
-    case "ubigint":
-    case "uinteger":
-    case "usmallint":
-    case "utinyint":
-    case "int4":
-    case "int":
-    case "signed":
-    case "int2":
-    case "short":
-    case "int1":
-    case "int64":
-    case "int32":
+    case "INTEGER":
+    case "SMALLINT":
+    case "TINYINT":
+    case "USMALLINT":
+    case "UINTEGER":
+    case "UTINYINT":
       return "integer";
-
-    case "boolean":
-    case "bool":
-    case "logical":
+    case "BOOLEAN":
       return "boolean";
-
-    case "date":
-    case "interval": // date or time delta
-    case "time":
-    case "timestamp":
-    case "timestamp with time zone":
-    case "datetime":
-    case "timestamptz":
-    case "date64<millisecond>":
+    case "DATE":
+    case "TIMESTAMP":
+    case "TIMESTAMP WITH TIME ZONE":
       return "date";
-
-    case "uuid":
-    case "varchar":
-    case "char":
-    case "bpchar":
-    case "text":
-    case "string":
-    case "utf8": // this type is unlisted in the `types`, but is returned by the db as `column_type`...
+    case "VARCHAR":
+    case "UUID":
       return "string";
+    // case "BLOB":
+    // case "INTERVAL":
+    // case "TIME":
     default:
+      if (/^DECIMAL\(/.test(type)) return "integer";
       return "other";
   }
 }
