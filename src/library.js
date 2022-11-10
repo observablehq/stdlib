@@ -3,6 +3,7 @@ import * as DOM from "./dom/index.js";
 import * as Files from "./files/index.js";
 import {AbstractFile, FileAttachment, NoFileAttachments} from "./fileAttachment.js";
 import * as Generators from "./generators/index.js";
+import {DuckDBClient} from "./duckdb.js";
 import {html} from "./html.js";
 import {leaflet} from "./leaflet.js";
 import {md} from "./md.js";
@@ -17,7 +18,7 @@ import {svg} from "./svg.js";
 import {tex} from "./tex.js";
 import {vl} from "./vegalite.js";
 import {width} from "./width.js";
-import {arquero, arrow, d3, graphviz, htl, inputs, lodash, plot, topojson} from "./dependencies.js";
+import {arquero, arrow4, d3, graphviz, htl, inputs, lodash, plot, topojson} from "./dependencies.js";
 import {__query} from "./table.js";
 
 export const Library = Object.assign(Object.defineProperties(function Library(resolver) {
@@ -39,9 +40,10 @@ export const Library = Object.assign(Object.defineProperties(function Library(re
     // Recommended libraries
     // https://observablehq.com/@observablehq/recommended-libraries
     _: () => require(lodash.resolve()),
-    aq: () => require.alias({"apache-arrow": arrow.resolve()})(arquero.resolve()),
-    Arrow: () => require(arrow.resolve()),
+    aq: () => require.alias({"apache-arrow": arrow4.resolve()})(arquero.resolve()), // TODO upgrade to apache-arrow@9
+    Arrow: () => require(arrow4.resolve()), // TODO upgrade to apache-arrow@9
     d3: () => require(d3.resolve()),
+    DuckDBClient: () => DuckDBClient,
     Inputs: () => require(inputs.resolve()).then(Inputs => ({...Inputs, file: Inputs.fileOf(AbstractFile)})),
     L: () => leaflet(require),
     mermaid: () => mermaid(require),

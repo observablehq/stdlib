@@ -5,6 +5,7 @@ it("new Library returns a library with the expected keys", () => {
   assert.deepStrictEqual(Object.keys(new Library()).sort(), [
     "Arrow",
     "DOM",
+    "DuckDBClient",
     "FileAttachment",
     "Files",
     "Generators",

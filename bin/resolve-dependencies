@@ -64,7 +64,11 @@ const mains = ["unpkg", "jsdelivr", "browser", "main"];
   }
   {
     const package = await resolve("apache-arrow@4");
-    console.log(`export const arrow = dependency("${package.name}", "${package.version}", "${package.export}");`);
+    console.log(`export const arrow4 = dependency("${package.name}", "${package.version}", "${package.export}");`);
+  }
+  {
+    const package = await resolve("apache-arrow@9");
+    console.log(`export const arrow9 = dependency("${package.name}", "${package.version}", "+esm");`);
   }
   {
     const package = await resolve("arquero");
@@ -85,6 +89,10 @@ const mains = ["unpkg", "jsdelivr", "browser", "main"];
   {
     const package = await resolve("leaflet");
     console.log(`export const leaflet = dependency("${package.name}", "${package.version}", "${package.export.replace(/-src\.js$/, ".js")}");`);
+  }
+  {
+    const package = await resolve("@duckdb/duckdb-wasm");
+    console.log(`export const duckdb = dependency("${package.name}", "${package.version}", "+esm");`);
   }
 })();
 
