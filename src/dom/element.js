@@ -7,7 +7,7 @@ var namespaces = {
   xmlns: "http://www.w3.org/2000/xmlns/"
 };
 
-export default function(name, attributes) {
+export function element(name, attributes) {
   var prefix = name += "", i = prefix.indexOf(":"), value;
   if (i >= 0 && (prefix = name.slice(0, i)) !== "xmlns") name = name.slice(i + 1);
   var element = namespaces.hasOwnProperty(prefix) // eslint-disable-line no-prototype-builtins

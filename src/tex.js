@@ -13,7 +13,7 @@ function style(href) {
   });
 }
 
-export default function tex(require) {
+export function tex(require) {
   return Promise.all([
     require(katex.resolve()),
     require.resolve(katex.resolve("dist/katex.min.css")).then(style)

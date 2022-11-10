@@ -1,26 +1,26 @@
 import {requireFrom, resolveFrom} from "d3-require";
-import DOM from "./dom/index.js";
-import Files from "./files/index.js";
+import * as DOM from "./dom/index.js";
+import * as Files from "./files/index.js";
 import {AbstractFile, FileAttachment, NoFileAttachments} from "./fileAttachment.js";
-import Generators from "./generators/index.js";
-import html from "./html.js";
-import leaflet from "./leaflet.js";
-import md from "./md.js";
-import mermaid from "./mermaid.js";
-import Mutable from "./mutable.js";
-import now from "./now.js";
-import Promises from "./promises/index.js";
-import resolve from "./resolve.js";
-import requirer, {requireDefault, setDefaultRequire} from "./require.js";
-import SQLite, {SQLiteDatabaseClient} from "./sqlite.js";
-import svg from "./svg.js";
-import tex from "./tex.js";
-import vegalite from "./vegalite.js";
-import width from "./width.js";
+import * as Generators from "./generators/index.js";
+import {html} from "./html.js";
+import {leaflet} from "./leaflet.js";
+import {md} from "./md.js";
+import {mermaid} from "./mermaid.js";
+import {Mutable} from "./mutable.js";
+import {now} from "./now.js";
+import * as Promises from "./promises/index.js";
+import {resolve} from "./resolve.js";
+import {requirer, requireDefault, setDefaultRequire} from "./require.js";
+import {SQLite, SQLiteDatabaseClient} from "./sqlite.js";
+import {svg} from "./svg.js";
+import {tex} from "./tex.js";
+import {vl} from "./vegalite.js";
+import {width} from "./width.js";
 import {arquero, arrow, d3, graphviz, htl, inputs, lodash, plot, topojson} from "./dependencies.js";
 import {__query} from "./table.js";
 
-export default Object.assign(Object.defineProperties(function Library(resolver) {
+export const Library = Object.assign(Object.defineProperties(function Library(resolver) {
   const require = requirer(resolver);
   Object.defineProperties(this, properties({
     FileAttachment: () => NoFileAttachments,
@@ -52,7 +52,7 @@ export default Object.assign(Object.defineProperties(function Library(resolver) 
     SQLite: () => SQLite(require),
     SQLiteDatabaseClient: () => SQLiteDatabaseClient,
     topojson: () => require(topojson.resolve()),
-    vl: () => vegalite(require),
+    vl: () => vl(require),
 
     // Sample datasets
     // https://observablehq.com/@observablehq/datasets

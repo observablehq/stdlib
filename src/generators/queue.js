@@ -1,6 +1,6 @@
-import that from "../that.js";
+import {that} from "../that.js";
 
-export default function(initialize) {
+export function queue(initialize) {
   let resolve;
   const queue = [];
   const dispose = initialize(push);

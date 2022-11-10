@@ -1,11 +1,11 @@
 import assert from "assert";
-import filter from "../../src/generators/filter.js";
-import map from "../../src/generators/map.js";
-import range from "../../src/generators/range.js";
-import valueAt from "../../src/generators/valueAt.js";
-import observe from "../../src/generators/observe.js";
-import queue from "../../src/generators/queue.js";
-import Library from "../../src/library.js";
+import {filter} from "../../src/generators/filter.js";
+import {map} from "../../src/generators/map.js";
+import {range} from "../../src/generators/range.js";
+import {valueAt} from "../../src/generators/valueAt.js";
+import {observe} from "../../src/generators/observe.js";
+import {queue} from "../../src/generators/queue.js";
+import {Library} from "../../src/library.js";
 
 it("library.Generators.observe is a function", () => {
   const library = new Library();

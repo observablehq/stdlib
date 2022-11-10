@@ -1,7 +1,7 @@
 import {highlight, marked} from "./dependencies.js";
-import template from "./template.js";
+import {template} from "./template.js";
 
-export default function(require) {
+export function md(require) {
   return require(marked.resolve()).then(function(marked) {
     return template(
       function(string) {

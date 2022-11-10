@@ -1,6 +1,6 @@
-import observe from "./generators/observe.js";
+import {observe} from "./generators/observe.js";
 
-export default function Mutable(value) {
+export function Mutable(value) {
   let change;
   Object.defineProperties(this, {
     generator: {value: observe(_ => void (change = _))},

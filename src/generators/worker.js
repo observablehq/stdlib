@@ -1,6 +1,6 @@
-import disposable from "./disposable.js";
+import {disposable} from "./disposable.js";
 
-export default function worker(source) {
+export function worker(source) {
   const url = URL.createObjectURL(new Blob([source], {type: "text/javascript"}));
   const worker = new Worker(url);
   return disposable(worker, () => {

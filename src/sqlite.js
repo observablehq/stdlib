@@ -1,7 +1,7 @@
 import {sql} from "./dependencies.js";
 import {requireDefault} from "./require.js";
 
-export default async function sqlite(require) {
+export async function SQLite(require) {
   const [init, dist] = await Promise.all([require(sql.resolve()), require.resolve(sql.resolve("dist/"))]);
   return init({locateFile: file => `${dist}${file}`});
 }
@@ -13,7 +13,7 @@ export class SQLiteDatabaseClient {
     });
   }
   static async open(source) {
-    const [SQL, buffer] = await Promise.all([sqlite(requireDefault), Promise.resolve(source).then(load)]);
+    const [SQL, buffer] = await Promise.all([SQLite(requireDefault), Promise.resolve(source).then(load)]);
     return new SQLiteDatabaseClient(new SQL.Database(buffer));
   }
   async query(query, params) {

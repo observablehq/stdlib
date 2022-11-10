@@ -6,6 +6,6 @@ export function setDefaultRequire(require) {
   requireDefault = require;
 }
 
-export default function(resolve) {
-  return resolve == null ? requireDefault : requireFrom(resolve);
+export function requirer(resolver) {
+  return resolver == null ? requireDefault : requireFrom(resolver);
 }

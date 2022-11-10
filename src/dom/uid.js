@@ -1,6 +1,6 @@
 var count = 0;
 
-export default function(name) {
+export function uid(name) {
   return new Id("O-" + (name == null ? "" : name + "-") + ++count);
 }
 

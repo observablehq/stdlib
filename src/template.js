@@ -1,4 +1,4 @@
-export default function template(render, wrapper) {
+export function template(render, wrapper) {
   return function(strings) {
     var string = strings[0],
         parts = [], part,

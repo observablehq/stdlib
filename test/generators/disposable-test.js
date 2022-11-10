@@ -1,5 +1,5 @@
 import assert from "assert";
-import disposable from "../../src/generators/disposable.js";
+import {disposable} from "../../src/generators/disposable.js";
 
 it("disposable(value, dispose) yields the specified value", async () => {
   const foo = {};

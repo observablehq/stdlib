@@ -1,6 +1,6 @@
-import observe from "./generators/observe.js";
+import {observe} from "./generators/observe.js";
 
-export default function() {
+export function width() {
   return observe(function(change) {
     var width = change(document.body.clientWidth);
     function resized() {

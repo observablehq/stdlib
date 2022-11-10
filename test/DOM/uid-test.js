@@ -1,11 +1,11 @@
 import assert from "assert";
-import UID from "../../src/dom/uid.js";
+import {uid} from "../../src/dom/uid.js";
 
-it("UID", () => {
+it("uid", () => {
   global.location = "https://test.com/";
-  const hi = UID("hi");
+  const hi = uid("hi");
   assert.deepEqual(hi, {id: "O-hi-1", href: "https://test.com/#O-hi-1"});
   assert.strictEqual(hi.toString(), "url(https://test.com/#O-hi-1)");
-  const anon = UID();
+  const anon = uid();
   assert.strictEqual(anon.toString(), "url(https://test.com/#O-2)");
 });

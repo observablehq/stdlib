@@ -12,7 +12,7 @@ function timeout(now, time) {
   return t;
 }
 
-export default function when(time, value) {
+export function when(time, value) {
   var now;
   return (now = timeouts.get(time = +time)) ? now.then(() => value)
       : (now = Date.now()) >= time ? Promise.resolve(value)

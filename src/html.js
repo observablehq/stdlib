@@ -1,6 +1,6 @@
-import template from "./template.js";
+import {template} from "./template.js";
 
-export default template(function(string) {
+export const html = template(function(string) {
   var template = document.createElement("template");
   template.innerHTML = string.trim();
   return document.importNode(template.content, true);

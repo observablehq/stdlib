@@ -1,6 +1,6 @@
-import that from "../that.js";
+import {that} from "../that.js";
 
-export default function disposable(value, dispose) {
+export function disposable(value, dispose) {
   let done = false;
   if (typeof dispose !== "function") {
     throw new Error("dispose is not a function");

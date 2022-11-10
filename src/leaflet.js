@@ -1,6 +1,6 @@
 import {leaflet as ll} from "./dependencies.js";
 
-export default async function leaflet(require) {
+export async function leaflet(require) {
   const L = await require(ll.resolve());
   if (!L._style) {
     const link = document.createElement("link");

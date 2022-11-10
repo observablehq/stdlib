@@ -1,4 +1,4 @@
-export default function(width, height, dpi) {
+export function context2d(width, height, dpi) {
   if (dpi == null) dpi = devicePixelRatio;
   var canvas = document.createElement("canvas");
   canvas.width = width * dpi;

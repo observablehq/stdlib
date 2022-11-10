@@ -1,4 +1,4 @@
-export default function(value, name = "untitled", label = "Save") {
+export function download(value, name = "untitled", label = "Save") {
   const a = document.createElement("a");
   const b = a.appendChild(document.createElement("button"));
   b.textContent = label;

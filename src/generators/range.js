@@ -1,4 +1,4 @@
-export default function*(start, stop, step) {
+export function* range(start, stop, step) {
   start = +start;
   stop = +stop;
   step = (n = arguments.length) < 2 ? (stop = start, start = 0, 1) : n < 3 ? 1 : +step;

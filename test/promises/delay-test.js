@@ -1,6 +1,6 @@
 import assert from "assert";
-import delay from "../../src/promises/delay.js";
-import tick from "../../src/promises/tick.js";
+import {delay} from "../../src/promises/delay.js";
+import {tick} from "../../src/promises/tick.js";
 
 it("delay(duration) resolves with undefined", async () => {
   assert.strictEqual(await delay(50), undefined);

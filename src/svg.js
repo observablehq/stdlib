@@ -1,6 +1,6 @@
-import template from "./template.js";
+import {template} from "./template.js";
 
-export default template(function(string) {
+export const svg = template(function(string) {
   var root = document.createElementNS("http://www.w3.org/2000/svg", "g");
   root.innerHTML = string.trim();
   return root;

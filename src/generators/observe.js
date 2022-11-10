@@ -1,6 +1,6 @@
-import that from "../that.js";
+import {that} from "../that.js";
 
-export default function(initialize) {
+export function observe(initialize) {
   let stale = false;
   let value;
   let resolve;

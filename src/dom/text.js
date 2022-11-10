@@ -1,3 +1,3 @@
-export default function(value) {
+export function text(value) {
   return document.createTextNode(value);
 }

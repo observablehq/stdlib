@@ -1,6 +1,6 @@
-import observe from "./observe.js";
+import {observe} from "./observe.js";
 
-export default function(input) {
+export function input(input) {
   return observe(function(change) {
     var event = eventof(input), value = valueof(input);
     function inputted() { change(valueof(input)); }

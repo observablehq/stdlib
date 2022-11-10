@@ -1,4 +1,4 @@
-export default function(min, max, step) {
+export function range(min, max, step) {
   if (arguments.length === 1) max = min, min = null;
   var input = document.createElement("input");
   input.min = min = min == null ? 0 : +min;

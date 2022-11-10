@@ -93,7 +93,7 @@ export function NoFileAttachments(name) {
   throw new Error(`File not found: ${name}`);
 }
 
-export default function FileAttachments(resolve) {
+export function FileAttachments(resolve) {
   return Object.assign(
     name => {
       const result = resolve(name += "");
