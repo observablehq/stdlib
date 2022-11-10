@@ -1,4 +1,4 @@
-import {ascending, descending, reverse} from "./array.js";
+import {ascending, descending, reverse} from "d3-array";
 import {FileAttachment} from "./fileAttachment.js";
 
 const nChecks = 20; // number of values to check in each array
