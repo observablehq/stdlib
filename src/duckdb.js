@@ -148,6 +148,10 @@ export class DuckDBClient {
   }
 }
 
+Object.defineProperty(DuckDBClient.prototype, "dialect", {
+  value: "duckdb"
+});
+
 async function insertFile(database, name, file, options) {
   const url = await file.url();
   if (url.startsWith("blob:")) {
