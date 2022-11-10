@@ -5,7 +5,7 @@ const extensionRe = /\.[^/]*$/;
 const mains = ["unpkg", "jsdelivr", "browser", "main"];
 
 (async () => {
-  console.log(`import dependency from "./dependency.mjs";`);
+  console.log(`import dependency from "./dependency.js";`);
   {
     const package = await resolve("d3");
     console.log(`export const d3 = dependency("${package.name}", "${package.version}", "${package.export}");`);
