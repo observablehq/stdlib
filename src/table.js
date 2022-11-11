@@ -205,24 +205,24 @@ async function evaluateQuery(source, args, invalidation) {
 
 // Generator function that yields accumulated query results client.queryStream
 async function* accumulateQuery(queryRequest) {
+  let then = performance.now();
   const queryResponse = await queryRequest;
   const values = [];
   values.done = false;
   values.error = null;
   values.schema = queryResponse.schema;
   try {
-    const iterator = queryResponse.readRows();
-    do {
-      const result = await iterator.next();
-      if (result.done) {
-        values.done = true;
-      } else {
-        for (const value of result.value) {
-          values.push(value);
-        }
+    for await (const rows of queryResponse.readRows()) {
+      if (performance.now() - then > 10 && values.length > 0) {
+        yield values;
+        then = performance.now();
       }
-      yield values;
-    } while (!values.done);
+      for (const value of rows) {
+        values.push(value);
+      }
+    }
+    values.done = true;
+    yield values;
   } catch (error) {
     values.error = error;
     yield values;
