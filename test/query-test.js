@@ -1,11 +1,6 @@
 import assert from "assert";
 import {__query} from "../src/table.js";
-
-function invalidator() {
-  let invalidate;
-  const invalidation = new Promise((resolve) => (invalidate = resolve));
-  return [invalidation, invalidate];
-}
+import it, {invalidator} from "./invalidation.js";
 
 describe("__query.sql", () => {
   it("evaluates using db.sql with the expected parameters", async () => {
