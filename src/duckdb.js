@@ -43,7 +43,12 @@ export class DuckDBClient {
     const connection = await this._db.connect();
     let reader, batch;
     try {
-      reader = await connection.send(query, params);
+      if (params?.length > 0) {
+        const statement = await connection.prepare(query);
+        reader = await statement.send(...params);
+      } else {
+        reader = await connection.send(query);
+      }
       batch = await reader.next();
       if (batch.done) throw new Error("missing first batch");
     } catch (error) {
