@@ -1,4 +1,4 @@
-export default typeof AbortController === "undefined" ? mockit : it;
+export default typeof AbortController === "undefined" || typeof performance === "undefined" ? mockit : it;
 
 function mockit(description, run) {
   return it(description, withMock(run));
@@ -13,18 +13,29 @@ mockit.only = (description, run) => {
 };
 
 class MockAbortController {
+  constructor() {
+    this.signal = {aborted: false};
+  }
   abort() {
-    // mock noop for node 14
+    this.signal.aborted = true;
+  }
+}
+
+class MockPerformance {
+  static now() {
+    return Date.now();
   }
 }
 
 function withMock(run) {
   return async () => {
     global.AbortController = MockAbortController;
+    global.performance = MockPerformance;
     try {
       return await run();
     } finally {
       delete global.AbortController;
+      delete global.performance;
     }
   };
 }
