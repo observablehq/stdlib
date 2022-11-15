@@ -1,5 +1,7 @@
 import {ascending, descending, reverse} from "d3-array";
 import {FileAttachment} from "./fileAttachment.js";
+import {isArrowTable} from "./arrow.js";
+import {DuckDBClient} from "./duckdb.js";
 
 const nChecks = 20; // number of values to check in each array
 
@@ -145,6 +147,7 @@ export const __query = Object.assign(
     source = await loadDataSource(await source, "table");
     if (isDatabaseClient(source)) return evaluateQuery(source, makeQueryTemplate(operations, source), invalidation);
     if (isDataArray(source)) return __table(source, operations);
+    if (isArrowTable(source)) return __arrow(source, operations, invalidation);
     if (!source) throw new Error("missing data source");
     throw new Error("invalid data source");
   },
@@ -164,6 +167,7 @@ export async function loadDataSource(source, mode) {
         case "text/csv": return source.csv({typed: true});
         case "text/tab-separated-values": return source.tsv({typed: true});
         case "application/json": return source.json();
+        default: if (/\.arrow$/i.test(source.name)) return source.arrow({version: 9});
       }
     }
     if (mode === "table" || mode === "sql") {
@@ -412,6 +416,14 @@ function appendListOperands(ops, args) {
 
 function likeOperand(operand) {
   return {...operand, value: `%${operand.value}%`};
+}
+
+// This function instantiates a DuckDBClient with an Apache Arrow table as its
+// source and applies operations the same way we do when the source is a
+// DatabaseClient. 
+async function __arrow(source, operations, invalidation) {
+  const client = await DuckDBClient.of({__table: source});
+  return evaluateQuery(client, makeQueryTemplate(operations, client), invalidation);
 }
 
 // This function applies table cell operations to an in-memory table (array of
