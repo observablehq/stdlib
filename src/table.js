@@ -1,5 +1,7 @@
 import {ascending, descending, reverse} from "d3-array";
 import {FileAttachment} from "./fileAttachment.js";
+import {isArrowTable} from "./arrow.js";
+import {DuckDBClient} from "./duckdb.js";
 
 const nChecks = 20; // number of values to check in each array
 
@@ -170,8 +172,12 @@ export async function loadDataSource(source, mode) {
       switch (source.mimeType) {
         case "application/x-sqlite3": return source.sqlite();
       }
+      if (/\.arrow$/i.test(source.name)) return DuckDBClient.of({__table: await source.arrow({version: 9})});
     }
     throw new Error(`unsupported file type: ${source.mimeType}`);
+  }
+  if ((mode === "table" || mode === "sql") && isArrowTable(source)) {
+    return DuckDBClient.of({__table: source});
   }
   return source;
 }
