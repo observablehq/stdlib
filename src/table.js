@@ -147,7 +147,6 @@ export const __query = Object.assign(
     source = await loadDataSource(await source, "table");
     if (isDatabaseClient(source)) return evaluateQuery(source, makeQueryTemplate(operations, source), invalidation);
     if (isDataArray(source)) return __table(source, operations);
-    if (isArrowTable(source)) return __arrow(source, operations, invalidation);
     if (!source) throw new Error("missing data source");
     throw new Error("invalid data source");
   },
@@ -167,15 +166,18 @@ export async function loadDataSource(source, mode) {
         case "text/csv": return source.csv({typed: true});
         case "text/tab-separated-values": return source.tsv({typed: true});
         case "application/json": return source.json();
-        default: if (/\.arrow$/i.test(source.name)) return source.arrow({version: 9});
       }
     }
     if (mode === "table" || mode === "sql") {
       switch (source.mimeType) {
         case "application/x-sqlite3": return source.sqlite();
       }
+      if (/\.arrow$/i.test(source.name)) return DuckDBClient.of({__table: await source.arrow({version: 9})});
     }
     throw new Error(`unsupported file type: ${source.mimeType}`);
+  }
+  if ((mode === "table" || mode === "sql") && isArrowTable(source)) {
+    return DuckDBClient.of({__table: source});
   }
   return source;
 }
@@ -416,14 +418,6 @@ function appendListOperands(ops, args) {
 
 function likeOperand(operand) {
   return {...operand, value: `%${operand.value}%`};
-}
-
-// This function instantiates a DuckDBClient with an Apache Arrow table as its
-// source and applies operations the same way we do when the source is a
-// DatabaseClient. 
-async function __arrow(source, operations, invalidation) {
-  const client = await DuckDBClient.of({__table: source});
-  return evaluateQuery(client, makeQueryTemplate(operations, client), invalidation);
 }
 
 // This function applies table cell operations to an in-memory table (array of
