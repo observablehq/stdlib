@@ -144,7 +144,7 @@ function isTypedArray(value) {
 // __query is used by table cells; __query.sql is used by SQL cells.
 export const __query = Object.assign(
   async (source, operations, invalidation) => {
-    source = await loadDataSource(await source, "table");
+    source = await loadTableDataSource(await source);
     if (isDatabaseClient(source)) return evaluateQuery(source, makeQueryTemplate(operations, source), invalidation);
     if (isDataArray(source)) return __table(source, operations);
     if (!source) throw new Error("missing data source");
@@ -153,33 +153,54 @@ export const __query = Object.assign(
   {
     sql(source, invalidation) {
       return async function () {
-        return evaluateQuery(await loadDataSource(await source, "sql"), arguments, invalidation);
+        return evaluateQuery(await loadSqlDataSource(await source), arguments, invalidation);
       };
     }
   }
 );
 
 export async function loadDataSource(source, mode) {
-  if (source instanceof FileAttachment) {
-    if (mode === "table") {
-      switch (source.mimeType) {
-        case "text/csv": return source.csv({typed: true});
-        case "text/tab-separated-values": return source.tsv({typed: true});
-        case "application/json": return source.json();
-      }
-    }
-    if (mode === "table" || mode === "sql") {
-      switch (source.mimeType) {
-        case "application/x-sqlite3": return source.sqlite();
-      }
-      if (/\.arrow$/i.test(source.name)) return DuckDBClient.of({__table: await source.arrow({version: 9})});
-    }
-    throw new Error(`unsupported file type: ${source.mimeType}`);
-  }
-  if ((mode === "table" || mode === "sql") && isArrowTable(source)) {
-    return DuckDBClient.of({__table: source});
+  switch (mode) {
+    case "table": return loadTableDataSource(source);
+    case "sql": return loadSqlDataSource(source);
   }
   return source;
+}
+
+// TODO Use DuckDBClient for data arrays, too, and then we wouldn’t need our own
+// __table function to do table operations on in-memory data?
+async function loadTableDataSource(source) {
+  if (source instanceof FileAttachment) {
+    switch (source.mimeType) {
+      case "text/csv": return source.csv({typed: true});
+      case "text/tab-separated-values": return source.tsv({typed: true});
+      case "application/json": return source.json();
+      case "application/x-sqlite3": return source.sqlite();
+    }
+    if (/\.(arrow|parquet)$/i.test(source.name)) return loadDuckDBClient(source);
+    throw new Error(`unsupported file type: ${source.mimeType}`);
+  }
+  if (isArrowTable(source)) return loadDuckDBClient(source);
+  return source;
+}
+
+async function loadSqlDataSource(source) {
+  if (source instanceof FileAttachment) {
+    switch (source.mimeType) {
+      case "text/csv":
+      case "text/tab-separated-values":
+      case "application/json": return loadDuckDBClient(source);
+      case "application/x-sqlite3": return source.sqlite();
+    }
+    if (/\.(arrow|parquet)$/i.test(source.name)) return loadDuckDBClient(source);
+    throw new Error(`unsupported file type: ${source.mimeType}`);
+  }
+  if (isDataArray(source) || isArrowTable(source)) return loadDuckDBClient(source);
+  return source;
+}
+
+function loadDuckDBClient(source) {
+  return DuckDBClient.of({__table: source});
 }
 
 async function evaluateQuery(source, args, invalidation) {
