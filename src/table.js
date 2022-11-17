@@ -167,7 +167,26 @@ export async function loadDataSource(source, mode, name) {
   return source;
 }
 
-async function loadTableDataSource(source, name) {
+// We use a weak map to cache loaded data sources by key so that we don’t have
+// to e.g. create separate SQLiteDatabaseClients every time we’re querying the
+// same SQLite file attachment. Since this is a weak map, unused references will
+// be garbage collected when they are no longer desired. Note: the name should
+// be consistent, as it is not part of the cache key!
+function sourceCache(loadSource) {
+  const cache = new WeakMap();
+  return (source, name) => {
+    if (!source) throw new Error("data source not found");
+    let promise = cache.get(source);
+    if (!promise) {
+      // Warning: do not await here! We need to populate the cache synchronously.
+      promise = loadSource(source, name);
+      cache.set(source, promise);
+    }
+    return promise;
+  };
+}
+
+const loadTableDataSource = sourceCache(async (source, name) => {
   if (source instanceof FileAttachment) {
     switch (source.mimeType) {
       case "text/csv": return source.csv({typed: true});
@@ -180,9 +199,9 @@ async function loadTableDataSource(source, name) {
   }
   if (isArrowTable(source)) return loadDuckDBClient(source, name);
   return source;
-}
+});
 
-async function loadSqlDataSource(source, name) {
+const loadSqlDataSource = sourceCache(async (source, name) => {
   if (source instanceof FileAttachment) {
     switch (source.mimeType) {
       case "text/csv":
@@ -196,7 +215,7 @@ async function loadSqlDataSource(source, name) {
   if (isDataArray(source)) return loadDuckDBClient(await asArrowTable(source, name), name);
   if (isArrowTable(source)) return loadDuckDBClient(source, name);
   return source;
-}
+});
 
 async function asArrowTable(array, name) {
   const arrow = await loadArrow();
