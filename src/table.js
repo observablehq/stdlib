@@ -278,9 +278,9 @@ export function makeQueryTemplate(operations, source) {
     throw new Error("missing from table");
   if (select.columns && select.columns.length === 0)
     throw new Error("at least one column must be selected");
-  const columns = select.columns ? select.columns.map((c) => `t.${escaper(c)}`) : "*";
+  const columns = select.columns ? select.columns.map(escaper).join(", ") : "*";
   const args = [
-    [`SELECT ${columns} FROM ${formatTable(from.table, escaper)} t`]
+    [`SELECT ${columns} FROM ${formatTable(from.table, escaper)}`]
   ];
   for (let i = 0; i < filter.length; ++i) {
     appendSql(i ? `\nAND ` : `\nWHERE `, args);
@@ -343,7 +343,7 @@ function appendSql(sql, args) {
 }
 
 function appendOrderBy({column, direction}, args, escaper) {
-  appendSql(`t.${escaper(column)} ${direction.toUpperCase()}`, args);
+  appendSql(`${escaper(column)} ${direction.toUpperCase()}`, args);
 }
 
 function appendWhereEntry({type, operands}, args, escaper) {
@@ -428,7 +428,7 @@ function appendWhereEntry({type, operands}, args, escaper) {
 
 function appendOperand(o, args, escaper) {
   if (o.type === "column") {
-    appendSql(`t.${escaper(o.value)}`, args);
+    appendSql(escaper(o.value), args);
   } else {
     args.push(o.value);
     args[0].push("");
