@@ -143,8 +143,8 @@ function isTypedArray(value) {
 
 // __query is used by table cells; __query.sql is used by SQL cells.
 export const __query = Object.assign(
-  async (source, operations, invalidation) => {
-    source = await loadTableDataSource(await source);
+  async (source, operations, invalidation, name) => {
+    source = await loadTableDataSource(await source, name);
     if (isDatabaseClient(source)) return evaluateQuery(source, makeQueryTemplate(operations, source), invalidation);
     if (isDataArray(source)) return __table(source, operations);
     if (!source) throw new Error("missing data source");
@@ -161,15 +161,13 @@ export const __query = Object.assign(
 
 export async function loadDataSource(source, mode, name) {
   switch (mode) {
-    case "table": return loadTableDataSource(source);
+    case "table": return loadTableDataSource(source, name);
     case "sql": return loadSqlDataSource(source, name);
   }
   return source;
 }
 
-// TODO Use DuckDBClient for data arrays, too, and then we wouldn’t need our own
-// __table function to do table operations on in-memory data?
-async function loadTableDataSource(source) {
+async function loadTableDataSource(source, name) {
   if (source instanceof FileAttachment) {
     switch (source.mimeType) {
       case "text/csv": return source.csv({typed: true});
@@ -177,10 +175,10 @@ async function loadTableDataSource(source) {
       case "application/json": return source.json();
       case "application/x-sqlite3": return source.sqlite();
     }
-    if (/\.(arrow|parquet)$/i.test(source.name)) return loadDuckDBClient(source);
+    if (/\.(arrow|parquet)$/i.test(source.name)) return loadDuckDBClient(source, name);
     throw new Error(`unsupported file type: ${source.mimeType}`);
   }
-  if (isArrowTable(source)) return loadDuckDBClient(source);
+  if (isArrowTable(source)) return loadDuckDBClient(source, name);
   return source;
 }
 
@@ -189,17 +187,22 @@ async function loadSqlDataSource(source, name) {
     switch (source.mimeType) {
       case "text/csv":
       case "text/tab-separated-values":
-      case "application/json": return loadDuckDBClient(source, getFileSourceName(source));
+      case "application/json": return loadDuckDBClient(source, name);
       case "application/x-sqlite3": return source.sqlite();
     }
-    if (/\.(arrow|parquet)$/i.test(source.name)) return loadDuckDBClient(source, getFileSourceName(source));
+    if (/\.(arrow|parquet)$/i.test(source.name)) return loadDuckDBClient(source, name);
     throw new Error(`unsupported file type: ${source.mimeType}`);
   }
   if (isDataArray(source) || isArrowTable(source)) return loadDuckDBClient(source, name);
   return source;
 }
 
-function loadDuckDBClient(source, name = "__table") {
+function loadDuckDBClient(
+  source,
+  name = source instanceof FileAttachment
+    ? getFileSourceName(source)
+    : "__table"
+) {
   return DuckDBClient.of({[name]: source});
 }
 
@@ -448,7 +451,9 @@ function likeOperand(operand) {
 }
 
 // This function applies table cell operations to an in-memory table (array of
-// objects); it should be equivalent to the corresponding SQL query.
+// objects); it should be equivalent to the corresponding SQL query. TODO Use
+// DuckDBClient for data arrays, too, and then we wouldn’t need our own __table
+// function to do table operations on in-memory data?
 export function __table(source, operations) {
   const input = source;
   let {schema, columns} = source;
