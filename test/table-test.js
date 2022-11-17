@@ -124,7 +124,7 @@ describe("makeQueryTemplate", () => {
     const [parts, ...params] = makeQueryTemplate(operations, source);
     assert.deepStrictEqual(
       parts.join("?"),
-      "SELECT _col1_, _col2_ FROM table1\nWHERE _col2_ = ?"
+      "SELECT _col1_, _col2_ FROM _table1_\nWHERE _col2_ = ?"
     );
     assert.deepStrictEqual(params, ["val1"]);
   });
@@ -148,7 +148,7 @@ describe("makeQueryTemplate", () => {
     const [parts, ...params] = makeQueryTemplate(operations, source);
     assert.deepStrictEqual(
         parts.join("?"),
-        "SELECT _col1_, _col2_ FROM table1\nWHERE _col2_ = ?"
+        "SELECT _col1_, _col2_ FROM _table1_\nWHERE _col2_ = ?"
     );
     assert.deepStrictEqual(params, ["val1"]);
   });
@@ -224,7 +224,7 @@ describe("makeQueryTemplate", () => {
     const [parts, ...params] = makeQueryTemplate(operations, source);
     assert.deepStrictEqual(
       parts.join("?"),
-      "SELECT _col1_, _col2_ FROM table1\nORDER BY _col1_ ASC, _col2_ DESC"
+      "SELECT _col1_, _col2_ FROM _table1_\nORDER BY _col1_ ASC, _col2_ DESC"
     );
     assert.deepStrictEqual(params, []);
   });
@@ -294,7 +294,7 @@ describe("makeQueryTemplate", () => {
     const [parts] = makeQueryTemplate(operations, source);
     assert.deepStrictEqual(
       parts.join("?"),
-      "SELECT _col1_, _col2_, _col3_ FROM table1\nORDER BY _col1_ ASC\nOFFSET 0 ROWS\nFETCH NEXT 100 ROWS ONLY"
+      "SELECT _col1_, _col2_, _col3_ FROM _table1_\nORDER BY _col1_ ASC\nOFFSET 0 ROWS\nFETCH NEXT 100 ROWS ONLY"
     );
   });
 

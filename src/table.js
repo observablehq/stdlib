@@ -333,8 +333,9 @@ function formatTable(table, escaper) {
     if (table.schema != null) from += escaper(table.schema) + ".";
     from += escaper(table.table);
     return from;
+  } else {
+    return escaper(table);
   }
-  return table;
 }
 
 function appendSql(sql, args) {
