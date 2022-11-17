@@ -169,9 +169,11 @@ async function insertFile(database, name, file, options) {
   try {
     switch (file.mimeType) {
       case "text/csv":
+      case "text/tab-separated-values":
         return await connection.insertCSVFromPath(file.name, {
           name,
           schema: "main",
+          delimiter: file.mimeType === "text/csv" ? "," : "\t",
           ...options
         });
       case "application/json":
