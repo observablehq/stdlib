@@ -248,6 +248,7 @@ function getDuckDBType(type) {
       return "bigint";
     case "DOUBLE":
     case "REAL":
+    case "FLOAT":
       return "number";
     case "INTEGER":
     case "SMALLINT":
