@@ -1,6 +1,6 @@
 import {ascending, descending, reverse} from "d3-array";
 import {FileAttachment} from "./fileAttachment.js";
-import {isArrowTable} from "./arrow.js";
+import {isArrowTable, loadArrow} from "./arrow.js";
 import {DuckDBClient} from "./duckdb.js";
 
 const nChecks = 20; // number of values to check in each array
@@ -193,8 +193,16 @@ async function loadSqlDataSource(source, name) {
     if (/\.(arrow|parquet)$/i.test(source.name)) return loadDuckDBClient(source, name);
     throw new Error(`unsupported file type: ${source.mimeType}`);
   }
-  if (isDataArray(source) || isArrowTable(source)) return loadDuckDBClient(source, name);
+  if (isDataArray(source)) return loadDuckDBClient(await asArrowTable(source, name), name);
+  if (isArrowTable(source)) return loadDuckDBClient(source, name);
   return source;
+}
+
+async function asArrowTable(array, name) {
+  const arrow = await loadArrow();
+  return arrayIsPrimitive(array)
+    ? arrow.tableFromArrays({[name]: array})
+    : arrow.tableFromJSON(array);
 }
 
 function loadDuckDBClient(

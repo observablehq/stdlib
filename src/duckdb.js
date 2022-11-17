@@ -1,5 +1,5 @@
-import {getArrowTableSchema, isArrowTable} from "./arrow.js";
-import {arrow9 as arrow, duckdb} from "./dependencies.js";
+import {getArrowTableSchema, isArrowTable, loadArrow} from "./arrow.js";
+import {duckdb} from "./dependencies.js";
 import {FileAttachment} from "./fileAttachment.js";
 import {cdn} from "./require.js";
 
@@ -202,11 +202,9 @@ async function insertFile(database, name, file, options) {
 }
 
 async function insertArrowTable(database, name, table, options) {
-  const arrow = await loadArrow();
-  const buffer = arrow.tableToIPC(table);
   const connection = await database.connect();
   try {
-    await connection.insertArrowFromIPCStream(buffer, {
+    await connection.insertArrowTable(table, {
       name,
       schema: "main",
       ...options
@@ -239,10 +237,6 @@ async function createDuckDB() {
   const db = new duck.AsyncDuckDB(logger, worker);
   await db.instantiate(bundle.mainModule);
   return db;
-}
-
-async function loadArrow() {
-  return await import(`${cdn}${arrow.resolve()}`);
 }
 
 // https://duckdb.org/docs/sql/data_types/overview
