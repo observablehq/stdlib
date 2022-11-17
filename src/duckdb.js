@@ -111,7 +111,7 @@ export class DuckDBClient {
   }
 
   async describeColumns({table} = {}) {
-    const columns = await this.query(`DESCRIBE ${table}`);
+    const columns = await this.query(`DESCRIBE ${this.escape(table)}`);
     return columns.map(({column_name, column_type, null: nullable}) => ({
       name: column_name,
       type: getDuckDBType(column_type),
