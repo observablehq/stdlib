@@ -151,18 +151,18 @@ export const __query = Object.assign(
     throw new Error("invalid data source");
   },
   {
-    sql(source, invalidation) {
+    sql(source, invalidation, name) {
       return async function () {
-        return evaluateQuery(await loadSqlDataSource(await source), arguments, invalidation);
+        return evaluateQuery(await loadSqlDataSource(await source, name), arguments, invalidation);
       };
     }
   }
 );
 
-export async function loadDataSource(source, mode) {
+export async function loadDataSource(source, mode, name) {
   switch (mode) {
     case "table": return loadTableDataSource(source);
-    case "sql": return loadSqlDataSource(source);
+    case "sql": return loadSqlDataSource(source, name);
   }
   return source;
 }
@@ -184,23 +184,29 @@ async function loadTableDataSource(source) {
   return source;
 }
 
-async function loadSqlDataSource(source) {
+async function loadSqlDataSource(source, name) {
   if (source instanceof FileAttachment) {
     switch (source.mimeType) {
       case "text/csv":
       case "text/tab-separated-values":
-      case "application/json": return loadDuckDBClient(source);
+      case "application/json": return loadDuckDBClient(source, getFileSourceName(source));
       case "application/x-sqlite3": return source.sqlite();
     }
-    if (/\.(arrow|parquet)$/i.test(source.name)) return loadDuckDBClient(source);
+    if (/\.(arrow|parquet)$/i.test(source.name)) return loadDuckDBClient(source, getFileSourceName(source));
     throw new Error(`unsupported file type: ${source.mimeType}`);
   }
-  if (isDataArray(source) || isArrowTable(source)) return loadDuckDBClient(source);
+  if (isDataArray(source) || isArrowTable(source)) return loadDuckDBClient(source, name);
   return source;
 }
 
-function loadDuckDBClient(source) {
-  return DuckDBClient.of({__table: source});
+function loadDuckDBClient(source, name = "__table") {
+  return DuckDBClient.of({[name]: source});
+}
+
+function getFileSourceName(file) {
+  return file.name
+    .replace(/@\d+(?=\.|$)/, "") // strip Observable file version number
+    .replace(/\.\w+$/, ""); // strip file extension
 }
 
 async function evaluateQuery(source, args, invalidation) {
