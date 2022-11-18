@@ -1,3 +1,6 @@
+import {arrow9 as arrow} from "./dependencies.js";
+import {cdn} from "./require.js";
+
 // Returns true if the vaue is an Apache Arrow table. This uses a “duck” test
 // (instead of strict instanceof) because we want it to work with a range of
 // Apache Arrow versions at least 7.0.0 or above.
@@ -55,4 +58,8 @@ function getArrowType(type) {
     default:
       return "other";
   }
+}
+
+export async function loadArrow() {
+  return await import(`${cdn}${arrow.resolve()}`);
 }

@@ -1,5 +1,5 @@
-import {getArrowTableSchema, isArrowTable} from "./arrow.js";
-import {arrow9 as arrow, duckdb} from "./dependencies.js";
+import {getArrowTableSchema, isArrowTable, loadArrow} from "./arrow.js";
+import {duckdb} from "./dependencies.js";
 import {FileAttachment} from "./fileAttachment.js";
 import {cdn} from "./require.js";
 
@@ -111,7 +111,7 @@ export class DuckDBClient {
   }
 
   async describeColumns({table} = {}) {
-    const columns = await this.query(`DESCRIBE ${table}`);
+    const columns = await this.query(`DESCRIBE ${this.escape(table)}`);
     return columns.map(({column_name, column_type, null: nullable}) => ({
       name: column_name,
       type: getDuckDBType(column_type),
@@ -169,9 +169,11 @@ async function insertFile(database, name, file, options) {
   try {
     switch (file.mimeType) {
       case "text/csv":
+      case "text/tab-separated-values":
         return await connection.insertCSVFromPath(file.name, {
           name,
           schema: "main",
+          delimiter: file.mimeType === "text/csv" ? "," : "\t",
           ...options
         });
       case "application/json":
@@ -202,11 +204,9 @@ async function insertFile(database, name, file, options) {
 }
 
 async function insertArrowTable(database, name, table, options) {
-  const arrow = await loadArrow();
-  const buffer = arrow.tableToIPC(table);
   const connection = await database.connect();
   try {
-    await connection.insertArrowFromIPCStream(buffer, {
+    await connection.insertArrowTable(table, {
       name,
       schema: "main",
       ...options
@@ -241,10 +241,6 @@ async function createDuckDB() {
   return db;
 }
 
-async function loadArrow() {
-  return await import(`${cdn}${arrow.resolve()}`);
-}
-
 // https://duckdb.org/docs/sql/data_types/overview
 function getDuckDBType(type) {
   switch (type) {
@@ -254,6 +250,7 @@ function getDuckDBType(type) {
       return "bigint";
     case "DOUBLE":
     case "REAL":
+    case "FLOAT":
       return "number";
     case "INTEGER":
     case "SMALLINT":

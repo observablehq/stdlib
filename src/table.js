@@ -1,6 +1,6 @@
 import {ascending, descending, reverse} from "d3-array";
 import {FileAttachment} from "./fileAttachment.js";
-import {isArrowTable} from "./arrow.js";
+import {isArrowTable, loadArrow} from "./arrow.js";
 import {DuckDBClient} from "./duckdb.js";
 
 const nChecks = 20; // number of values to check in each array
@@ -143,43 +143,100 @@ function isTypedArray(value) {
 
 // __query is used by table cells; __query.sql is used by SQL cells.
 export const __query = Object.assign(
-  async (source, operations, invalidation) => {
-    source = await loadDataSource(await source, "table");
+  async (source, operations, invalidation, name) => {
+    source = await loadTableDataSource(await source, name);
     if (isDatabaseClient(source)) return evaluateQuery(source, makeQueryTemplate(operations, source), invalidation);
     if (isDataArray(source)) return __table(source, operations);
     if (!source) throw new Error("missing data source");
     throw new Error("invalid data source");
   },
   {
-    sql(source, invalidation) {
+    sql(source, invalidation, name) {
       return async function () {
-        return evaluateQuery(await loadDataSource(await source, "sql"), arguments, invalidation);
+        return evaluateQuery(await loadSqlDataSource(await source, name), arguments, invalidation);
       };
     }
   }
 );
 
-export async function loadDataSource(source, mode) {
-  if (source instanceof FileAttachment) {
-    if (mode === "table") {
-      switch (source.mimeType) {
-        case "text/csv": return source.csv({typed: true});
-        case "text/tab-separated-values": return source.tsv({typed: true});
-        case "application/json": return source.json();
-      }
-    }
-    if (mode === "table" || mode === "sql") {
-      switch (source.mimeType) {
-        case "application/x-sqlite3": return source.sqlite();
-      }
-      if (/\.arrow$/i.test(source.name)) return DuckDBClient.of({__table: await source.arrow({version: 9})});
-    }
-    throw new Error(`unsupported file type: ${source.mimeType}`);
-  }
-  if ((mode === "table" || mode === "sql") && isArrowTable(source)) {
-    return DuckDBClient.of({__table: source});
+export async function loadDataSource(source, mode, name) {
+  switch (mode) {
+    case "table": return loadTableDataSource(source, name);
+    case "sql": return loadSqlDataSource(source, name);
   }
   return source;
+}
+
+// We use a weak map to cache loaded data sources by key so that we don’t have
+// to e.g. create separate SQLiteDatabaseClients every time we’re querying the
+// same SQLite file attachment. Since this is a weak map, unused references will
+// be garbage collected when they are no longer desired. Note: the name should
+// be consistent, as it is not part of the cache key!
+function sourceCache(loadSource) {
+  const cache = new WeakMap();
+  return (source, name) => {
+    if (!source) throw new Error("data source not found");
+    let promise = cache.get(source);
+    if (!promise) {
+      // Warning: do not await here! We need to populate the cache synchronously.
+      promise = loadSource(source, name);
+      cache.set(source, promise);
+    }
+    return promise;
+  };
+}
+
+const loadTableDataSource = sourceCache(async (source, name) => {
+  if (source instanceof FileAttachment) {
+    switch (source.mimeType) {
+      case "text/csv": return source.csv({typed: true});
+      case "text/tab-separated-values": return source.tsv({typed: true});
+      case "application/json": return source.json();
+      case "application/x-sqlite3": return source.sqlite();
+    }
+    if (/\.(arrow|parquet)$/i.test(source.name)) return loadDuckDBClient(source, name);
+    throw new Error(`unsupported file type: ${source.mimeType}`);
+  }
+  if (isArrowTable(source)) return loadDuckDBClient(source, name);
+  return source;
+});
+
+const loadSqlDataSource = sourceCache(async (source, name) => {
+  if (source instanceof FileAttachment) {
+    switch (source.mimeType) {
+      case "text/csv":
+      case "text/tab-separated-values":
+      case "application/json": return loadDuckDBClient(source, name);
+      case "application/x-sqlite3": return source.sqlite();
+    }
+    if (/\.(arrow|parquet)$/i.test(source.name)) return loadDuckDBClient(source, name);
+    throw new Error(`unsupported file type: ${source.mimeType}`);
+  }
+  if (isDataArray(source)) return loadDuckDBClient(await asArrowTable(source, name), name);
+  if (isArrowTable(source)) return loadDuckDBClient(source, name);
+  return source;
+});
+
+async function asArrowTable(array, name) {
+  const arrow = await loadArrow();
+  return arrayIsPrimitive(array)
+    ? arrow.tableFromArrays({[name]: array})
+    : arrow.tableFromJSON(array);
+}
+
+function loadDuckDBClient(
+  source,
+  name = source instanceof FileAttachment
+    ? getFileSourceName(source)
+    : "__table"
+) {
+  return DuckDBClient.of({[name]: source});
+}
+
+function getFileSourceName(file) {
+  return file.name
+    .replace(/@\d+(?=\.|$)/, "") // strip Observable file version number
+    .replace(/\.\w+$/, ""); // strip file extension
 }
 
 async function evaluateQuery(source, args, invalidation) {
@@ -248,9 +305,9 @@ export function makeQueryTemplate(operations, source) {
     throw new Error("missing from table");
   if (select.columns && select.columns.length === 0)
     throw new Error("at least one column must be selected");
-  const columns = select.columns ? select.columns.map((c) => `t.${escaper(c)}`) : "*";
+  const columns = select.columns ? select.columns.map(escaper).join(", ") : "*";
   const args = [
-    [`SELECT ${columns} FROM ${formatTable(from.table, escaper)} t`]
+    [`SELECT ${columns} FROM ${formatTable(from.table, escaper)}`]
   ];
   for (let i = 0; i < filter.length; ++i) {
     appendSql(i ? `\nAND ` : `\nWHERE `, args);
@@ -303,8 +360,9 @@ function formatTable(table, escaper) {
     if (table.schema != null) from += escaper(table.schema) + ".";
     from += escaper(table.table);
     return from;
+  } else {
+    return escaper(table);
   }
-  return table;
 }
 
 function appendSql(sql, args) {
@@ -313,7 +371,7 @@ function appendSql(sql, args) {
 }
 
 function appendOrderBy({column, direction}, args, escaper) {
-  appendSql(`t.${escaper(column)} ${direction.toUpperCase()}`, args);
+  appendSql(`${escaper(column)} ${direction.toUpperCase()}`, args);
 }
 
 function appendWhereEntry({type, operands}, args, escaper) {
@@ -398,7 +456,7 @@ function appendWhereEntry({type, operands}, args, escaper) {
 
 function appendOperand(o, args, escaper) {
   if (o.type === "column") {
-    appendSql(`t.${escaper(o.value)}`, args);
+    appendSql(escaper(o.value), args);
   } else {
     args.push(o.value);
     args[0].push("");
@@ -421,7 +479,9 @@ function likeOperand(operand) {
 }
 
 // This function applies table cell operations to an in-memory table (array of
-// objects); it should be equivalent to the corresponding SQL query.
+// objects); it should be equivalent to the corresponding SQL query. TODO Use
+// DuckDBClient for data arrays, too, and then we wouldn’t need our own __table
+// function to do table operations on in-memory data?
 export function __table(source, operations) {
   const input = source;
   let {schema, columns} = source;
