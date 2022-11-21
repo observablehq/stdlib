@@ -173,7 +173,6 @@ async function insertFile(database, name, file, options) {
         return await connection.insertCSVFromPath(file.name, {
           name,
           schema: "main",
-          delimiter: file.mimeType === "text/csv" ? "," : "\t",
           ...options
         });
       case "application/json":
