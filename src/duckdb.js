@@ -87,7 +87,7 @@ export class DuckDBClient {
     const reader = result.readRows();
     try {
       const {done, value} = await reader.next();
-      return done || !value.length ? null : value[0];
+      return done || !value?.length ? null : value[0];
     } finally {
       await reader.return();
     }
@@ -128,20 +128,25 @@ export class DuckDBClient {
     await db.open(config);
     await Promise.all(
       Object.entries(sources).map(async ([name, source]) => {
-        if (source instanceof FileAttachment) { // bare file
+        if (source instanceof FileAttachment) {
+          // bare file
           await insertFile(db, name, source);
-        } else if (isArrowTable(source)) { // bare arrow table
+        } else if (isArrowTable(source)) {
+          // bare arrow table
           await insertArrowTable(db, name, source);
-        } else if (Array.isArray(source)) { // bare array of objects
+        } else if (Array.isArray(source)) {
+          // bare array of objects
           await insertArray(db, name, source);
-        } else if ("data" in source) { // data + options
+        } else if ("data" in source) {
+          // data + options
           const {data, ...options} = source;
           if (isArrowTable(data)) {
             await insertArrowTable(db, name, data, options);
           } else {
             await insertArray(db, name, data, options);
           }
-        } else if ("file" in source) { // file + options
+        } else if ("file" in source) {
+          // file + options
           const {file, ...options} = source;
           await insertFile(db, name, file, options);
         } else {
@@ -216,6 +221,7 @@ async function insertArrowTable(database, name, table, options) {
 }
 
 async function insertArray(database, name, array, options) {
+  if (array.length === 0) return;
   const arrow = await loadArrow();
   const table = arrow.tableFromJSON(array);
   return await insertArrowTable(database, name, table, options);
