@@ -178,13 +178,19 @@ function sourceCache(loadSource) {
     if (!source) throw new Error("data source not found");
     let promise = cache.get(source);
     if (!promise) {
+      let resolve;
       // Warning: do not await here! We need to populate the cache synchronously.
-      promise = loadSource(source, name);
+      promise = (new Promise(_resolve => {
+        resolve = _resolve;
+      })).then(source => loadSource(source, name));
+      cache.set(promise, resolve);
       cache.set(source, promise);
     }
+    if (source.done !== false) cache.get(promise)(source);
     return promise;
   };
 }
+
 
 const loadTableDataSource = sourceCache(async (source, name) => {
   if (source instanceof FileAttachment) {
