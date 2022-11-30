@@ -199,6 +199,12 @@ const loadTableDataSource = sourceCache(async (source, name) => {
     throw new Error(`unsupported file type: ${source.mimeType}`);
   }
   if (isArrowTable(source)) return loadDuckDBClient(source, name);
+  // Arquero tables have a `toArrow` function
+  if (typeof source.toArrow === "function") {
+    const arrow = await loadArrow();
+    const arrowBuffer = arrow.tableFromIPC(source.toArrowBuffer());
+    return loadDuckDBClient(arrowBuffer, name);
+  }
   return source;
 });
 
@@ -215,6 +221,12 @@ const loadSqlDataSource = sourceCache(async (source, name) => {
   }
   if (isDataArray(source)) return loadDuckDBClient(await asArrowTable(source, name), name);
   if (isArrowTable(source)) return loadDuckDBClient(source, name);
+  // Arquero tables have a `toArrow` function
+  if (typeof source.toArrow === "function") {
+    const arrow = await loadArrow();
+    const arrowBuffer = arrow.tableFromIPC(source.toArrowBuffer());
+    return loadDuckDBClient(arrowBuffer, name);
+  }
   return source;
 });
 
