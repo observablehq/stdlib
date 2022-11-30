@@ -532,11 +532,17 @@ export function __table(source, operations) {
         break;
       }
       case "n": {
-        source = source.filter((d) => d[column] == null);
+        source = source.filter(
+          (d) =>
+            d[column] == null || d[column] === "" || Number.isNaN(d[column])
+        );
         break;
       }
       case "nn": {
-        source = source.filter((d) => d[column] != null);
+        source = source.filter(
+          (d) =>
+            d[column] != null && d[column] !== "" && !Number.isNaN(d[column])
+        );
         break;
       }
       case "lt": {
