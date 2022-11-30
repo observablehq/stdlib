@@ -7,5 +7,6 @@ export {
   arrayIsPrimitive,
   isDataArray,
   isDatabaseClient,
+  isArqueroTable,
   __table as applyDataTableOperations
 } from "./table.js";
