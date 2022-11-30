@@ -135,9 +135,9 @@ export class DuckDBClient {
           await insertArrowTable(db, name, source);
         } else if (Array.isArray(source)) { // bare array of objects
           await insertArray(db, name, source);
-        } else if(isArqueroTable(source)) {
+        } else if (isArqueroTable(source)) {
           await insertArqueroTable(db, name, source);
-        }  else if ("data" in source) { // data + options
+        } else if ("data" in source) { // data + options
           const {data, ...options} = source;
           if (isArrowTable(data)) {
             await insertArrowTable(db, name, data, options);
