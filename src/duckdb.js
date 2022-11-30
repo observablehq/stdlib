@@ -2,6 +2,7 @@ import {getArrowTableSchema, isArrowTable, loadArrow} from "./arrow.js";
 import {duckdb} from "./dependencies.js";
 import {FileAttachment} from "./fileAttachment.js";
 import {cdn} from "./require.js";
+import {isArqueroTable} from "./table.js";
 
 // Adapted from https://observablehq.com/@cmudig/duckdb-client
 // Copyright 2021 CMU Data Interaction Group
@@ -134,7 +135,9 @@ export class DuckDBClient {
           await insertArrowTable(db, name, source);
         } else if (Array.isArray(source)) { // bare array of objects
           await insertArray(db, name, source);
-        } else if ("data" in source) { // data + options
+        } else if(isArqueroTable(source)) {
+          await insertArqueroTable(db, name, source);
+        }  else if ("data" in source) { // data + options
           const {data, ...options} = source;
           if (isArrowTable(data)) {
             await insertArrowTable(db, name, data, options);
@@ -213,6 +216,12 @@ async function insertArrowTable(database, name, table, options) {
   } finally {
     await connection.close();
   }
+}
+
+async function insertArqueroTable(database, name, source) {
+  const arrow = await loadArrow();
+  const table = arrow.tableFromIPC(source.toArrowBuffer());
+  return await insertArrowTable(database, name, table);
 }
 
 async function insertArray(database, name, array, options) {

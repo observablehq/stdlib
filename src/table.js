@@ -141,6 +141,11 @@ function isTypedArray(value) {
   );
 }
 
+export function isArqueroTable(value) {
+  // Arquero tables have a `toArrow` function
+  return typeof value.toArrow === "function";
+}
+
 // __query is used by table cells; __query.sql is used by SQL cells.
 export const __query = Object.assign(
   async (source, operations, invalidation, name) => {
@@ -198,13 +203,7 @@ const loadTableDataSource = sourceCache(async (source, name) => {
     if (/\.(arrow|parquet)$/i.test(source.name)) return loadDuckDBClient(source, name);
     throw new Error(`unsupported file type: ${source.mimeType}`);
   }
-  if (isArrowTable(source)) return loadDuckDBClient(source, name);
-  // Arquero tables have a `toArrow` function
-  if (typeof source.toArrow === "function") {
-    const arrow = await loadArrow();
-    const arrowTable = arrow.tableFromIPC(source.toArrowBuffer());
-    return loadDuckDBClient(arrowTable, name);
-  }
+  if (isArrowTable(source) || isArqueroTable(source)) return loadDuckDBClient(source, name);
   return source;
 });
 
@@ -220,13 +219,7 @@ const loadSqlDataSource = sourceCache(async (source, name) => {
     throw new Error(`unsupported file type: ${source.mimeType}`);
   }
   if (isDataArray(source)) return loadDuckDBClient(await asArrowTable(source, name), name);
-  if (isArrowTable(source)) return loadDuckDBClient(source, name);
-  // Arquero tables have a `toArrow` function
-  if (typeof source.toArrow === "function") {
-    const arrow = await loadArrow();
-    const arrowTable = arrow.tableFromIPC(source.toArrowBuffer());
-    return loadDuckDBClient(arrowTable, name);
-  }
+  if (isArrowTable(source) || isArqueroTable(source)) return loadDuckDBClient(source, name);
   return source;
 });
 
