@@ -142,8 +142,8 @@ function isTypedArray(value) {
 }
 
 export function isArqueroTable(value) {
-  // Arquero tables have a `toArrow` function
-  return typeof value.toArrow === "function";
+  // Arquero tables have a `toArrowBuffer` function
+  return value && typeof value.toArrowBuffer === "function";
 }
 
 // __query is used by table cells; __query.sql is used by SQL cells.
