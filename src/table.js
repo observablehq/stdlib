@@ -202,8 +202,8 @@ const loadTableDataSource = sourceCache(async (source, name) => {
   // Arquero tables have a `toArrow` function
   if (typeof source.toArrow === "function") {
     const arrow = await loadArrow();
-    const arrowBuffer = arrow.tableFromIPC(source.toArrowBuffer());
-    return loadDuckDBClient(arrowBuffer, name);
+    const arrowTable = arrow.tableFromIPC(source.toArrowBuffer());
+    return loadDuckDBClient(arrowTable, name);
   }
   return source;
 });
@@ -224,8 +224,8 @@ const loadSqlDataSource = sourceCache(async (source, name) => {
   // Arquero tables have a `toArrow` function
   if (typeof source.toArrow === "function") {
     const arrow = await loadArrow();
-    const arrowBuffer = arrow.tableFromIPC(source.toArrowBuffer());
-    return loadDuckDBClient(arrowBuffer, name);
+    const arrowTable = arrow.tableFromIPC(source.toArrowBuffer());
+    return loadDuckDBClient(arrowTable, name);
   }
   return source;
 });
