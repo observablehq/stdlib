@@ -29,7 +29,7 @@ export class SQLiteDatabaseClient {
     ]);
   }
   async describeTables({schema} = {}) {
-    return this.query(`SELECT NULLIF(schema, 'main') AS schema, name FROM pragma_table_list() WHERE type = 'table'${schema == null ? "" : ` AND schema = ?`} AND name NOT LIKE 'sqlite_%'`, schema == null ? [] : [schema]);
+    return this.query(`SELECT NULLIF(schema, 'main') AS schema, name FROM pragma_table_list() WHERE type = 'table'${schema == null ? "" : ` AND schema = ?`} AND name NOT LIKE 'sqlite_%' ORDER BY schema, name`, schema == null ? [] : [schema]);
   }
   async describeColumns({schema, table} = {}) {
     if (table == null) throw new Error(`missing table`);
