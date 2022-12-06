@@ -1,8 +1,8 @@
+import {isArqueroTable} from "./arquero.js";
 import {getArrowTableSchema, isArrowTable, loadArrow} from "./arrow.js";
 import {duckdb} from "./dependencies.js";
 import {FileAttachment} from "./fileAttachment.js";
 import {cdn} from "./require.js";
-import {isArqueroTable} from "./table.js";
 
 // Adapted from https://observablehq.com/@cmudig/duckdb-client
 // Copyright 2021 CMU Data Interaction Group
