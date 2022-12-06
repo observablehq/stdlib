@@ -475,6 +475,19 @@ export function __table(source, operations) {
     const [{value: column}] = operands;
     const values = operands.slice(1).map(({value}) => value);
     switch (type) {
+      // valid (matches the column type)
+      case "v": {
+        const [colType] = values;
+        source = source.filter((d) => typeof d[column] === colType);
+        break;
+      }
+      // not valid (doesn't match the column type)
+      case "nv": {
+        const [colType] = values;
+        source = source.filter((d) => typeof d[column] !== colType);
+        break;
+      }
+      // TODO: not valid / valid for dates
       case "eq": {
         const [value] = values;
         if (value instanceof Date) {
