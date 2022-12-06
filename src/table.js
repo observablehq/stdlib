@@ -83,48 +83,29 @@ export function arrayIsPrimitive(value) {
   );
 }
 
-// Given an array, checks that the first n elements are primitives (number,
-// string, boolean, bigint) of a consistent type.
+// Given an array, checks that one of the first n elements is a primitive
 function arrayContainsPrimitives(value) {
   const n = Math.min(nChecks, value.length);
+  const primitives = ["number", "boolean", "string", "bigint"];
   if (!(n > 0)) return false;
-  let type;
-  let hasPrimitive = false; // ensure we encounter 1+ primitives
   for (let i = 0; i < n; ++i) {
     const v = value[i];
     if (v == null) continue; // ignore null and undefined
-    const t = typeof v;
-    if (type === undefined) {
-      switch (t) {
-        case "number":
-        case "boolean":
-        case "string":
-        case "bigint":
-          type = t;
-          break;
-        default:
-          return false;
-      }
-    } else if (t !== type) {
-      return false;
-    }
-    hasPrimitive = true;
+    return primitives.includes(typeof v);
   }
-  return hasPrimitive;
+  return false;
 }
 
-// Given an array, checks that the first n elements are dates.
+// Given an array, checks that the first of n elements is a date
 function arrayContainsDates(value) {
   const n = Math.min(nChecks, value.length);
   if (!(n > 0)) return false;
-  let hasDate = false; // ensure we encounter 1+ dates
   for (let i = 0; i < n; ++i) {
     const v = value[i];
     if (v == null) continue; // ignore null and undefined
-    if (!(v instanceof Date)) return false;
-    hasDate = true;
+    return v instanceof Date && !Number.isNaN(+v);
   }
-  return hasDate;
+  return false;
 }
 
 function isTypedArray(value) {
