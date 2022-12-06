@@ -1,5 +1,6 @@
 import {ascending, descending, reverse} from "d3-array";
 import {FileAttachment} from "./fileAttachment.js";
+import {isArqueroTable} from "./arquero.js";
 import {isArrowTable, loadArrow} from "./arrow.js";
 import {DuckDBClient} from "./duckdb.js";
 
@@ -139,11 +140,6 @@ function isTypedArray(value) {
     value instanceof Float32Array ||
     value instanceof Float64Array
   );
-}
-
-export function isArqueroTable(value) {
-  // Arquero tables have a `toArrowBuffer` function
-  return value && typeof value.toArrowBuffer === "function";
 }
 
 // __query is used by table cells; __query.sql is used by SQL cells.
