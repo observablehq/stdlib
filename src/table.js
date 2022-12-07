@@ -478,16 +478,21 @@ export function __table(source, operations) {
       // valid (matches the column type)
       case "v": {
         const [colType] = values;
-        source = source.filter((d) => typeof d[column] === colType);
+        const filter = colType === "date" ?
+          (d) => (d[column] instanceof Date) && !Number.isNaN(+d[column]) :
+          (d) => typeof d[column] === colType;
+        source = source.filter(filter);
         break;
       }
       // not valid (doesn't match the column type)
       case "nv": {
         const [colType] = values;
-        source = source.filter((d) => typeof d[column] !== colType);
+        const filter = colType === "date" ?
+          (d) => !(d[column] instanceof Date) || Number.isNaN(+d[column]) :
+          (d) => typeof d[column] !== colType;
+        source = source.filter(filter);
         break;
       }
-      // TODO: not valid / valid for dates
       case "eq": {
         const [value] = values;
         if (value instanceof Date) {
