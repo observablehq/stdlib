@@ -1,4 +1,4 @@
-import {ascending, descending, reverse} from "d3-array";
+import {reverse} from "d3-array";
 import {FileAttachment} from "./fileAttachment.js";
 import {isArqueroTable} from "./arquero.js";
 import {isArrowTable, loadArrow} from "./arrow.js";
@@ -480,6 +480,10 @@ function likeOperand(operand) {
   return {...operand, value: `%${operand.value}%`};
 }
 
+function ascendingDefined(a, b) {
+  return (a == null || !(a >= a)) - (b == null || !(b >= b)) || (a < b ? -1 : a > b ? 1 : 0);
+}
+
 // This function applies table cell operations to an in-memory table (array of
 // objects); it should be equivalent to the corresponding SQL query. TODO Use
 // DuckDBClient for data arrays, too, and then we wouldn’t need our own __table
@@ -565,9 +569,9 @@ export function __table(source, operations) {
     }
   }
   for (const {column, direction} of reverse(operations.sort)) {
-    const compare = direction === "desc" ? descending : ascending;
+    const compare = (a, b) => ascendingDefined(a[column], b[column]);
     if (source === input) source = source.slice(); // defensive copy
-    source.sort((a, b) => compare(a[column], b[column]));
+    source.sort(direction === "desc" ? (a, b) => compare(b, a) : compare);
   }
   let {from, to} = operations.slice;
   from = from == null ? 0 : Math.max(0, from);
