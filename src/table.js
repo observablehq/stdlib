@@ -479,27 +479,42 @@ function likeOperand(operand) {
   return {...operand, value: `%${operand.value}%`};
 }
 
-// Check if a value is a valid form of the column type
-export function isValid(value, colType) {
+// Functions for checking type validity
+const isValidNumber = (value) => typeof value === "number" && !Number.isNaN(value);
+const isValidString = (value) => typeof value === "string";
+const isValidBoolean = (value) => typeof value === "boolean";
+const isValidBigint = (value) => typeof value === "bigint";
+const isValidDate = (value) => value instanceof Date && !isNaN(value);
+const isValidBuffer = (value) => value instanceof ArrayBuffer;
+const isValidArray = (value) => Array.isArray(value);
+const isValidObject = (value) => typeof value === "object" && value !== null;
+const isValidOther = (value) => value != null;
+
+// Function to get the correct validity checking function based on type
+export function getValidator(colType) {
   switch (colType) {
     case "string":
+      return isValidString;
     case "bigint":
+      return isValidBigint;
     case "boolean":
-      return typeof value === colType;
+      return isValidBoolean;
     case "number":
-      return typeof value === colType && !Number.isNaN(value);
+      return isValidNumber;
     case "date":
-      return value instanceof Date && !isNaN(value);
+      return isValidDate;
     case "buffer":
-      return value instanceof ArrayBuffer;
+      return isValidBuffer;
     case "array":
-      return Array.isArray(value);
+      return isValidArray;
     case "object":
-      return typeof value === colType && value !== null;
+      return isValidObject;
     case "other":
-      return value != null;
+    default:
+      return isValidOther;
   }
 }
+
 // This function applies table cell operations to an in-memory table (array of
 // objects); it should be equivalent to the corresponding SQL query. TODO Use
 // DuckDBClient for data arrays, too, and then we wouldn’t need our own __table
@@ -516,13 +531,15 @@ export function __table(source, operations) {
       // valid (matches the column type)
       case "v": {
         const [colType] = values;
-        source = source.filter(d => isValid(d[column], colType));
+        const isValid = getValidator(colType);
+        source = source.filter(d => isValid(d[column]));
         break;
       }
       // not valid (doesn't match the column type)
       case "nv": {
         const [colType] = values;
-        source = source.filter(d => !isValid(d[column], colType));
+        const isValid = getValidator(colType);
+        source = source.filter(d => !isValid(d[column]));
         break;
       }
       case "eq": {

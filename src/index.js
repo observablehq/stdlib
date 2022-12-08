@@ -8,5 +8,5 @@ export {
   isDataArray,
   isDatabaseClient,
   __table as applyDataTableOperations,
-  isValid
+  getValidator
 } from "./table.js";
