@@ -555,20 +555,6 @@ export function __table(source, operations) {
         source = source.filter((d) => d[column] != null);
         break;
       }
-      case "nd": {
-        source = source.filter(
-          (d) =>
-            d[column] == null || d[column] === "" || Number.isNaN(d[column])
-        );
-        break;
-      }
-      case "d": {
-        source = source.filter(
-          (d) =>
-            d[column] != null && d[column] !== "" && !Number.isNaN(d[column])
-        );
-        break;
-      }
       case "lt": {
         const [value] = values;
         source = source.filter((d) => d[column] < value);
