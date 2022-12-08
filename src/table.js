@@ -499,13 +499,13 @@ export function __table(source, operations) {
       // valid (matches the column type)
       case "v": {
         const [colType] = values;
-        source = source.filter(d => isValid(d, colType));
+        source = source.filter(d => isValid(d[column], colType));
         break;
       }
       // not valid (doesn't match the column type)
       case "nv": {
         const [colType] = values;
-        source = source.filter(d => !isValid(d, colType));
+        source = source.filter(d => !isValid(d[column], colType));
         break;
       }
       case "eq": {
