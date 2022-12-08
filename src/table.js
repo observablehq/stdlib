@@ -388,8 +388,6 @@ function appendWhereEntry({type, operands}, args, escaper) {
       case "nn":
         appendSql(` IS NOT NULL`, args);
         return;
-      // TODO: case "d" (defined) and case "nd" not defined
-      // Something like - (x IS NULL OR x = '' OR x = float 'NaN')
       default:
         throw new Error("Invalid filter operation");
     }
