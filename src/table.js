@@ -462,6 +462,27 @@ function likeOperand(operand) {
   return {...operand, value: `%${operand.value}%`};
 }
 
+// Check if a value is a valid form of the column type
+export function isValid(value, colType) {
+  switch (colType) {
+    case "string":
+    case "bigint":
+    case "boolean":
+      return typeof value === colType;
+    case "number":
+      return typeof value === colType && !Number.isNaN(value);
+    case "date":
+      return value instanceof Date && !isNaN(value);
+    case "buffer":
+      return value instanceof ArrayBuffer;
+    case "array":
+      return Array.isArray(value);
+    case "object":
+      return typeof value === colType && value !== null;
+    case "other":
+      return value != null;
+  }
+}
 // This function applies table cell operations to an in-memory table (array of
 // objects); it should be equivalent to the corresponding SQL query. TODO Use
 // DuckDBClient for data arrays, too, and then we wouldn’t need our own __table
@@ -478,19 +499,13 @@ export function __table(source, operations) {
       // valid (matches the column type)
       case "v": {
         const [colType] = values;
-        const filter = colType === "date" ?
-          (d) => (d[column] instanceof Date) && !Number.isNaN(+d[column]) :
-          (d) => typeof d[column] === colType;
-        source = source.filter(filter);
+        source = source.filter(d => isValid(d, colType));
         break;
       }
       // not valid (doesn't match the column type)
       case "nv": {
         const [colType] = values;
-        const filter = colType === "date" ?
-          (d) => !(d[column] instanceof Date) || Number.isNaN(+d[column]) :
-          (d) => typeof d[column] !== colType;
-        source = source.filter(filter);
+        source = source.filter(d => !isValid(d, colType));
         break;
       }
       case "eq": {

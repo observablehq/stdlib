@@ -7,5 +7,6 @@ export {
   arrayIsPrimitive,
   isDataArray,
   isDatabaseClient,
-  __table as applyDataTableOperations
+  __table as applyDataTableOperations,
+  isValid
 } from "./table.js";
