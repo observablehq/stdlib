@@ -491,7 +491,7 @@ const isValidObject = (value) => typeof value === "object" && value !== null;
 const isValidOther = (value) => value != null;
 
 // Function to get the correct validity checking function based on type
-export function getValidator(colType) {
+export function getTypeValidator(colType) {
   switch (colType) {
     case "string":
       return isValidString;
@@ -531,14 +531,14 @@ export function __table(source, operations) {
       // valid (matches the column type)
       case "v": {
         const [colType] = values;
-        const isValid = getValidator(colType);
+        const isValid = getTypeValidator(colType);
         source = source.filter(d => isValid(d[column]));
         break;
       }
       // not valid (doesn't match the column type)
       case "nv": {
         const [colType] = values;
-        const isValid = getValidator(colType);
+        const isValid = getTypeValidator(colType);
         source = source.filter(d => !isValid(d[column]));
         break;
       }
