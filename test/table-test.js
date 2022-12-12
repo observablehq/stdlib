@@ -544,23 +544,20 @@ describe("__table", () => {
 });
 
 describe("getTypeValidator filters accurately", () => {
-  let source;
-  beforeEach(() => {
-    source = [
-      {label: "string", value: "string"},
-      {label: "object", value: {}},
-      {label: "buffer", value: new ArrayBuffer()},
-      {label: "boolean", value: true},
-      {label: "array", value: [1, 2, 3]},
-      {label: "number", value: 10},
-      {label: "date", value: new Date(1)},
-      // eslint-disable-next-line no-undef
-      {label: "bigint", value: BigInt(10)},
-      {label: "null", value: null},
-      {label: "NaN", value: NaN},
-      {label: "undefined"}
-    ];
-  });
+  let source = [
+    {label: "string", value: "string"},
+    {label: "object", value: {}},
+    {label: "buffer", value: new ArrayBuffer()},
+    {label: "boolean", value: true},
+    {label: "array", value: [1, 2, 3]},
+    {label: "number", value: 10},
+    {label: "date", value: new Date(1)},
+    // eslint-disable-next-line no-undef
+    {label: "bigint", value: BigInt(10)},
+    {label: "null", value: null},
+    {label: "NaN", value: NaN},
+    {label: "undefined"}
+   ];
 
   it("filters strings", () => {
     const isValid = getTypeValidator("string");
