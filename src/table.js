@@ -480,8 +480,22 @@ function likeOperand(operand) {
   return {...operand, value: `%${operand.value}%`};
 }
 
+// Comparator function that moves null values (undefined, null, NaN) to the
+// end of the array.
+function defined(a, b) {
+  return (a == null || !(a >= a)) - (b == null || !(b >= b));
+}
+
+// Comparator function that sorts values in ascending order, with null values at
+// the end.
 function ascendingDefined(a, b) {
-  return (a == null || !(a >= a)) - (b == null || !(b >= b)) || (a < b ? -1 : a > b ? 1 : 0);
+  return defined(a, b) || (a < b ? -1 : a > b ? 1 : 0);
+}
+
+// Comparator function that sorts values in descending order, with null values
+// at the end.
+function descendingDefined(a, b) {
+  return defined(a, b) || (a > b ? -1 : a < b ? 1 : 0);
 }
 
 // This function applies table cell operations to an in-memory table (array of
@@ -569,9 +583,9 @@ export function __table(source, operations) {
     }
   }
   for (const {column, direction} of reverse(operations.sort)) {
-    const compare = (a, b) => ascendingDefined(a[column], b[column]);
+    const compare = direction === "desc" ? descendingDefined : ascendingDefined;
     if (source === input) source = source.slice(); // defensive copy
-    source.sort(direction === "desc" ? (a, b) => compare(b, a) : compare);
+    source.sort((a, b) => compare(a[column], b[column]));
   }
   let {from, to} = operations.slice;
   from = from == null ? 0 : Math.max(0, from);

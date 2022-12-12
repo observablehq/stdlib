@@ -521,7 +521,7 @@ describe("__table", () => {
     const operationsDesc = {...EMPTY_TABLE_DATA.operations, sort: [{column: "a", direction: "desc"}]};
     assert.deepStrictEqual(
       __table(sourceWithMissing, operationsDesc),
-      [{a: null}, {a: undefined}, {a: NaN}, {a: null}, {a: 20}, {a: 10}, {a: 5}, {a: 1}]
+      [{a: 20}, {a: 10}, {a: 5}, {a: 1}, {a: null}, {a: undefined}, {a: NaN}, {a: null}]
     );
     const operationsAsc = {...EMPTY_TABLE_DATA.operations, sort: [{column: "a", direction: "asc"}]};
     assert.deepStrictEqual(
