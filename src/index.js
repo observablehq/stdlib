@@ -8,5 +8,6 @@ export {
   arrayIsPrimitive,
   isDataArray,
   isDatabaseClient,
-  __table as applyDataTableOperations
+  __table as applyDataTableOperations,
+  getTypeValidator
 } from "./table.js";
