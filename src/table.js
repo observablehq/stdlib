@@ -1,5 +1,6 @@
 import {ascending, descending, reverse} from "d3-array";
 import {FileAttachment} from "./fileAttachment.js";
+import {isArqueroTable} from "./arquero.js";
 import {isArrowTable, loadArrow} from "./arrow.js";
 import {DuckDBClient} from "./duckdb.js";
 
@@ -198,7 +199,7 @@ const loadTableDataSource = sourceCache(async (source, name) => {
     if (/\.(arrow|parquet)$/i.test(source.name)) return loadDuckDBClient(source, name);
     throw new Error(`unsupported file type: ${source.mimeType}`);
   }
-  if (isArrowTable(source)) return loadDuckDBClient(source, name);
+  if (isArrowTable(source) || isArqueroTable(source)) return loadDuckDBClient(source, name);
   return source;
 });
 
@@ -214,7 +215,7 @@ const loadSqlDataSource = sourceCache(async (source, name) => {
     throw new Error(`unsupported file type: ${source.mimeType}`);
   }
   if (isDataArray(source)) return loadDuckDBClient(await asArrowTable(source, name), name);
-  if (isArrowTable(source)) return loadDuckDBClient(source, name);
+  if (isArrowTable(source) || isArqueroTable(source)) return loadDuckDBClient(source, name);
   return source;
 });
 

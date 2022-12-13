@@ -1,3 +1,4 @@
+import {isArqueroTable} from "./arquero.js";
 import {getArrowTableSchema, isArrowTable, loadArrow} from "./arrow.js";
 import {duckdb} from "./dependencies.js";
 import {FileAttachment} from "./fileAttachment.js";
@@ -134,6 +135,8 @@ export class DuckDBClient {
           await insertArrowTable(db, name, source);
         } else if (Array.isArray(source)) { // bare array of objects
           await insertArray(db, name, source);
+        } else if (isArqueroTable(source)) {
+          await insertArqueroTable(db, name, source);
         } else if ("data" in source) { // data + options
           const {data, ...options} = source;
           if (isArrowTable(data)) {
@@ -213,6 +216,14 @@ async function insertArrowTable(database, name, table, options) {
   } finally {
     await connection.close();
   }
+}
+
+async function insertArqueroTable(database, name, source) {
+  // TODO When we have stdlib versioning and can upgrade Arquero to version 5,
+  // we can then call source.toArrow() directly, with insertArrowTable()
+  const arrow = await loadArrow();
+  const table = arrow.tableFromIPC(source.toArrowBuffer());
+  return await insertArrowTable(database, name, table);
 }
 
 async function insertArray(database, name, array, options) {

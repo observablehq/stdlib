@@ -1,6 +1,6 @@
 {
   "name": "@observablehq/stdlib",
-  "version": "5.1.1",
+  "version": "5.2.4",
   "author": {
     "name": "Observable, Inc.",
     "url": "https://observablehq.com"
@@ -41,7 +41,6 @@
     "eslint": "^8.27.0",
     "exceljs": "^4.3.0",
     "mocha": "^10.1.0",
-    "node-fetch": "^3.2.10",
     "rollup": "^3.2.5",
     "rollup-plugin-terser": "^7.0.2"
   }
