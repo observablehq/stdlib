@@ -398,7 +398,7 @@ function appendWhereEntry({type, operands}, args, escaper) {
   if (operands.length === 2) {
     if (["in", "nin"].includes(type)) {
       // Fallthrough to next parent block.
-    } else if (["c", "nc"].includes(type)) {
+    } else if (["c", "nc", "v", "nv"].includes(type)) {
       // TODO: Case (in)sensitive?
       appendOperand(operands[0], args, escaper);
       switch (type) {
@@ -407,6 +407,14 @@ function appendWhereEntry({type, operands}, args, escaper) {
           break;
         case "nc":
           appendSql(` NOT LIKE `, args);
+          break;
+        // JavaScript "not valid" filter translate to a SQL "IS NULL"
+        case "nv":
+          appendSql(` IS NULL`, args);
+          break;
+        // JavaScript "valid" filter translate to a SQL "IS NOT NULL"
+        case "v":
+          appendSql(` IS NOT NULL`, args);
           break;
       }
       appendOperand(likeOperand(operands[1]), args, escaper);
@@ -480,6 +488,42 @@ function likeOperand(operand) {
   return {...operand, value: `%${operand.value}%`};
 }
 
+// Functions for checking type validity
+const isValidNumber = (value) => typeof value === "number" && !Number.isNaN(value);
+const isValidString = (value) => typeof value === "string";
+const isValidBoolean = (value) => typeof value === "boolean";
+const isValidBigint = (value) => typeof value === "bigint";
+const isValidDate = (value) => value instanceof Date && !isNaN(value);
+const isValidBuffer = (value) => value instanceof ArrayBuffer;
+const isValidArray = (value) => Array.isArray(value);
+const isValidObject = (value) => typeof value === "object" && value !== null;
+const isValidOther = (value) => value != null;
+
+// Function to get the correct validity checking function based on type
+export function getTypeValidator(colType) {
+  switch (colType) {
+    case "string":
+      return isValidString;
+    case "bigint":
+      return isValidBigint;
+    case "boolean":
+      return isValidBoolean;
+    case "number":
+      return isValidNumber;
+    case "date":
+      return isValidDate;
+    case "buffer":
+      return isValidBuffer;
+    case "array":
+      return isValidArray;
+    case "object":
+      return isValidObject;
+    case "other":
+    default:
+      return isValidOther;
+  }
+}
+
 // This function applies table cell operations to an in-memory table (array of
 // objects); it should be equivalent to the corresponding SQL query. TODO Use
 // DuckDBClient for data arrays, too, and then we wouldn’t need our own __table
@@ -493,6 +537,20 @@ export function __table(source, operations) {
     const [{value: column}] = operands;
     const values = operands.slice(1).map(({value}) => value);
     switch (type) {
+      // valid (matches the column type)
+      case "v": {
+        const [colType] = values;
+        const isValid = getTypeValidator(colType);
+        source = source.filter(d => isValid(d[column]));
+        break;
+      }
+      // not valid (doesn't match the column type)
+      case "nv": {
+        const [colType] = values;
+        const isValid = getTypeValidator(colType);
+        source = source.filter(d => !isValid(d[column]));
+        break;
+      }
       case "eq": {
         const [value] = values;
         if (value instanceof Date) {

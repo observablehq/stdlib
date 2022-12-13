@@ -1,4 +1,4 @@
-import {makeQueryTemplate, __table} from "../src/table.js";
+import {getTypeValidator, makeQueryTemplate, __table} from "../src/table.js";
 import assert from "assert";
 
 export const EMPTY_TABLE_DATA = {
@@ -539,6 +539,88 @@ describe("__table", () => {
     assert.deepStrictEqual(
       __table(source, EMPTY_TABLE_DATA.operations).schema,
       [{name: "a", type: "number"}, {name: "b", type: "number"}, {name: "c", type: "number"}]
+    );
+  });
+});
+
+describe("getTypeValidator filters accurately", () => {
+  let source = [
+    {label: "string", value: "string"},
+    {label: "object", value: {}},
+    {label: "buffer", value: new ArrayBuffer()},
+    {label: "boolean", value: true},
+    {label: "array", value: [1, 2, 3]},
+    {label: "number", value: 10},
+    {label: "date", value: new Date(1)},
+    // eslint-disable-next-line no-undef
+    {label: "bigint", value: BigInt(10)},
+    {label: "null", value: null},
+    {label: "NaN", value: NaN},
+    {label: "undefined"}
+   ];
+
+  it("filters strings", () => {
+    const isValid = getTypeValidator("string");
+    assert.deepStrictEqual(source.filter(d => isValid(d.value)), [{label: "string", value: "string"}]);
+  });
+
+  it("filters buffers", () => {
+    const isValid = getTypeValidator("buffer");
+    assert.deepStrictEqual(source.filter(d => isValid(d.value)), [{label: "buffer", value: new ArrayBuffer()}]);
+  });
+
+  it("filters numbers", () => {
+    const isValid = getTypeValidator("number");
+    assert.deepStrictEqual(source.filter(d => isValid(d.value)), [{label: "number", value: 10}]);
+  });
+
+  it("filters booleans", () => {
+    const isValid = getTypeValidator("boolean");
+    assert.deepStrictEqual(source.filter(d => isValid(d.value)), [{label: "boolean", value: true}]);
+  });
+
+  it("filters arrays", () => {
+    const isValid = getTypeValidator("array");
+    assert.deepStrictEqual(source.filter(d => isValid(d.value)), [{label: "array", value: [1, 2, 3]}]);
+  });
+
+  it("filters dates", () => {
+    const isValid = getTypeValidator("date");
+    assert.deepStrictEqual(source.filter(d => isValid(d.value)), [{label: "date", value: new Date(1)}]);
+  });
+
+  it("filters BigInts", () => {
+    const isValid = getTypeValidator("bigint");
+    // eslint-disable-next-line no-undef
+    assert.deepStrictEqual(source.filter(d => isValid(d.value)), [{label: "bigint", value: BigInt(10)}]);
+  });
+
+  it("filters objects", () => {
+    const isValid = getTypeValidator("object");
+    assert.deepStrictEqual(source.filter(d => isValid(d.value)),
+      [
+        {label: "object", value: {}},
+        {label: "buffer", value: new ArrayBuffer()},
+        {label: "array", value: [1, 2, 3]},
+        {label: "date", value: new Date(1)}]
+    );
+  });
+
+  it("filters other", () => {
+    const isValid = getTypeValidator("other");
+    assert.deepStrictEqual(source.filter(d => isValid(d.value)),
+    [
+      {label: "string", value: "string"},
+      {label: "object", value: {}},
+      {label: "buffer", value: new ArrayBuffer()},
+      {label: "boolean", value: true},
+      {label: "array", value: [1, 2, 3]},
+      {label: "number", value: 10},
+      {label: "date", value: new Date(1)},
+      // eslint-disable-next-line no-undef
+      {label: "bigint", value: BigInt(10)},
+      {label: "NaN", value: NaN}
+    ]
     );
   });
 });
