@@ -495,19 +495,38 @@ describe("__table", () => {
   });
 
   it("__table sort", () => {
-    const operations1 = {...EMPTY_TABLE_DATA.operations, sort: [{column: "a", direction: "desc"}]};
+    const operationsDesc = {...EMPTY_TABLE_DATA.operations, sort: [{column: "a", direction: "desc"}]};
     assert.deepStrictEqual(
-      __table(source, operations1),
+      __table(source, operationsDesc),
       [{a: 3, b: 6, c: 9}, {a: 2, b: 4, c: 6}, {a: 1, b: 2, c: 3}]
     );
+    const operationsAsc = {...EMPTY_TABLE_DATA.operations, sort: [{column: "a", direction: "asc"}]};
+    assert.deepStrictEqual(
+      __table(source, operationsAsc),
+      [{a: 1, b: 2, c: 3}, {a: 2, b: 4, c: 6}, {a: 3, b: 6, c: 9}]
+    );
     const sourceExtended = [...source, {a: 1, b: 3, c: 3}, {a: 1, b: 5, c: 3}];
-    const operations2 = {
+    const operationsMulti = {
       ...EMPTY_TABLE_DATA.operations,
       sort: [{column: "a", direction: "desc"}, {column: "b", direction: "desc"}]
     };
     assert.deepStrictEqual(
-      __table(sourceExtended, operations2),
+      __table(sourceExtended, operationsMulti),
       [{a: 3, b: 6, c: 9}, {a: 2, b: 4, c: 6}, {a: 1, b: 5, c: 3}, {a: 1, b: 3, c: 3}, {a: 1, b: 2, c: 3}]
+    );
+  });
+
+  it("__table sort missing values", () => {
+    const sourceWithMissing = [{a: 1}, {a: null}, {a: undefined}, {a: 10}, {a: 5}, {a: NaN}, {a: null}, {a: 20}];
+    const operationsDesc = {...EMPTY_TABLE_DATA.operations, sort: [{column: "a", direction: "desc"}]};
+    assert.deepStrictEqual(
+      __table(sourceWithMissing, operationsDesc),
+      [{a: 20}, {a: 10}, {a: 5}, {a: 1}, {a: null}, {a: undefined}, {a: NaN}, {a: null}]
+    );
+    const operationsAsc = {...EMPTY_TABLE_DATA.operations, sort: [{column: "a", direction: "asc"}]};
+    assert.deepStrictEqual(
+      __table(sourceWithMissing, operationsAsc),
+      [{a: 1}, {a: 5}, {a: 10}, {a: 20}, {a: null}, {a: undefined}, {a: NaN}, {a: null}]
     );
   });
 

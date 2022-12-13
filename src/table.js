@@ -1,4 +1,4 @@
-import {ascending, descending, reverse} from "d3-array";
+import {reverse} from "d3-array";
 import {FileAttachment} from "./fileAttachment.js";
 import {isArqueroTable} from "./arquero.js";
 import {isArrowTable, loadArrow} from "./arrow.js";
@@ -488,6 +488,24 @@ function likeOperand(operand) {
   return {...operand, value: `%${operand.value}%`};
 }
 
+// Comparator function that moves null values (undefined, null, NaN) to the
+// end of the array.
+function defined(a, b) {
+  return (a == null || !(a >= a)) - (b == null || !(b >= b));
+}
+
+// Comparator function that sorts values in ascending order, with null values at
+// the end.
+function ascendingDefined(a, b) {
+  return defined(a, b) || (a < b ? -1 : a > b ? 1 : 0);
+}
+
+// Comparator function that sorts values in descending order, with null values
+// at the end.
+function descendingDefined(a, b) {
+  return defined(a, b) || (a > b ? -1 : a < b ? 1 : 0);
+}
+
 // Functions for checking type validity
 const isValidNumber = (value) => typeof value === "number" && !Number.isNaN(value);
 const isValidString = (value) => typeof value === "string";
@@ -623,7 +641,7 @@ export function __table(source, operations) {
     }
   }
   for (const {column, direction} of reverse(operations.sort)) {
-    const compare = direction === "desc" ? descending : ascending;
+    const compare = direction === "desc" ? descendingDefined : ascendingDefined;
     if (source === input) source = source.slice(); // defensive copy
     source.sort((a, b) => compare(a[column], b[column]));
   }
