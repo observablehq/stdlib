@@ -182,6 +182,31 @@ describe("makeQueryTemplate", () => {
     assert.deepStrictEqual(params, ["val1", "val2", "val3", "val4"]);
   });
 
+  it("makeQueryTemplate filter valid and not valid", () => {
+    const source = {name: "db", dialect: "postgres"};
+    const operations = {
+      ...baseOperations,
+      filter: [
+        {
+          type: "v",
+          operands: [
+            {type: "column", value: "col1"},
+            {type: "primitive", value: "string"}
+          ]
+        },
+        {
+          type: "nv",
+          operands: [
+            {type: "column", value: "col2"},
+            {type: "primitive", value: "number"}
+          ]
+        }
+      ]
+    };
+    const [parts] = makeQueryTemplate(operations, source);
+    assert.deepStrictEqual(parts.join("?"), "SELECT col1, col2 FROM table1\nWHERE col1 IS NOT NULL\nAND col2 IS NULL");
+  });
+
   it("makeQueryTemplate select", () => {
     const source = {name: "db", dialect: "mysql"};
     const operations = {
