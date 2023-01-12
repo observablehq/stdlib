@@ -130,7 +130,9 @@ export class DuckDBClient {
     await Promise.all(
       Object.entries(sources).map(async ([name, source]) => {
         if (source instanceof FileAttachment) { // bare file
-          await insertFile(db, name, source);
+          config.untyped
+          ? await insertFile(db, name, source, {}, config.untyped)
+          : await insertFile(db, name, source);
         } else if (isArrowTable(source)) { // bare arrow table
           await insertArrowTable(db, name, source);
         } else if (Array.isArray(source)) { // bare array of objects
@@ -160,7 +162,7 @@ Object.defineProperty(DuckDBClient.prototype, "dialect", {
   value: "duckdb"
 });
 
-async function insertFile(database, name, file, options) {
+async function insertFile(database, name, file, options, untyped = false) {
   const url = await file.url();
   if (url.startsWith("blob:")) {
     const buffer = await file.arrayBuffer();
@@ -172,12 +174,17 @@ async function insertFile(database, name, file, options) {
   try {
     switch (file.mimeType) {
       case "text/csv":
-      case "text/tab-separated-values":
-        return await connection.insertCSVFromPath(file.name, {
-          name,
-          schema: "main",
-          ...options
-        });
+      case "text/tab-separated-values": {
+        if (untyped) {
+          return await insertUntypedCSV(connection, file, name);
+        } else {
+          return await connection.insertCSVFromPath(file.name, {
+            name,
+            schema: "main",
+            ...options
+          });
+        }
+      }
       case "application/json":
         return await connection.insertJSONFromPath(file.name, {
           name,
@@ -203,6 +210,13 @@ async function insertFile(database, name, file, options) {
   } finally {
     await connection.close();
   }
+}
+
+async function insertUntypedCSV(connection, file, name) {
+  const statement = await connection.prepare(
+    `CREATE TABLE '${name}' AS SELECT * FROM read_csv_auto(?, ALL_VARCHAR=TRUE)`
+  );
+  return await statement.send(file.name);
 }
 
 async function insertArrowTable(database, name, table, options) {
