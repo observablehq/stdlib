@@ -3,7 +3,6 @@ import {getArrowTableSchema, isArrowTable, loadArrow} from "./arrow.js";
 import {duckdb} from "./dependencies.js";
 import {FileAttachment} from "./fileAttachment.js";
 import {cdn} from "./require.js";
-import {untyped} from "./table.js";
 
 // Adapted from https://observablehq.com/@cmudig/duckdb-client
 // Copyright 2021 CMU Data Interaction Group
@@ -131,7 +130,7 @@ export class DuckDBClient {
     await Promise.all(
       Object.entries(sources).map(async ([name, source]) => {
         if (source instanceof FileAttachment) { // bare file
-          await insertFile(db, name, source, {[untyped]: config[untyped]});
+          await insertFile(db, name, source);
         } else if (isArrowTable(source)) { // bare arrow table
           await insertArrowTable(db, name, source);
         } else if (Array.isArray(source)) { // bare array of objects
@@ -174,15 +173,18 @@ async function insertFile(database, name, file, options) {
     switch (file.mimeType) {
       case "text/csv":
       case "text/tab-separated-values": {
-        if (options[untyped]) {
-          return await insertUntypedCSV(connection, file, name);
-        } else {
-          return await connection.insertCSVFromPath(file.name, {
-            name,
-            schema: "main",
-            ...options
-          });
-        }
+        const client = await connection.insertCSVFromPath(file.name, {
+          name,
+          schema: "main",
+          ...options
+        }).catch(async (error) => {
+          // If initial attempt to create a DuckDB client resulted in a conversion
+          // error, try again, this time treating all columns as strings. 
+          if (error.toString().includes("Could not convert")) {
+            return await insertUntypedCSV(connection, file, name);
+          }
+        });
+        return client;
       }
       case "application/json":
         return await connection.insertJSONFromPath(file.name, {
