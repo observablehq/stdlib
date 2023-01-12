@@ -5,6 +5,7 @@ import {isArrowTable, loadArrow} from "./arrow.js";
 import {DuckDBClient} from "./duckdb.js";
 
 const nChecks = 20; // number of values to check in each array
+export const untyped = Symbol("untyped");
 
 // We support two levels of DatabaseClient. The simplest DatabaseClient
 // implements only the client.sql tagged template literal. More advanced
@@ -238,7 +239,7 @@ function loadDuckDBClient(
       // If initial attempt to create a DuckDB client resulted in a conversion
       // error, try again, this time treating all columns as strings. 
       if (error.toString().includes("Could not convert")) {
-        return DuckDBClient.of({[name]: source}, {untyped: true});
+        return DuckDBClient.of({[name]: source}, {[untyped]: true});
       }
       // If this is not a conversion error, return the original attempt.
       return client;

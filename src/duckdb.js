@@ -3,6 +3,7 @@ import {getArrowTableSchema, isArrowTable, loadArrow} from "./arrow.js";
 import {duckdb} from "./dependencies.js";
 import {FileAttachment} from "./fileAttachment.js";
 import {cdn} from "./require.js";
+import {untyped} from "./table.js";
 
 // Adapted from https://observablehq.com/@cmudig/duckdb-client
 // Copyright 2021 CMU Data Interaction Group
@@ -130,7 +131,7 @@ export class DuckDBClient {
     await Promise.all(
       Object.entries(sources).map(async ([name, source]) => {
         if (source instanceof FileAttachment) { // bare file
-          await insertFile(db, name, source, {}, config.untyped);
+          await insertFile(db, name, source, {[untyped]: config[untyped]});
         } else if (isArrowTable(source)) { // bare arrow table
           await insertArrowTable(db, name, source);
         } else if (Array.isArray(source)) { // bare array of objects
@@ -160,7 +161,7 @@ Object.defineProperty(DuckDBClient.prototype, "dialect", {
   value: "duckdb"
 });
 
-async function insertFile(database, name, file, options, untyped = false) {
+async function insertFile(database, name, file, options) {
   const url = await file.url();
   if (url.startsWith("blob:")) {
     const buffer = await file.arrayBuffer();
@@ -173,7 +174,7 @@ async function insertFile(database, name, file, options, untyped = false) {
     switch (file.mimeType) {
       case "text/csv":
       case "text/tab-separated-values": {
-        if (untyped) {
+        if (options[untyped]) {
           return await insertUntypedCSV(connection, file, name);
         } else {
           return await connection.insertCSVFromPath(file.name, {
