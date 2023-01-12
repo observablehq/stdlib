@@ -178,7 +178,7 @@ async function insertFile(database, name, file, options) {
           schema: "main",
           ...options
         }).catch(async (error) => {
-          // If initial attempt to create a DuckDB client resulted in a conversion
+          // If initial attempt to insert CSV resulted in a conversion
           // error, try again, this time treating all columns as strings. 
           if (error.toString().includes("Could not convert")) {
             return await insertUntypedCSV(connection, file, name);
