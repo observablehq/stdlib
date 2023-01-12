@@ -232,7 +232,14 @@ function loadDuckDBClient(
     ? getFileSourceName(source)
     : "__table"
 ) {
-  return DuckDBClient.of({[name]: source});
+  return DuckDBClient.of({[name]: source})
+    .catch(() => {
+      // If initial attempt to create a DuckDB client resulted in an error, try
+      // one more time, treating all columns as strings. 
+      // Could check error for a substring like "Could not convert", if this
+      // seems too costly for a catch-all error path.
+      return DuckDBClient.of({[name]: source}, {untyped: true});
+    });
 }
 
 function getFileSourceName(file) {
