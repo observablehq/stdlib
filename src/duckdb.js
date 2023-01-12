@@ -130,9 +130,7 @@ export class DuckDBClient {
     await Promise.all(
       Object.entries(sources).map(async ([name, source]) => {
         if (source instanceof FileAttachment) { // bare file
-          config.untyped
-          ? await insertFile(db, name, source, {}, config.untyped)
-          : await insertFile(db, name, source);
+          await insertFile(db, name, source, {}, config.untyped);
         } else if (isArrowTable(source)) { // bare arrow table
           await insertArrowTable(db, name, source);
         } else if (Array.isArray(source)) { // bare array of objects
