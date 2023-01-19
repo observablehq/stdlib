@@ -543,8 +543,9 @@ export function getTypeValidator(colType) {
 // DuckDBClient for data arrays, too, and then we wouldn’t need our own __table
 // function to do table operations on in-memory data?
 export function __table(source, operations) {
-  const input = source;
   let {schema, columns} = source;
+  if (!schema) source.schema = inferSchema(source);
+  const input = source;
   let primitive = arrayIsPrimitive(source);
   if (primitive) source = Array.from(source, (value) => ({value}));
   for (const {type, operands} of operations.filter) {
@@ -665,4 +666,80 @@ export function __table(source, operations) {
     if (columns) source.columns = columns;
   }
   return source;
+}
+
+function initKey() {
+  return {
+    other: 0,
+    boolean: 0,
+    integer: 0,
+    number: 0,
+    date: 0,
+    string: 0,
+    array: 0,
+    object: 0,
+    bigint: 0, // TODO for csv, tsv?
+    buffer: 0
+  };
+}
+
+function inferSchema(source) {
+  const schema = [];
+  const sampleSize = 100;
+  const sample = source.slice(0, sampleSize);
+  const typeCounts = {};
+  sample.map((d) => {
+    for (const key in d) {
+      if (!typeCounts[key]) typeCounts[key] = initKey();
+      // for json and sqlite, we already have some types, but for csv and tsv, all
+      // columns are strings here.
+      const type = typeof d[key];
+      const value = type === "string" ? d[key]?.trim() : d[key];
+      if (value === null || value === undefined || value.length === 0)
+        typeCounts[key]["other"]++;
+      else if (type !== "string") {
+        if (Array.isArray(value)) typeCounts[key]["array"]++;
+        else if (value instanceof Date) typeCounts[key]["date"]++;
+        else if (value instanceof ArrayBuffer) typeCounts[key]["buffer"]++;
+        else if (type in typeCounts[key]) typeCounts[key][type]++; // number, bigint, boolean, or object
+      } else {
+        if (value === "true" || value === "false")
+          typeCounts[key]["boolean"]++;
+        else if (!isNaN(+value) && /^-?[0-9]+$/.test(value))
+          typeCounts[key]["integer"]++;
+        else if (!isNaN(+value)) typeCounts[key]["number"]++;
+        else if (
+          value.match(
+            /^([-+]\d{2})?\d{4}(-\d{2}(-\d{2})?)?(T\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/
+          )
+        )
+          typeCounts[key]["date"]++;
+        else if (value.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4}) (\d{2}):(\d{2})/))
+          typeCounts[key]["date"]++;
+        else if (value.match(/(\d{4})-(\d{1,2})-(\d{1,2})/))
+          typeCounts[key]["date"]++;
+        else typeCounts[key]["string"]++;
+      }
+    }
+  });
+  const columns = Object.keys(typeCounts);
+  for (const col of columns) {
+    // sort descending so most commonly encoutered type is first
+    const typesSorted = Object.keys(typeCounts[col]).sort(function (a, b) {
+      return typeCounts[col][b] - typeCounts[col][a];
+    });
+    let type = typesSorted[0];
+    if (type === "other") {
+      // take the next-most-encountered type if most are "other", but only if
+      // its tally is greater than the next one in the list
+      if (typeCounts[typesSorted[1]] > typeCounts[typesSorted[2]])
+        type = typesSorted[1];
+      // else we could iterate over the sample and use the first encountered type
+    }
+    schema.push({
+      name: col,
+      type: type
+    });
+  }
+  return schema;
 }
