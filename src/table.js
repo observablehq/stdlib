@@ -191,8 +191,8 @@ function sourceCache(loadSource) {
 const loadTableDataSource = sourceCache(async (source, name) => {
   if (source instanceof FileAttachment) {
     switch (source.mimeType) {
-      case "text/csv": return source.csv({typed: true});
-      case "text/tab-separated-values": return source.tsv({typed: true});
+      case "text/csv": return source.csv();
+      case "text/tab-separated-values": return source.tsv();
       case "application/json": return source.json();
       case "application/x-sqlite3": return source.sqlite();
     }
