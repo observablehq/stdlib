@@ -544,7 +544,7 @@ export function getTypeValidator(colType) {
 // function to do table operations on in-memory data?
 export function __table(source, operations) {
   let {schema, columns} = source;
-  if (!schema) source.schema = inferSchema(source);
+  if (!schema || !isValidSchema(schema)) source.schema = inferSchema(source);
   const input = source;
   let primitive = arrayIsPrimitive(source);
   if (primitive) source = Array.from(source, (value) => ({value}));
@@ -666,6 +666,13 @@ export function __table(source, operations) {
     if (columns) source.columns = columns;
   }
   return source;
+}
+
+function isValidSchema(schema) {
+  if (!schema || !Array.isArray(schema)) return;
+  return schema.every((s) => {
+    s && typeof s.name === "string" && typeof s.type === "string";
+  });
 }
 
 function initKey() {
