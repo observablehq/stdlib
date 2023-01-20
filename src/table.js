@@ -693,7 +693,10 @@ function initKey() {
 function inferSchema(source) {
   const schema = [];
   const sampleSize = 100;
-  const sample = source.slice(0, sampleSize);
+  let sample = source.slice(0, sampleSize);
+  if (arrayIsPrimitive(sample)) {
+    sample = sample.map(d => {return {value: d};});
+  }
   const typeCounts = {};
   sample.map((d) => {
     for (const key in d) {
