@@ -454,9 +454,10 @@ describe("__table", () => {
     const operationsNullColumns = {...EMPTY_TABLE_DATA.operations, select: {columns: null}};
     assert.deepStrictEqual(__table(source, operationsNullColumns), source);
     const operationsEmptyColumns = {...EMPTY_TABLE_DATA.operations, select: {columns: []}};
-    assert.deepStrictEqual(__table(source, operationsEmptyColumns), [{}, {}, {}]);
+    // comparing the result of .slice() removes schema from the comparison
+    assert.deepStrictEqual(__table(source, operationsEmptyColumns).slice(), [{}, {}, {}]);
     const operationsSelectedColumns = {...EMPTY_TABLE_DATA.operations, select: {columns: ["a"]}};
-    assert.deepStrictEqual(__table(source, operationsSelectedColumns), [{a: 1}, {a: 2}, {a: 3}]);
+    assert.deepStrictEqual(__table(source, operationsSelectedColumns).slice(), [{a: 1}, {a: 2}, {a: 3}]);
   });
 
   it("__table unknown filter", () => {
@@ -480,7 +481,8 @@ describe("__table", () => {
         {type: "gt", operands: [{type: "column", value: "b"}, {type: "resolved", value: 2}]}
       ]
     };
-    assert.deepStrictEqual(__table(source, operationsComparison), [{a: 2, b: 4, c: 6}]);
+    // comparing the result of .slice() removes schema from the comparison
+    assert.deepStrictEqual(__table(source, operationsComparison).slice(), [{a: 2, b: 4, c: 6}]);
   });
 
   it("__table filter lte + gte", () => {
@@ -496,7 +498,8 @@ describe("__table", () => {
         {type: "gte", operands: [{type: "column", value: "b"}, {type: "resolved", value: 2.5}]}
       ]
     };
-    assert.deepStrictEqual(__table(source, operationsComparison), [{a: 2, b: 4, c: 6}]);
+    // comparing the result of .slice() removes schema from the comparison
+    assert.deepStrictEqual(__table(source, operationsComparison).slice(), [{a: 2, b: 4, c: 6}]);
   });
 
   it("__table filter primitive lte + gte", () => {
@@ -526,8 +529,9 @@ describe("__table", () => {
       [{a: 3, b: 6, c: 9}, {a: 2, b: 4, c: 6}, {a: 1, b: 2, c: 3}]
     );
     const operationsAsc = {...EMPTY_TABLE_DATA.operations, sort: [{column: "a", direction: "asc"}]};
+    // comparing the result of .slice() removes schema from the comparison
     assert.deepStrictEqual(
-      __table(source, operationsAsc),
+      __table(source, operationsAsc).slice(),
       [{a: 1, b: 2, c: 3}, {a: 2, b: 4, c: 6}, {a: 3, b: 6, c: 9}]
     );
     const sourceExtended = [...source, {a: 1, b: 3, c: 3}, {a: 1, b: 5, c: 3}];
@@ -549,8 +553,9 @@ describe("__table", () => {
       [{a: 20}, {a: 10}, {a: 5}, {a: 1}, {a: null}, {a: undefined}, {a: NaN}, {a: null}]
     );
     const operationsAsc = {...EMPTY_TABLE_DATA.operations, sort: [{column: "a", direction: "asc"}]};
+    // comparing the result of .slice() removes schema from the comparison
     assert.deepStrictEqual(
-      __table(sourceWithMissing, operationsAsc),
+      __table(sourceWithMissing, operationsAsc).slice(),
       [{a: 1}, {a: 5}, {a: 10}, {a: 20}, {a: null}, {a: undefined}, {a: NaN}, {a: null}]
     );
   });
@@ -561,8 +566,9 @@ describe("__table", () => {
       __table(source, operations),
       [{a: 3, b: 6, c: 9}, {a: 2, b: 4, c: 6}, {a: 1, b: 2, c: 3}]
     );
+    // comparing the result of .slice() removes schema from the comparison
     assert.deepStrictEqual(
-      source,
+      source.slice(),
       [{a: 1, b: 2, c: 3}, {a: 2, b: 4, c: 6}, {a: 3, b: 6, c: 9}]
     );
   });
@@ -571,15 +577,23 @@ describe("__table", () => {
     const operationsToNull = {...EMPTY_TABLE_DATA.operations, slice: {from: 1, to: null}};
     assert.deepStrictEqual(__table(source, operationsToNull), [{a: 2, b: 4, c: 6}, {a: 3, b: 6, c: 9}]);
     const operationsFromNull = {...EMPTY_TABLE_DATA.operations, slice: {from: null, to: 1}};
-    assert.deepStrictEqual(__table(source, operationsFromNull), [{a: 1, b: 2, c: 3}]);
+    // comparing the result of .slice() removes schema from the comparison
+    assert.deepStrictEqual(__table(source, operationsFromNull).slice(), [{a: 1, b: 2, c: 3}]);
     const operations = {...EMPTY_TABLE_DATA.operations, slice: {from: 1, to: 2}};
-    assert.deepStrictEqual(__table(source, operations), [{a: 2, b: 4, c: 6}]);
+    assert.deepStrictEqual(__table(source, operations).slice(), [{a: 2, b: 4, c: 6}]);
   });
 
   it("__table retains schema and columns info", () => {
     source.columns = ["a", "b", "c"];
     assert.deepStrictEqual(__table(source, EMPTY_TABLE_DATA.operations).columns, ["a", "b", "c"]);
     source.schema = [{name: "a", type: "number"}, {name: "b", type: "number"}, {name: "c", type: "number"}];
+    assert.deepStrictEqual(
+      __table(source, EMPTY_TABLE_DATA.operations).schema,
+      [{name: "a", type: "number"}, {name: "b", type: "number"}, {name: "c", type: "number"}]
+    );
+  });
+
+  it("__table infers schema", () => {
     assert.deepStrictEqual(
       __table(source, EMPTY_TABLE_DATA.operations).schema,
       [{name: "a", type: "number"}, {name: "b", type: "number"}, {name: "c", type: "number"}]
