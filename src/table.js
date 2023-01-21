@@ -695,7 +695,9 @@ function inferSchema(source) {
   const sampleSize = 100;
   let sample = source.slice(0, sampleSize);
   if (arrayIsPrimitive(sample)) {
-    sample = sample.map(d => {return {value: d};});
+    sample = sample.map((d) => {
+      return {value: d};
+    });
   }
   const typeCounts = {};
   sample.map((d) => {
@@ -713,8 +715,7 @@ function inferSchema(source) {
         else if (value instanceof ArrayBuffer) typeCounts[key]["buffer"]++;
         else if (type in typeCounts[key]) typeCounts[key][type]++; // number, bigint, boolean, or object
       } else {
-        if (value === "true" || value === "false")
-          typeCounts[key]["boolean"]++;
+        if (value === "true" || value === "false") typeCounts[key]["boolean"]++;
         else if (!isNaN(+value) && /^-?[0-9]+$/.test(value))
           typeCounts[key]["integer"]++;
         else if (!isNaN(+value)) typeCounts[key]["number"]++;
