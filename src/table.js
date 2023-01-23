@@ -538,6 +538,41 @@ export function getTypeValidator(colType) {
   }
 }
 
+// Function to get the correct validity checking function based on type
+export function coerceToType(value, colType) {
+  let m;
+  switch (colType) {
+    case "string":
+      return `${value}`;
+    case "bigint":
+      return isNaN(Number(value)) ? null : BigInt(value);
+    case "boolean":
+      return (value === true || value === "true") ? true : 
+        value === false || value === "false" ? false : null;
+    case "number":
+      return isNaN(Number(value)) ? value : Number(value);
+    case "date":
+       if (m = value.match(/^([-+]\d{2})?\d{4}(-\d{2}(-\d{2})?)?(T\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/)) {
+        if (fixtz && !!m[4] && !m[7]) value = value.replace(/-/g, "/").replace(/T/, " ");
+        return new Date(value);
+      }
+      return null;
+    default: 
+      return value;
+    // case "buffer":
+    //   return isValidBuffer;
+    // case "array":
+    //   return isValidArray;
+    // case "object":
+    //   return isValidObject;
+    // case "other":
+    // default:
+    //   return isValidOther;
+  }
+}
+
+// cache the types -- probably an awful idea
+let opTypes;
 // This function applies table cell operations to an in-memory table (array of
 // objects); it should be equivalent to the corresponding SQL query. TODO Use
 // DuckDBClient for data arrays, too, and then we wouldn’t need our own __table
@@ -547,6 +582,11 @@ export function __table(source, operations) {
   let {schema, columns} = source;
   let primitive = arrayIsPrimitive(source);
   if (primitive) source = Array.from(source, (value) => ({value}));
+  // Combine column types from schema with user selected types in operations
+  const types = new Map(schema?.map(({name, type}) => [name, type]));
+  if (operations.type) opTypes = operations.type;
+  opTypes?.forEach(({column, type}) => types.set(column, type));
+  source = source.map(d => coerceRow(d, types));
   for (const {type, operands} of operations.filter) {
     const [{value: column}] = operands;
     const values = operands.slice(1).map(({value}) => value);
@@ -666,3 +706,15 @@ export function __table(source, operations) {
   }
   return source;
 }
+
+export default function coerceRow(object, types) {
+  for (var key in object) {
+    const type = types.get(key);
+    const value = object[key];
+    object[key] = coerceToType(value, type);
+  }
+  return object;
+}
+
+// https://github.com/d3/d3-dsv/issues/45
+const fixtz = new Date("2019-01-01T00:00").getHours() || new Date("2019-07-01T00:00").getHours();
