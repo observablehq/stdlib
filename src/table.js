@@ -700,41 +700,40 @@ function inferSchema(source) {
     });
   }
   const typeCounts = {};
-  sample.map((d) => {
+  for (const d of sample) {
     for (const key in d) {
       if (!typeCounts[key]) typeCounts[key] = initKey();
       // for json and sqlite, we already have some types, but for csv and tsv, all
       // columns are strings here.
       const type = typeof d[key];
-      const value = type === "string" ? d[key]?.trim() : d[key];
+      const value = type === "string" ? d[key].trim() : d[key];
       if (value === null || value === undefined || value.length === 0)
-        typeCounts[key]["other"]++;
+        typeCounts[key].other++;
       else if (type !== "string") {
-        if (Array.isArray(value)) typeCounts[key]["array"]++;
-        else if (value instanceof Date) typeCounts[key]["date"]++;
-        else if (value instanceof ArrayBuffer) typeCounts[key]["buffer"]++;
+        if (Array.isArray(value)) typeCounts[key].array++;
+        else if (value instanceof Date) typeCounts[key].date++;
+        else if (value instanceof ArrayBuffer) typeCounts[key].buffer++;
         else if (type in typeCounts[key]) typeCounts[key][type]++; // number, bigint, boolean, or object
       } else {
-        if (value === "true" || value === "false") typeCounts[key]["boolean"]++;
-        else if (!isNaN(+value) && /^-?[0-9]+$/.test(value))
-          typeCounts[key]["integer"]++;
-        else if (!isNaN(+value)) typeCounts[key]["number"]++;
-        else if (
+        if (value === "true" || value === "false") typeCounts[key].boolean++;
+        else if (!isNaN(value)) {
+          if (/^-?[0-9]+$/.test(value)) typeCounts[key].integer++;
+          else typeCounts[key].number++;
+        } else if (
           value.match(
             /^([-+]\d{2})?\d{4}(-\d{2}(-\d{2})?)?(T\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/
           )
         )
-          typeCounts[key]["date"]++;
+          typeCounts[key].date++;
         else if (value.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4}) (\d{2}):(\d{2})/))
-          typeCounts[key]["date"]++;
+          typeCounts[key].date++;
         else if (value.match(/(\d{4})-(\d{1,2})-(\d{1,2})/))
-          typeCounts[key]["date"]++;
-        else typeCounts[key]["string"]++;
+          typeCounts[key].date++;
+        else typeCounts[key].string++;
       }
     }
-  });
-  const columns = Object.keys(typeCounts);
-  for (const col of columns) {
+  }
+  for (const col in typeCounts) {
     // sort descending so most commonly encoutered type is first
     const typesSorted = Object.keys(typeCounts[col]).sort(function (a, b) {
       return typeCounts[col][b] - typeCounts[col][a];
