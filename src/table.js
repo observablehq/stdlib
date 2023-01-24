@@ -577,17 +577,17 @@ export function coerceToType(value, colType) {
 // DuckDBClient for data arrays, too, and then we wouldn’t need our own __table
 // function to do table operations on in-memory data?
 export function __table(source, operations) {
+  const input = source;
   let {schema, columns} = source;
   let newlyInferred = false;
-    source.schema = inferSchema(source);
   if (!schema || !isQueryResultSetSchema(schema)) {
+    schema = inferSchema(source);
     newlyInferred = true;
   }
-  const input = source;
   let primitive = arrayIsPrimitive(source);
   if (primitive) source = Array.from(source, (value) => ({value}));
   // Combine column types from schema with user selected types in operations
-  const types = new Map(source.schema.map(({name, type}) => [name, type]));
+  const types = new Map(schema.map(({name, type}) => [name, type]));
   if (operations.type || newlyInferred) {
     operations.type?.forEach(({column, type}) => types.set(column, type));
     source = source.map(d => coerceRow(d, types));
