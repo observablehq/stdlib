@@ -1,4 +1,4 @@
-import {reverse} from "d3-array";
+import {greatest, reverse} from "d3-array";
 import {FileAttachment} from "./fileAttachment.js";
 import {isArqueroTable} from "./arquero.js";
 import {isArrowTable, loadArrow} from "./arrow.js";
@@ -766,13 +766,13 @@ export function inferSchema(source) {
       // columns are strings here.
       const type = typeof d[key];
       const value = type === "string" ? d[key].trim() : d[key];
-      if (value === null || value === undefined || value.length === 0)
-        typeCounts[key].other++;
-      else if (type !== "string") {
+      if (type !== "string") {
         if (Array.isArray(value)) typeCounts[key].array++;
         else if (value instanceof Date) typeCounts[key].date++;
         else if (value instanceof ArrayBuffer) typeCounts[key].buffer++;
-        else if (type in typeCounts[key]) typeCounts[key][type]++; // number, bigint, boolean, or object
+        // number, bigint, boolean, or object
+        else if (type in typeCounts[key]) typeCounts[key][type]++;
+        else if (value !== null && value !== undefined) typeCounts[key].other++;
       } else {
         if (value === "true" || value === "false") typeCounts[key].boolean++;
         else if (!isNaN(value)) {
@@ -789,21 +789,9 @@ export function inferSchema(source) {
     }
   }
   for (const col in typeCounts) {
-    // sort descending so most commonly encoutered type is first
-    const typesSorted = Object.keys(typeCounts[col]).sort(function (a, b) {
-      return typeCounts[col][b] - typeCounts[col][a];
-    });
-    let type = typesSorted[0];
-    if (type === "other") {
-      // take the next-most-encountered type if most are "other", but only if
-      // its tally is greater than the next one in the list
-      if (typeCounts[typesSorted[1]] > typeCounts[typesSorted[2]])
-        type = typesSorted[1];
-      // else we could iterate over the sample and use the first encountered type
-    }
     schema.push({
       name: col,
-      type: type
+      type: greatest(Object.keys(typeCounts[col]), (d) => typeCounts[col][d])
     });
   }
   return schema;
