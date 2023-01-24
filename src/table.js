@@ -66,7 +66,7 @@ function objectHasEnumerableKeys(value) {
 }
 
 function isQueryResultSetSchema(schemas) {
-  return (Array.isArray(schemas) && schemas.every((s) => s && typeof s.name === "string"));
+  return (Array.isArray(schemas) && schemas.every((s) => s && typeof s.name === "string" && typeof s.type === "string"));
 }
 
 function isQueryResultSetColumns(columns) {
@@ -579,8 +579,8 @@ export function coerceToType(value, colType) {
 export function __table(source, operations) {
   let {schema, columns} = source;
   let newlyInferred = false;
-  if (!schema || !isValidSchema(schema)) {
     source.schema = inferSchema(source);
+  if (!schema || !isQueryResultSetSchema(schema)) {
     newlyInferred = true;
   }
   const input = source;
@@ -710,13 +710,6 @@ export function __table(source, operations) {
     if (columns) source.columns = columns;
   }
   return source;
-}
-
-function isValidSchema(schema) {
-  if (!schema || !Array.isArray(schema)) return;
-  return schema.every((s) => {
-    s && typeof s.name === "string" && typeof s.type === "string";
-  });
 }
 
 export default function coerceRow(object, types) {
