@@ -545,6 +545,7 @@ export function coerceToType(value, colType) {
     case "string":
       return `${value}`;
     case "bigint":
+      // eslint-disable-next-line no-undef
       return isNaN(Number(value)) ? null : BigInt(value);
       case "boolean":
         return (value === true || value === "true") ? true : 
@@ -552,6 +553,7 @@ export function coerceToType(value, colType) {
       case "number":
         return isNaN(Number(value)) ? value : Number(value);
       case "date":
+         if (value instanceof Date) return value;
          if (m = value.match(/^([-+]\d{2})?\d{4}(-\d{2}(-\d{2})?)?(T\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/)) {
           if (fixtz && !!m[4] && !m[7]) value = value.replace(/-/g, "/").replace(/T/, " ");
           return new Date(value);
@@ -589,7 +591,7 @@ export function __table(source, operations) {
   // Combine column types from schema with user-selected types in operations
   const types = new Map(schema.map(({name, type}) => [name, type]));
   if (operations.type) {
-    for (const {name, type} of operations.type) { 
+    for (const {name, type} of operations.type) {
       types.set(name, type);
       source = source.map(d => coerceRow(d, types));
       // update schema with user-selected type
