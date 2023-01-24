@@ -443,21 +443,51 @@ describe("__table", () => {
   let source;
 
   beforeEach(() => {
-    source = [{a: 1, b: 2, c: 3}, {a: 2, b: 4, c: 6}, {a: 3, b: 6, c: 9}];
+    source = [
+      {a: 1, b: 2, c: 3},
+      {a: 2, b: 4, c: 6},
+      {a: 3, b: 6, c: 9}
+    ];
+    source.schema = [
+      {name: "a", type: "number"},
+      {name: "b", type: "number"},
+      {name: "c", type: "number"}
+    ];
   });
 
   it("__table no operations", () => {
-    assert.deepStrictEqual(__table(source, EMPTY_TABLE_DATA.operations), source);
+    assert.deepStrictEqual(
+      __table(source, EMPTY_TABLE_DATA.operations),
+      source
+    );
   });
 
   it("__table columns", () => {
-    const operationsNullColumns = {...EMPTY_TABLE_DATA.operations, select: {columns: null}};
+    const operationsNullColumns = {
+      ...EMPTY_TABLE_DATA.operations,
+      select: {columns: null}
+    };
     assert.deepStrictEqual(__table(source, operationsNullColumns), source);
-    const operationsEmptyColumns = {...EMPTY_TABLE_DATA.operations, select: {columns: []}};
-    // comparing the result of .slice() removes schema from the comparison
-    assert.deepStrictEqual(__table(source, operationsEmptyColumns).slice(), [{}, {}, {}]);
-    const operationsSelectedColumns = {...EMPTY_TABLE_DATA.operations, select: {columns: ["a"]}};
-    assert.deepStrictEqual(__table(source, operationsSelectedColumns).slice(), [{a: 1}, {a: 2}, {a: 3}]);
+    const operationsEmptyColumns = {
+      ...EMPTY_TABLE_DATA.operations,
+      select: {columns: []}
+    };
+    const expectedEmpty = [{}, {}, {}];
+    expectedEmpty.schema = [];
+    assert.deepStrictEqual(
+      __table(source, operationsEmptyColumns),
+      expectedEmpty
+    );
+    const operationsSelectedColumns = {
+      ...EMPTY_TABLE_DATA.operations,
+      select: {columns: ["a"]}
+    };
+    const expectedSelected = [{a: 1}, {a: 2}, {a: 3}];
+    expectedSelected.schema = [{name: "a", type: "number"}];
+    assert.deepStrictEqual(
+      __table(source, operationsSelectedColumns),
+      expectedSelected
+    );
   });
 
   it("__table unknown filter", () => {
@@ -465,138 +495,338 @@ describe("__table", () => {
       ...EMPTY_TABLE_DATA.operations,
       filter: [{type: "xyz", operands: [{type: "column", value: "a"}]}]
     };
-    assert.throws(() => __table(source, operations), /unknown filter type: xyz/);
+    assert.throws(
+      () => __table(source, operations),
+      /unknown filter type: xyz/
+    );
   });
 
   it("__table filter lt + gt", () => {
     const operationsEquals = {
       ...EMPTY_TABLE_DATA.operations,
-      filter: [{type: "eq", operands: [{type: "column", value: "a"}, {type: "resolved", value: 1}]}]
+      filter: [
+        {
+          type: "eq",
+          operands: [
+            {type: "column", value: "a"},
+            {type: "resolved", value: 1}
+          ]
+        }
+      ]
     };
-    assert.deepStrictEqual(__table(source, operationsEquals), [{a: 1, b: 2, c: 3}]);
+    const expectedEq = [{a: 1, b: 2, c: 3}];
+    expectedEq.schema = source.schema;
+    assert.deepStrictEqual(__table(source, operationsEquals), expectedEq);
     const operationsComparison = {
       ...EMPTY_TABLE_DATA.operations,
       filter: [
-        {type: "lt", operands: [{type: "column", value: "a"}, {type: "resolved", value: 3}]},
-        {type: "gt", operands: [{type: "column", value: "b"}, {type: "resolved", value: 2}]}
+        {
+          type: "lt",
+          operands: [
+            {type: "column", value: "a"},
+            {type: "resolved", value: 3}
+          ]
+        },
+        {
+          type: "gt",
+          operands: [
+            {type: "column", value: "b"},
+            {type: "resolved", value: 2}
+          ]
+        }
       ]
     };
-    // comparing the result of .slice() removes schema from the comparison
-    assert.deepStrictEqual(__table(source, operationsComparison).slice(), [{a: 2, b: 4, c: 6}]);
+    const expectedLtGt = [{a: 2, b: 4, c: 6}];
+    expectedLtGt.schema = source.schema;
+    assert.deepStrictEqual(__table(source, operationsComparison), expectedLtGt);
   });
 
   it("__table filter lte + gte", () => {
     const operationsEquals = {
       ...EMPTY_TABLE_DATA.operations,
-      filter: [{type: "eq", operands: [{type: "column", value: "a"}, {type: "resolved", value: 1}]}]
+      filter: [
+        {
+          type: "eq",
+          operands: [
+            {type: "column", value: "a"},
+            {type: "resolved", value: 1}
+          ]
+        }
+      ]
     };
-    assert.deepStrictEqual(__table(source, operationsEquals), [{a: 1, b: 2, c: 3}]);
+    const expectedEq = [{a: 1, b: 2, c: 3}];
+    expectedEq.schema = source.schema;
+    assert.deepStrictEqual(__table(source, operationsEquals), expectedEq);
     const operationsComparison = {
       ...EMPTY_TABLE_DATA.operations,
       filter: [
-        {type: "lte", operands: [{type: "column", value: "a"}, {type: "resolved", value: 2.5}]},
-        {type: "gte", operands: [{type: "column", value: "b"}, {type: "resolved", value: 2.5}]}
+        {
+          type: "lte",
+          operands: [
+            {type: "column", value: "a"},
+            {type: "resolved", value: 2.5}
+          ]
+        },
+        {
+          type: "gte",
+          operands: [
+            {type: "column", value: "b"},
+            {type: "resolved", value: 2.5}
+          ]
+        }
       ]
     };
-    // comparing the result of .slice() removes schema from the comparison
-    assert.deepStrictEqual(__table(source, operationsComparison).slice(), [{a: 2, b: 4, c: 6}]);
+    const expectedLteGte = [{a: 2, b: 4, c: 6}];
+    expectedLteGte.schema = source.schema;
+    assert.deepStrictEqual(
+      __table(source, operationsComparison),
+      expectedLteGte
+    );
   });
 
   it("__table filter primitive lte + gte", () => {
-    assert.deepStrictEqual(__table([1, 2, 3], {
-      ...EMPTY_TABLE_DATA.operations,
-      filter: [{type: "eq", operands: [{type: "column", value: "value"}, {type: "resolved", value: 1}]}]
-    }), [1]);
-    assert.deepStrictEqual(__table(Uint32Array.of(1, 2, 3), {
-      ...EMPTY_TABLE_DATA.operations,
-      filter: [{type: "eq", operands: [{type: "column", value: "value"}, {type: "resolved", value: 1}]}]
-    }), [1]);
+    const expectedPrimitive = [1];
+    expectedPrimitive.schema = [{name: "value", type: "number"}];
+    assert.deepStrictEqual(
+      __table([1, 2, 3], {
+        ...EMPTY_TABLE_DATA.operations,
+        filter: [
+          {
+            type: "eq",
+            operands: [
+              {type: "column", value: "value"},
+              {type: "resolved", value: 1}
+            ]
+          }
+        ]
+      }),
+      expectedPrimitive
+    );
+    const expectedUint32Array = [1];
+    expectedUint32Array.schema = [];
+    assert.deepStrictEqual(
+      __table(Uint32Array.of(1, 2, 3), {
+        ...EMPTY_TABLE_DATA.operations,
+        filter: [
+          {
+            type: "eq",
+            operands: [
+              {type: "column", value: "value"},
+              {type: "resolved", value: 1}
+            ]
+          }
+        ]
+      }),
+      expectedUint32Array
+    );
   });
 
   it("__table filter eq date", () => {
     const operationsEquals = {
       ...EMPTY_TABLE_DATA.operations,
-      filter: [{type: "eq", operands: [{type: "column", value: "a"}, {type: "resolved", value: new Date("2021-01-02")}]}]
+      filter: [
+        {
+          type: "eq",
+          operands: [
+            {type: "column", value: "a"},
+            {type: "resolved", value: new Date("2021-01-02")}
+          ]
+        }
+      ]
     };
-    const source = [{a: new Date("2021-01-01")}, {a: new Date("2021-01-02")}, {a: new Date("2021-01-03")}];
-    assert.deepStrictEqual(__table(source, operationsEquals), [{a: new Date("2021-01-02")}]);
+    const source = [
+      {a: new Date("2021-01-01")},
+      {a: new Date("2021-01-02")},
+      {a: new Date("2021-01-03")}
+    ];
+    const expected = [{a: new Date("2021-01-02")}];
+    expected.schema = [{name: "a", type: "date"}];
+    assert.deepStrictEqual(__table(source, operationsEquals), expected);
   });
 
   it("__table sort", () => {
-    const operationsDesc = {...EMPTY_TABLE_DATA.operations, sort: [{column: "a", direction: "desc"}]};
-    assert.deepStrictEqual(
-      __table(source, operationsDesc),
-      [{a: 3, b: 6, c: 9}, {a: 2, b: 4, c: 6}, {a: 1, b: 2, c: 3}]
-    );
-    const operationsAsc = {...EMPTY_TABLE_DATA.operations, sort: [{column: "a", direction: "asc"}]};
-    // comparing the result of .slice() removes schema from the comparison
-    assert.deepStrictEqual(
-      __table(source, operationsAsc).slice(),
-      [{a: 1, b: 2, c: 3}, {a: 2, b: 4, c: 6}, {a: 3, b: 6, c: 9}]
-    );
+    const operationsDesc = {
+      ...EMPTY_TABLE_DATA.operations,
+      sort: [{column: "a", direction: "desc"}]
+    };
+    const expectedDesc = [
+      {a: 3, b: 6, c: 9},
+      {a: 2, b: 4, c: 6},
+      {a: 1, b: 2, c: 3}
+    ];
+    expectedDesc.schema = source.schema;
+    assert.deepStrictEqual(__table(source, operationsDesc), expectedDesc);
+    const operationsAsc = {
+      ...EMPTY_TABLE_DATA.operations,
+      sort: [{column: "a", direction: "asc"}]
+    };
+    const expectedAsc = [
+      {a: 1, b: 2, c: 3},
+      {a: 2, b: 4, c: 6},
+      {a: 3, b: 6, c: 9}
+    ];
+    expectedAsc.schema = source.schema;
+    assert.deepStrictEqual(__table(source, operationsAsc), expectedAsc);
     const sourceExtended = [...source, {a: 1, b: 3, c: 3}, {a: 1, b: 5, c: 3}];
     const operationsMulti = {
       ...EMPTY_TABLE_DATA.operations,
-      sort: [{column: "a", direction: "desc"}, {column: "b", direction: "desc"}]
+      sort: [
+        {column: "a", direction: "desc"},
+        {column: "b", direction: "desc"}
+      ]
     };
+    const expectedExtended = [
+      {a: 3, b: 6, c: 9},
+      {a: 2, b: 4, c: 6},
+      {a: 1, b: 5, c: 3},
+      {a: 1, b: 3, c: 3},
+      {a: 1, b: 2, c: 3}
+    ];
+    expectedExtended.schema = source.schema;
     assert.deepStrictEqual(
       __table(sourceExtended, operationsMulti),
-      [{a: 3, b: 6, c: 9}, {a: 2, b: 4, c: 6}, {a: 1, b: 5, c: 3}, {a: 1, b: 3, c: 3}, {a: 1, b: 2, c: 3}]
+      expectedExtended
     );
   });
 
   it("__table sort missing values", () => {
-    const sourceWithMissing = [{a: 1}, {a: null}, {a: undefined}, {a: 10}, {a: 5}, {a: NaN}, {a: null}, {a: 20}];
-    const operationsDesc = {...EMPTY_TABLE_DATA.operations, sort: [{column: "a", direction: "desc"}]};
+    const sourceWithMissing = [
+      {a: 1},
+      {a: null},
+      {a: undefined},
+      {a: 10},
+      {a: 5},
+      {a: NaN},
+      {a: null},
+      {a: 20}
+    ];
+    const operationsDesc = {
+      ...EMPTY_TABLE_DATA.operations,
+      sort: [{column: "a", direction: "desc"}]
+    };
+    const expectedDesc = [
+      {a: 20},
+      {a: 10},
+      {a: 5},
+      {a: 1},
+      {a: 0},
+      {a: 0},
+      {a: undefined},
+      {a: NaN}
+    ];
+    expectedDesc.schema = [{name: "a", type: "number"}];
     assert.deepStrictEqual(
       __table(sourceWithMissing, operationsDesc),
-      [{a: 20}, {a: 10}, {a: 5}, {a: 1}, {a: null}, {a: undefined}, {a: NaN}, {a: null}]
+      expectedDesc
     );
-    const operationsAsc = {...EMPTY_TABLE_DATA.operations, sort: [{column: "a", direction: "asc"}]};
-    // comparing the result of .slice() removes schema from the comparison
+    const operationsAsc = {
+      ...EMPTY_TABLE_DATA.operations,
+      sort: [{column: "a", direction: "asc"}]
+    };
+    const expectedAsc = [
+      {a: 0},
+      {a: 0},
+      {a: 1},
+      {a: 5},
+      {a: 10},
+      {a: 20},
+      {a: undefined},
+      {a: NaN}
+    ];
+    expectedAsc.schema = [{name: "a", type: "number"}];
     assert.deepStrictEqual(
-      __table(sourceWithMissing, operationsAsc).slice(),
-      [{a: 1}, {a: 5}, {a: 10}, {a: 20}, {a: null}, {a: undefined}, {a: NaN}, {a: null}]
+      __table(sourceWithMissing, operationsAsc),
+      expectedAsc
     );
   });
 
   it("__table sort does not mutate input", () => {
-    const operations = {...EMPTY_TABLE_DATA.operations, sort: [{column: "a", direction: "desc"}]};
-    assert.deepStrictEqual(
-      __table(source, operations),
-      [{a: 3, b: 6, c: 9}, {a: 2, b: 4, c: 6}, {a: 1, b: 2, c: 3}]
-    );
-    // comparing the result of .slice() removes schema from the comparison
-    assert.deepStrictEqual(
-      source.slice(),
-      [{a: 1, b: 2, c: 3}, {a: 2, b: 4, c: 6}, {a: 3, b: 6, c: 9}]
-    );
+    const operations = {
+      ...EMPTY_TABLE_DATA.operations,
+      sort: [{column: "a", direction: "desc"}]
+    };
+    const sorted = [
+      {a: 3, b: 6, c: 9},
+      {a: 2, b: 4, c: 6},
+      {a: 1, b: 2, c: 3}
+    ];
+    sorted.schema = source.schema;
+    assert.deepStrictEqual(__table(source, operations), sorted);
+    const originalOrder = [
+      {a: 1, b: 2, c: 3},
+      {a: 2, b: 4, c: 6},
+      {a: 3, b: 6, c: 9}
+    ];
+    originalOrder.schema = source.schema;
+    assert.deepStrictEqual(source, originalOrder);
   });
 
   it("__table slice", () => {
-    const operationsToNull = {...EMPTY_TABLE_DATA.operations, slice: {from: 1, to: null}};
-    assert.deepStrictEqual(__table(source, operationsToNull), [{a: 2, b: 4, c: 6}, {a: 3, b: 6, c: 9}]);
-    const operationsFromNull = {...EMPTY_TABLE_DATA.operations, slice: {from: null, to: 1}};
-    // comparing the result of .slice() removes schema from the comparison
-    assert.deepStrictEqual(__table(source, operationsFromNull).slice(), [{a: 1, b: 2, c: 3}]);
-    const operations = {...EMPTY_TABLE_DATA.operations, slice: {from: 1, to: 2}};
-    assert.deepStrictEqual(__table(source, operations).slice(), [{a: 2, b: 4, c: 6}]);
+    const operationsToNull = {
+      ...EMPTY_TABLE_DATA.operations,
+      slice: {from: 1, to: null}
+    };
+    const expectedToNull = [
+      {a: 2, b: 4, c: 6},
+      {a: 3, b: 6, c: 9}
+    ];
+    expectedToNull.schema = source.schema;
+    assert.deepStrictEqual(__table(source, operationsToNull), expectedToNull);
+    const operationsFromNull = {
+      ...EMPTY_TABLE_DATA.operations,
+      slice: {from: null, to: 1}
+    };
+    const expectedFromNull = [{a: 1, b: 2, c: 3}];
+    expectedFromNull.schema = source.schema;
+    assert.deepStrictEqual(
+      __table(source, operationsFromNull),
+      expectedFromNull
+    );
+    const operations = {
+      ...EMPTY_TABLE_DATA.operations,
+      slice: {from: 1, to: 2}
+    };
+    const expectedSlice = [{a: 2, b: 4, c: 6}];
+    expectedSlice.schema = source.schema;
+    assert.deepStrictEqual(__table(source, operations), expectedSlice);
   });
 
   it("__table retains schema and columns info", () => {
     source.columns = ["a", "b", "c"];
-    assert.deepStrictEqual(__table(source, EMPTY_TABLE_DATA.operations).columns, ["a", "b", "c"]);
-    source.schema = [{name: "a", type: "number"}, {name: "b", type: "number"}, {name: "c", type: "number"}];
+    assert.deepStrictEqual(
+      __table(source, EMPTY_TABLE_DATA.operations).columns,
+      ["a", "b", "c"]
+    );
+    source.schema = [
+      {name: "a", type: "number"},
+      {name: "b", type: "number"},
+      {name: "c", type: "number"}
+    ];
     assert.deepStrictEqual(
       __table(source, EMPTY_TABLE_DATA.operations).schema,
-      [{name: "a", type: "number"}, {name: "b", type: "number"}, {name: "c", type: "number"}]
+      [
+        {name: "a", type: "number"},
+        {name: "b", type: "number"},
+        {name: "c", type: "number"}
+      ]
     );
   });
 
   it("__table infers schema", () => {
     assert.deepStrictEqual(
-      __table(source, EMPTY_TABLE_DATA.operations).schema,
-      [{name: "a", type: "number"}, {name: "b", type: "number"}, {name: "c", type: "number"}]
+      __table(
+        [
+          {a: 1, b: 2, c: 3},
+          {a: 2, b: 4, c: 6},
+          {a: 3, b: 6, c: 9}
+        ],
+        EMPTY_TABLE_DATA.operations
+      ).schema,
+      [
+        {name: "a", type: "number"},
+        {name: "b", type: "number"},
+        {name: "c", type: "number"}
+      ]
     );
   });
 });
