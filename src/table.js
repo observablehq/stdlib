@@ -586,10 +586,19 @@ export function __table(source, operations) {
   }
   let primitive = arrayIsPrimitive(source);
   if (primitive) source = Array.from(source, (value) => ({value}));
-  // Combine column types from schema with user selected types in operations
+  // Combine column types from schema with user-selected types in operations
   const types = new Map(schema.map(({name, type}) => [name, type]));
-  if (operations.type || newlyInferred) {
-    operations.type?.forEach(({column, type}) => types.set(column, type));
+  if (operations.type) {
+    for (const {name, type} of operations.type) { 
+      types.set(name, type);
+      source = source.map(d => coerceRow(d, types));
+      // update schema with user-selected type
+      const colIndex = schema.findIndex((col) => col.name === name);
+      if (colIndex > -1) schema[colIndex] = {name, type};
+     }
+  }
+  // Coerce data according to new schema, unless we already did
+  if (newlyInferred && !operations.type) {
     source = source.map(d => coerceRow(d, types));
   }
   for (const {type, operands} of operations.filter) {
