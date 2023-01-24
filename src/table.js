@@ -780,13 +780,9 @@ export function inferSchema(source) {
           else typeCounts[key].number++;
         } else if (
           value.match(
-            /^([-+]\d{2})?\d{4}(-\d{2}(-\d{2})?)?(T\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/
+            /^(([-+]\d{2})?\d{4}(-\d{1,2}(-\d{1,2})?)|(\d{1,2})\/(\d{1,2})\/(\d{2,4}))?([T ]\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/
           )
         )
-          typeCounts[key].date++;
-        else if (value.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4}) (\d{2}):(\d{2})/))
-          typeCounts[key].date++;
-        else if (value.match(/(\d{4})-(\d{1,2})-(\d{1,2})/))
           typeCounts[key].date++;
         else typeCounts[key].string++;
       }
