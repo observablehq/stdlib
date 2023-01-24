@@ -713,12 +713,13 @@ export function __table(source, operations) {
 }
 
 export default function coerceRow(object, types) {
+  let coerced = {};
   for (var key in object) {
     const type = types.get(key);
     const value = object[key];
-    object[key] = coerceToType(value, type);
+    coerced[key] = coerceToType(value, type);
   }
-  return object;
+  return coerced;
 }
 
 // https://github.com/d3/d3-dsv/issues/45
