@@ -538,45 +538,43 @@ export function getTypeValidator(colType) {
   }
 }
 
-export function coerceToType(value, type) {
+export function coerceToType(value, type, options={}) {
+  const defaultValue = options.soft ? value : null;
   switch (type) {
     case "string":
-      return value === "string" ? value.trim() : value.toString();
+      return value === "string" ? value.trim() : value ? value.toString() : defaultValue;
     case "boolean":
       return value === true || value === "true"
         ? true
         : value === false || value === "false"
         ? false
-        : null;
+        : defaultValue;
     case "integer":
-      return isNaN(parseInt(value)) ? null : parseInt(value);
+      return isNaN(parseInt(value)) ? defaultValue : parseInt(value);
     case "bigint":
       // eslint-disable-next-line no-undef
-      return isNaN(Number(value)) ? null : BigInt(value);
+      return isNaN(Number(value)) ? defaultValue : BigInt(value);
     case "number":
-      return isNaN(Number(value)) ? null : Number(value);
+      return isNaN(Number(value)) ? defaultValue : Number(value);
     case "date": {
       if (value instanceof Date) return value;
-      if (typeof value === "number") return new Date(value);
-      let match;
-      if (
-        (match = value.match(
-          /^(([-+]\d{2})?\d{4}(-\d{1,2}(-\d{1,2})?)|(\d{1,2})\/(\d{1,2})\/(\d{2,4}))?([T ]\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/
-        ))
-      ) {
-        if (fixTz && !!match[4] && !match[7])
-          value = value.replace(/-/g, "/").replace(/T/, " ");
-        const date = new Date(value);
-        return date instanceof Date ? date : null;
+      if (typeof value === "string") {
+        let match;
+        if (match = value.match(/^([-+]\d{2})?\d{4}(-\d{2}(-\d{2})?)?(T\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/)) {
+          if (fixTz && !!match[4] && !match[7]) value = value.replace(/-/g, "/").replace(/T/, " ");
+        }
       }
-      return null;
+      const date = new Date(value);
+      return date instanceof Date ? date : defaultValue;
     }
     case "array":
+      if (Array.isArray(value)) return value;
+      return Array.isArray(Array.from(value)) ? Array.from(value) : defaultValue;
     case "buffer":
     case "object":
     case "other":
     default:
-      return value ? value : null;
+      return value || value === 0 ? value : defaultValue;
   }
 }
 
@@ -605,9 +603,11 @@ export function __table(source, operations) {
       if (colIndex > -1) schema[colIndex] = {name, type};
      }
   }
-  // Coerce data according to new schema, unless we already did
+  // Coerce data according to new schema, unless that happened due to
+  // operations.type, above. If coercing for the first time here, perform with
+  // option {soft: true}, so that original values remain visible.
   if (newlyInferred && !operations.type) {
-    source = source.map(d => coerceRow(d, types));
+    source = source.map(d => coerceRow(d, types, {soft: true}));
   }
   for (const {type, operands} of operations.filter) {
     const [{value: column}] = operands;
@@ -729,12 +729,12 @@ export function __table(source, operations) {
   return source;
 }
 
-export default function coerceRow(object, types) {
+export default function coerceRow(object, types, options) {
   let coerced = {};
   for (var key in object) {
     const type = types.get(key);
     const value = object[key];
-    coerced[key] = coerceToType(value, type);
+    coerced[key] = coerceToType(value, type, options);
   }
   return coerced;
 }
