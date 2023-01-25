@@ -691,28 +691,14 @@ describe("__table", () => {
 
   it("__table sort missing values", () => {
     const sourceWithMissing = [
-      {a: 1},
-      {a: null},
-      {a: undefined},
-      {a: 10},
-      {a: 5},
-      {a: NaN},
-      {a: null},
-      {a: 20}
+      {a: 1}, {a: null}, {a: undefined}, {a: 10}, {a: 5}, {a: NaN}, {a: null}, {a: 20}
     ];
     const operationsDesc = {
       ...EMPTY_TABLE_DATA.operations,
       sort: [{column: "a", direction: "desc"}]
     };
     const expectedDesc = [
-      {a: 20},
-      {a: 10},
-      {a: 5},
-      {a: 1},
-      {a: 0},
-      {a: 0},
-      {a: undefined},
-      {a: NaN}
+      {a: 20}, {a: 10}, {a: 5}, {a: 1}, {a: 0}, {a: 0}, {a: null}, {a: null}
     ];
     expectedDesc.schema = [{name: "a", type: "number"}];
     assert.deepStrictEqual(
@@ -724,14 +710,7 @@ describe("__table", () => {
       sort: [{column: "a", direction: "asc"}]
     };
     const expectedAsc = [
-      {a: 0},
-      {a: 0},
-      {a: 1},
-      {a: 5},
-      {a: 10},
-      {a: 20},
-      {a: undefined},
-      {a: NaN}
+      {a: 0}, {a: 0}, {a: 1}, {a: 5}, {a: 10}, {a: 20}, {a: null}, {a: null}
     ];
     expectedAsc.schema = [{name: "a", type: "number"}];
     assert.deepStrictEqual(
