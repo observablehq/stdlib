@@ -541,7 +541,7 @@ export function getTypeValidator(colType) {
 export function coerceToType(value, type) {
   switch (type) {
     case "string":
-      return value === "string" ? value.trim() : `${value}`;
+      return value === "string" ? value.trim() : value.toString();
     case "boolean":
       return value === true || value === "true"
         ? true
