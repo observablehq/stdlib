@@ -538,41 +538,46 @@ export function getTypeValidator(colType) {
   }
 }
 
-// Function to get the correct validity checking function based on type
-export function coerceToType(value, colType) {
-  let m;
-  switch (colType) {
+export function coerceToType(value, type) {
+  switch (type) {
     case "string":
-      return `${value}`;
+      return value === "string" ? value.trim() : `${value}`;
+    case "boolean":
+      return value === true || value === "true"
+        ? true
+        : value === false || value === "false"
+        ? false
+        : null;
+    case "integer":
+      return isNaN(parseInt(value)) ? null : parseInt(value);
     case "bigint":
       // eslint-disable-next-line no-undef
       return isNaN(Number(value)) ? null : BigInt(value);
-      case "boolean":
-        return (value === true || value === "true") ? true : 
-          value === false || value === "false" ? false : null;
-      case "number":
-        return isNaN(Number(value)) ? value : Number(value);
-      case "date":
-         if (value instanceof Date) return value;
-         if (m = value.match(/^([-+]\d{2})?\d{4}(-\d{2}(-\d{2})?)?(T\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/)) {
-          if (fixtz && !!m[4] && !m[7]) value = value.replace(/-/g, "/").replace(/T/, " ");
-          return new Date(value);
-        }
-        return null;
-      default: 
-        return value;
-      // case "buffer":
-      //   return isValidBuffer;
-      // case "array":
-      //   return isValidArray;
-      // case "object":
-      //   return isValidObject;
-      // case "other":
-      // default:
-      //   return isValidOther;
+    case "number":
+      return isNaN(Number(value)) ? null : Number(value);
+    case "date": {
+      if (value instanceof Date) return value;
+      let match;
+      if (
+        (match = value.match(
+          /^(([-+]\d{2})?\d{4}(-\d{1,2}(-\d{1,2})?)|(\d{1,2})\/(\d{1,2})\/(\d{2,4}))?([T ]\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/
+        ))
+      ) {
+        if (fixTz && !!match[4] && !match[7])
+          value = value.replace(/-/g, "/").replace(/T/, " ");
+        const date = new Date(value);
+        return date instanceof Date ? date : null;
+      }
+      return null;
     }
+    case "array":
+    case "buffer":
+    case "object":
+    case "other":
+    default:
+      return value ? value : null;
   }
-  
+}
 
 // This function applies table cell operations to an in-memory table (array of
 // objects); it should be equivalent to the corresponding SQL query. TODO Use
@@ -734,7 +739,7 @@ export default function coerceRow(object, types) {
 }
 
 // https://github.com/d3/d3-dsv/issues/45
-const fixtz = new Date("2019-01-01T00:00").getHours() || new Date("2019-07-01T00:00").getHours();
+const fixTz = new Date("2019-01-01T00:00").getHours() || new Date("2019-07-01T00:00").getHours();
 
 function initKey() {
   return {
@@ -786,6 +791,8 @@ export function inferSchema(source) {
           )
         )
           typeCounts[key].date++;
+        // the long regex accepts dates in the form of ISOString and
+        // LocaleDateString, with or without times
         else typeCounts[key].string++;
       }
     }
