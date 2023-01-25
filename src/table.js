@@ -538,11 +538,15 @@ export function getTypeValidator(colType) {
   }
 }
 
-export function coerceToType(value, type, options={}) {
+export function coerceToType(value, type, options = {}) {
   const defaultValue = options.soft ? value : null;
   switch (type) {
     case "string":
-      return value === "string" ? value.trim() : value ? value.toString() : defaultValue;
+      return value === "string"
+        ? value.trim()
+        : value
+        ? value.toString()
+        : defaultValue;
     case "boolean":
       return value === true || value === "true"
         ? true
@@ -560,8 +564,13 @@ export function coerceToType(value, type, options={}) {
       if (value instanceof Date) return value;
       if (typeof value === "string") {
         let match;
-        if (match = value.match(/^([-+]\d{2})?\d{4}(-\d{2}(-\d{2})?)?(T\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/)) {
-          if (fixTz && !!match[4] && !match[7]) value = value.replace(/-/g, "/").replace(/T/, " ");
+        if (
+          (match = value.match(
+            /^([-+]\d{2})?\d{4}(-\d{2}(-\d{2})?)?(T\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/
+          ))
+        ) {
+          if (fixTz && !!match[4] && !match[7])
+            value = value.replace(/-/g, "/").replace(/T/, " ");
         }
       }
       const date = new Date(value);
@@ -569,7 +578,9 @@ export function coerceToType(value, type, options={}) {
     }
     case "array":
       if (Array.isArray(value)) return value;
-      return Array.isArray(Array.from(value)) ? Array.from(value) : defaultValue;
+      return Array.isArray(Array.from(value))
+        ? Array.from(value)
+        : defaultValue;
     case "buffer":
     case "object":
     case "other":
@@ -601,7 +612,7 @@ export function __table(source, operations) {
       // update schema with user-selected type
       const colIndex = schema.findIndex((col) => col.name === name);
       if (colIndex > -1) schema[colIndex] = {name, type};
-     }
+    }
   }
   // Coerce data according to new schema, unless that happened due to
   // operations.type, above. If coercing for the first time here, perform with
@@ -740,7 +751,9 @@ export default function coerceRow(object, types, options) {
 }
 
 // https://github.com/d3/d3-dsv/issues/45
-const fixTz = new Date("2019-01-01T00:00").getHours() || new Date("2019-07-01T00:00").getHours();
+const fixTz =
+  new Date("2019-01-01T00:00").getHours() ||
+  new Date("2019-07-01T00:00").getHours();
 
 function initKey() {
   return {
