@@ -557,6 +557,7 @@ export function coerceToType(value, type) {
       return isNaN(Number(value)) ? null : Number(value);
     case "date": {
       if (value instanceof Date) return value;
+      if (typeof value === "number") return new Date(value);
       let match;
       if (
         (match = value.match(
