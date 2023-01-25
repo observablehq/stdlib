@@ -172,12 +172,19 @@ async function insertFile(database, name, file, options) {
   try {
     switch (file.mimeType) {
       case "text/csv":
-      case "text/tab-separated-values":
+      case "text/tab-separated-values": {
         return await connection.insertCSVFromPath(file.name, {
           name,
           schema: "main",
           ...options
+        }).catch(async (error) => {
+          // If initial attempt to insert CSV resulted in a conversion
+          // error, try again, this time treating all columns as strings. 
+          if (error.toString().includes("Could not convert")) {
+            return await insertUntypedCSV(connection, file, name);
+          }
         });
+      }
       case "application/json":
         return await connection.insertJSONFromPath(file.name, {
           name,
@@ -203,6 +210,13 @@ async function insertFile(database, name, file, options) {
   } finally {
     await connection.close();
   }
+}
+
+async function insertUntypedCSV(connection, file, name) {
+  const statement = await connection.prepare(
+    `CREATE TABLE '${name}' AS SELECT * FROM read_csv_auto(?, ALL_VARCHAR=TRUE)`
+  );
+  return await statement.send(file.name);
 }
 
 async function insertArrowTable(database, name, table, options) {
