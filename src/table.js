@@ -816,10 +816,11 @@ export function inferSchema(source) {
         else if (value !== null && value !== undefined) typeCounts[key].other++;
       } else {
         if (value === "true" || value === "false") typeCounts[key].boolean++;
-        else if (!isNaN(value)) {
+        else if (value && !isNaN(value)) {
           if (/^-?[0-9]+$/.test(value)) typeCounts[key].integer++;
           else typeCounts[key].number++;
         } else if (
+          value &&
           value.match(
             /^(([-+]\d{2})?\d{4}(-\d{1,2}(-\d{1,2})?)|(\d{1,2})\/(\d{1,2})\/(\d{2,4}))?([T ]\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/
           )
@@ -827,7 +828,7 @@ export function inferSchema(source) {
           typeCounts[key].date++;
         // the long regex accepts dates in the form of ISOString and
         // LocaleDateString, with or without times
-        else typeCounts[key].string++;
+        else if (value) typeCounts[key].string++;
       }
     }
   }
