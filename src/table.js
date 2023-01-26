@@ -740,7 +740,7 @@ export function __table(source, operations) {
   return source;
 }
 
-export default function coerceRow(object, types, options) {
+function coerceRow(object, types, options) {
   let coerced = {};
   for (var key in object) {
     const type = types.get(key);
