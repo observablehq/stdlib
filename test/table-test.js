@@ -1,4 +1,10 @@
-import {getTypeValidator, makeQueryTemplate, __table} from "../src/table.js";
+import {
+  coerceToType,
+  getTypeValidator,
+  inferSchema,
+  makeQueryTemplate,
+  __table
+} from "../src/table.js";
 import assert from "assert";
 
 export const EMPTY_TABLE_DATA = {
@@ -449,9 +455,9 @@ describe("__table", () => {
       {a: 3, b: 6, c: 9}
     ];
     source.schema = [
-      {name: "a", type: "number"},
-      {name: "b", type: "number"},
-      {name: "c", type: "number"}
+      {name: "a", type: "integer"},
+      {name: "b", type: "integer"},
+      {name: "c", type: "integer"}
     ];
   });
 
@@ -483,7 +489,7 @@ describe("__table", () => {
       select: {columns: ["a"]}
     };
     const expectedSelected = [{a: 1}, {a: 2}, {a: 3}];
-    expectedSelected.schema = [{name: "a", type: "number"}];
+    expectedSelected.schema = [{name: "a", type: "integer"}];
     assert.deepStrictEqual(
       __table(source, operationsSelectedColumns),
       expectedSelected
@@ -586,7 +592,7 @@ describe("__table", () => {
 
   it("__table filter primitive lte + gte", () => {
     const expectedPrimitive = [1];
-    expectedPrimitive.schema = [{name: "value", type: "number"}];
+    expectedPrimitive.schema = [{name: "value", type: "integer"}];
     assert.deepStrictEqual(
       __table([1, 2, 3], {
         ...EMPTY_TABLE_DATA.operations,
@@ -700,7 +706,7 @@ describe("__table", () => {
     const expectedDesc = [
       {a: 20}, {a: 10}, {a: 5}, {a: 1}, {a: NaN}, {a: undefined}, {a: NaN}, {a: NaN}
     ];
-    expectedDesc.schema = [{name: "a", type: "number"}];
+    expectedDesc.schema = [{name: "a", type: "integer"}];
     assert.deepStrictEqual(
       __table(sourceWithMissing, operationsDesc),
       expectedDesc
@@ -712,7 +718,7 @@ describe("__table", () => {
     const expectedAsc = [
       {a: 1}, {a: 5}, {a: 10}, {a: 20}, {a: NaN}, {a: undefined}, {a: NaN}, {a: NaN}
     ];
-    expectedAsc.schema = [{name: "a", type: "number"}];
+    expectedAsc.schema = [{name: "a", type: "integer"}];
     assert.deepStrictEqual(
       __table(sourceWithMissing, operationsAsc),
       expectedAsc
@@ -870,6 +876,236 @@ describe("getTypeValidator filters accurately", () => {
       {label: "bigint", value: BigInt(10)},
       {label: "NaN", value: NaN}
     ]
+    );
+  });
+});
+
+describe("inferSchema", () => {
+  it("infers schema", () => {
+    assert.deepStrictEqual(
+      inferSchema(
+        [
+          {a: 1, b: 2, c: 3},
+          {a: 2, b: 4, c: 6},
+          {a: 3, b: 6, c: 9}
+        ]
+      ),
+      [
+        {name: "a", type: "integer"},
+        {name: "b", type: "integer"},
+        {name: "c", type: "integer"}
+      ]
+    );
+  });
+
+  it("infers numbers", () => {
+    assert.deepStrictEqual(
+      inferSchema([{a: 1.2}, {a: 3.4}, {a: 5.67}]),
+      [{name: "a", type: "number"}]
+    );
+  });
+
+  it("infers booleans", () => {
+    assert.deepStrictEqual(
+      inferSchema([{a: "true"}, {a: false}, {a: "false"}, {a: null}]),
+      [{name: "a", type: "boolean"}]
+    );
+  });
+
+  it("infers dates", () => {
+    assert.deepStrictEqual(
+      inferSchema(
+        [{a: "1/2/20"}, {a: "2020-11-12 12:23:00"}, {a: new Date()}, {a: null}]
+      ),
+      [{name: "a", type: "date"}]
+    );
+  });
+
+  it("infers strings", () => {
+    assert.deepStrictEqual(
+      inferSchema([{a: "cat"}, {a: "dog"}, {a: "1,000"}, {a: null}]),
+      [{name: "a", type: "string"}]
+    );
+  });
+
+  it("infers arrays", () => {
+    assert.deepStrictEqual(
+      inferSchema([{a: ["cat"]}, {a: ["dog"]}, {a: []}, {a: null}]),
+      [{name: "a", type: "array"}]
+    );
+  });
+
+  it("infers objects", () => {
+    assert.deepStrictEqual(
+      inferSchema([{a: {d: ["cat"]}}, {a: {d: "dog"}}, {a: {d: 12}}, {a: null}]),
+      [{name: "a", type: "object"}]
+    );
+  });
+
+  it("infers bigints", () => {
+    assert.deepStrictEqual(
+      inferSchema([{a: 10n}, {a: 22n}, {a: 22}, {a: null}]),
+      [{name: "a", type: "bigint"}]
+    );
+  });
+
+  it("infers buffers", () => {
+    assert.deepStrictEqual(
+      inferSchema([{a: new ArrayBuffer()}, {a: new ArrayBuffer()}, {a: null}]),
+      [{name: "a", type: "buffer"}]
+    );
+  });
+
+  it("infers other", () => {
+    assert.deepStrictEqual(
+      inferSchema([{a: Symbol("a")}, {a: Symbol("b")}, {a: null}]),
+      [{name: "a", type: "other"}]
+    );
+  });
+});
+
+describe("coerceToType", () => {
+  it("coerces to number", () => {
+    assert.deepStrictEqual(coerceToType("1.2", "number"), 1.2);
+    assert.deepStrictEqual(coerceToType("A", "number"), NaN);
+  });
+
+  it("soft coerces to number", () => {
+    assert.deepStrictEqual(coerceToType("1.2", "number", {soft: true}), 1.2);
+    assert.deepStrictEqual(coerceToType("a", "number", {soft: true}), "a");
+  });
+
+  it("coerces to boolean", () => {
+    assert.deepStrictEqual(coerceToType("true", "boolean"), true);
+    assert.deepStrictEqual(coerceToType(true, "boolean"), true);
+    assert.deepStrictEqual(coerceToType("A", "boolean"), null);
+  });
+
+  it("soft coerces to boolean", () => {
+    assert.deepStrictEqual(coerceToType("false", "boolean", {soft: true}), false);
+    assert.deepStrictEqual(coerceToType("a", "boolean", {soft: true}), "a");
+  });
+
+  it("coerces to date", () => {
+    const invalidDate = new Date("a");
+    assert.deepStrictEqual(
+      coerceToType("12/12/2020", "date"),
+      new Date("12/12/2020")
+    );
+    assert.deepStrictEqual(
+      coerceToType("2022-01-01T12:34:00Z", "date"),
+      new Date("2022-01-01T12:34:00Z")
+    );
+    assert.deepStrictEqual(
+      coerceToType("B", "date").toString(),
+      invalidDate.toString()
+    );
+    assert.deepStrictEqual(
+      coerceToType({a: 1}, "date").toString(),
+      invalidDate.toString()
+    );
+  });
+
+  it("soft coerces to date", () => {
+    assert.deepStrictEqual(
+      coerceToType("12/12/2020", "date", {soft: true}),
+      new Date("12/12/2020")
+    );
+    assert.deepStrictEqual(coerceToType("B", "date", {soft: true}), "B");
+    assert.deepStrictEqual(
+      coerceToType({a: 1}, "date", {soft: true}).toString(),
+      "[object Object]"
+    );
+  });
+
+  it("coerces to string", () => {
+    assert.deepStrictEqual(coerceToType(true, "string"), "true");
+    assert.deepStrictEqual(coerceToType(10, "string"), "10");
+    assert.deepStrictEqual(coerceToType({a: 1}, "string"), "[object Object]");
+    assert.deepStrictEqual(coerceToType(0, "string"), "0");
+    assert.deepStrictEqual(coerceToType(null, "string"), null);
+    assert.deepStrictEqual(coerceToType(undefined, "string"), null);
+  });
+
+  it("soft coerces to string", () => {
+    assert.deepStrictEqual(coerceToType(true, "string", {soft: true}), "true");
+    assert.deepStrictEqual(coerceToType(null, "string", {soft: true}), null);
+    assert.deepStrictEqual(
+      coerceToType(undefined, "string", {soft: true}),
+      undefined
+    );
+  });
+
+  it("coerces to array", () => {
+    assert.deepStrictEqual(coerceToType("true", "array"), ["t", "r", "u", "e"]);
+    assert.deepStrictEqual(coerceToType([1,2,3], "array"), [1,2,3]);
+    assert.deepStrictEqual(coerceToType(null, "array"), null);
+    assert.deepStrictEqual(coerceToType(undefined, "array"), null);
+  });
+
+  it("soft coerces to array", () => {
+    assert.deepStrictEqual(coerceToType([1,2,3], "array", {soft: true}), [1,2,3]);
+    assert.deepStrictEqual(
+      coerceToType(undefined, "array", {soft: true}),
+      undefined
+    );
+  });
+
+  it("coerces to object", () => {
+    assert.deepStrictEqual(coerceToType("true", "object"), "true");
+    assert.deepStrictEqual(coerceToType({a: 1, b: 2}, "object"), {a: 1, b: 2});
+    assert.deepStrictEqual(coerceToType(null, "object"), null);
+    assert.deepStrictEqual(coerceToType(undefined, "object"), null);
+  });
+
+  it("soft coerces to object", () => {
+    assert.deepStrictEqual(coerceToType("true", "object", {soft: true}), "true");
+    assert.deepStrictEqual(coerceToType(null, "object", {soft: true}), null);
+    assert.deepStrictEqual(
+      coerceToType(undefined, "object", {soft: true}),
+      undefined
+    );
+  });
+
+  it("coerces to bigint", () => {
+    assert.deepStrictEqual(coerceToType("32", "bigint"), 32n);
+    assert.deepStrictEqual(coerceToType(32n, "bigint"), 32n);
+    assert.deepStrictEqual(coerceToType("A", "bigint"), NaN);
+  });
+
+  it("soft coerces to bigint", () => {
+    assert.deepStrictEqual(coerceToType("32", "bigint", {soft: true}), 32n);
+    assert.deepStrictEqual(coerceToType("A", "bigint", {soft: true}), "A");
+  });
+
+  it("coerces to buffer", () => {
+    assert.deepStrictEqual(
+      coerceToType(new ArrayBuffer(), "buffer"),
+      new ArrayBuffer()
+    );
+    assert.deepStrictEqual(coerceToType("A", "buffer"), "A");
+    assert.deepStrictEqual(coerceToType(undefined, "buffer"), null);
+  });
+
+  it("soft coerces to buffer", () => {
+    assert.deepStrictEqual(coerceToType("A", "buffer"), "A");
+    assert.deepStrictEqual(
+      coerceToType(undefined, "buffer", {soft: true}),
+      undefined
+    );
+  });
+
+  it("coerces to other", () => {
+    assert.deepStrictEqual(coerceToType(0, "other"), 0);
+    assert.deepStrictEqual(coerceToType("a", "other"), "a");
+    assert.deepStrictEqual(coerceToType(undefined, "other"), null);
+  });
+
+  it("soft coerces to other", () => {
+    assert.deepStrictEqual(coerceToType("a", "other", {soft: true}), "a");
+    assert.deepStrictEqual(
+      coerceToType(undefined, "other", {soft: true}),
+      undefined
     );
   });
 });
