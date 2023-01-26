@@ -538,8 +538,9 @@ export function getTypeValidator(colType) {
   }
 }
 
-export function coerceToType(value, type, options = {}) {
+function coerceToType(value, type, options = {}) {
   const defaultValue = options.soft ? value : null;
+  const numberDefault = defaultValue === null ? NaN : defaultValue;
   switch (type) {
     case "string":
       return value === "string"
@@ -554,12 +555,13 @@ export function coerceToType(value, type, options = {}) {
         ? false
         : defaultValue;
     case "integer":
-      return isNaN(parseInt(value)) ? defaultValue : parseInt(value);
+      return !value || isNaN(parseInt(value)) ? numberDefault : parseInt(value);
     case "bigint":
       // eslint-disable-next-line no-undef
-      return isNaN(Number(value)) ? defaultValue : BigInt(value);
-    case "number":
-      return isNaN(Number(value)) ? defaultValue : Number(value);
+      return !value || isNaN(value) ? numberDefault : BigInt(value);
+    case "number": {
+      return !value || isNaN(value) ? numberDefault : Number(value);
+    }
     case "date": {
       if (value instanceof Date) return value;
       if (typeof value === "string") {
@@ -573,8 +575,13 @@ export function coerceToType(value, type, options = {}) {
             value = value.replace(/-/g, "/").replace(/T/, " ");
         }
       }
+      // Invalid Date objects are still instances of Date, but they return true
+      // from isNaN(). If we are "soft-coercing," we want to return the original
+      // value for invalid dates. Otherwise, if a date is invalid, return an
+      // Invalid Date object.
       const date = new Date(value);
-      return date instanceof Date ? date : defaultValue;
+      const dateDefault = options.soft ? value : date;
+      return isNaN(date) ? dateDefault : date;
     }
     case "array":
       if (Array.isArray(value)) return value;

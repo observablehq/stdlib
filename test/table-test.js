@@ -698,7 +698,7 @@ describe("__table", () => {
       sort: [{column: "a", direction: "desc"}]
     };
     const expectedDesc = [
-      {a: 20}, {a: 10}, {a: 5}, {a: 1}, {a: 0}, {a: 0}, {a: undefined}, {a: NaN}
+      {a: 20}, {a: 10}, {a: 5}, {a: 1}, {a: NaN}, {a: undefined}, {a: NaN}, {a: NaN}
     ];
     expectedDesc.schema = [{name: "a", type: "number"}];
     assert.deepStrictEqual(
@@ -710,7 +710,7 @@ describe("__table", () => {
       sort: [{column: "a", direction: "asc"}]
     };
     const expectedAsc = [
-      {a: 0}, {a: 0}, {a: 1}, {a: 5}, {a: 10}, {a: 20}, {a: undefined}, {a: NaN}
+      {a: 1}, {a: 5}, {a: 10}, {a: 20}, {a: NaN}, {a: undefined}, {a: NaN}, {a: NaN}
     ];
     expectedAsc.schema = [{name: "a", type: "number"}];
     assert.deepStrictEqual(
@@ -783,24 +783,6 @@ describe("__table", () => {
     ];
     assert.deepStrictEqual(
       __table(source, EMPTY_TABLE_DATA.operations).schema,
-      [
-        {name: "a", type: "number"},
-        {name: "b", type: "number"},
-        {name: "c", type: "number"}
-      ]
-    );
-  });
-
-  it("__table infers schema", () => {
-    assert.deepStrictEqual(
-      __table(
-        [
-          {a: 1, b: 2, c: 3},
-          {a: 2, b: 4, c: 6},
-          {a: 3, b: 6, c: 9}
-        ],
-        EMPTY_TABLE_DATA.operations
-      ).schema,
       [
         {name: "a", type: "number"},
         {name: "b", type: "number"},
