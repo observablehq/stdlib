@@ -66,7 +66,12 @@ function objectHasEnumerableKeys(value) {
 }
 
 function isQueryResultSetSchema(schemas) {
-  return (Array.isArray(schemas) && schemas.every((s) => s && typeof s.name === "string" && typeof s.type === "string"));
+  return (
+    Array.isArray(schemas) &&
+    schemas.every(
+      (s) => s && typeof s.name === "string" && typeof s.type === "string"
+    )
+  );
 }
 
 function isQueryResultSetColumns(columns) {
