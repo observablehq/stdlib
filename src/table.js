@@ -538,14 +538,14 @@ export function getTypeValidator(colType) {
   }
 }
 
-function coerceToType(value, type, options = {}) {
+export function coerceToType(value, type, options = {}) {
   const defaultValue = options.soft ? value : null;
   const numberDefault = defaultValue === null ? NaN : defaultValue;
   switch (type) {
     case "string":
       return value === "string"
         ? value.trim()
-        : value
+        : value || value === 0
         ? value.toString()
         : defaultValue;
     case "boolean":
@@ -557,8 +557,12 @@ function coerceToType(value, type, options = {}) {
     case "integer":
       return !value || isNaN(parseInt(value)) ? numberDefault : parseInt(value);
     case "bigint":
-      // eslint-disable-next-line no-undef
-      return !value || isNaN(value) ? numberDefault : BigInt(value);
+      return typeof value === "bigint"
+        ? value
+        : !value || isNaN(value)
+        ? numberDefault
+        // eslint-disable-next-line no-undef
+        : BigInt(value);
     case "number": {
       return !value || isNaN(value) ? numberDefault : Number(value);
     }
@@ -585,7 +589,7 @@ function coerceToType(value, type, options = {}) {
     }
     case "array":
       if (Array.isArray(value)) return value;
-      return Array.isArray(Array.from(value))
+      return value && Array.isArray(Array.from(value))
         ? Array.from(value)
         : defaultValue;
     case "buffer":
