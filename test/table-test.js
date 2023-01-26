@@ -36,7 +36,7 @@ const baseOperations = {
 };
 
 function escape(identifier) {
-  return `\`${identifier.replaceAll("`", "``")}\``;
+  return `\`${identifier.replace(/`/g, "``")}\``;
 }
 
 describe("makeQueryTemplate", () => {
