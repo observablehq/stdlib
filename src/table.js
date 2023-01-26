@@ -798,7 +798,11 @@ export function inferSchema(source) {
         if (Array.isArray(value)) typeCounts[key].array++;
         else if (value instanceof Date) typeCounts[key].date++;
         else if (value instanceof ArrayBuffer) typeCounts[key].buffer++;
-        // number, bigint, boolean, or object
+        else if (type === "number") {
+          if (/^-?[0-9]+$/.test(value)) typeCounts[key].integer++;
+          else typeCounts[key].number++;
+        }
+        // bigint, boolean, or object
         else if (type in typeCounts[key]) typeCounts[key][type]++;
         else if (value !== null && value !== undefined) typeCounts[key].other++;
       } else {
