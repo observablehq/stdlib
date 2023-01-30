@@ -547,8 +547,8 @@ export function coerceToType(value, type, options = {}) {
   const defaultValue = options.soft ? value : null;
   const numberDefault = defaultValue === null ? NaN : defaultValue;
   switch (type) {
-    case "string":
-      return value === "string"
+    case "string": 
+      return typeof value === "string"
         ? value.trim()
         : value || value === 0
         ? value.toString()
