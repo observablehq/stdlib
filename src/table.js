@@ -849,9 +849,16 @@ export function inferSchema(source) {
     }
   }
   for (const col in typeCounts) {
+    let type = greatest(Object.keys(typeCounts[col]), (d) => typeCounts[col][d]);
+    // If over 90% of the sampled data counted as this type, use it. Otherwise,
+    // use "other."
+    type =
+      typeCounts[col][type] / Math.min(source.length, sampleSize) >= 0.9
+        ? type
+        : "other";
     schema.push({
       name: col,
-      type: greatest(Object.keys(typeCounts[col]), (d) => typeCounts[col][d])
+      type: type
     });
   }
   return schema;

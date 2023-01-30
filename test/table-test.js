@@ -704,9 +704,9 @@ describe("__table", () => {
       sort: [{column: "a", direction: "desc"}]
     };
     const expectedDesc = [
-      {a: 20}, {a: 10}, {a: 5}, {a: 1}, {a: NaN}, {a: undefined}, {a: NaN}, {a: NaN}
+      {a: 20}, {a: 10}, {a: 5}, {a: 1}, {a: null}, {a: null}, {a: null}, {a: null}
     ];
-    expectedDesc.schema = [{name: "a", type: "integer"}];
+    expectedDesc.schema = [{name: "a", type: "other"}];
     assert.deepStrictEqual(
       __table(sourceWithMissing, operationsDesc),
       expectedDesc
@@ -716,9 +716,9 @@ describe("__table", () => {
       sort: [{column: "a", direction: "asc"}]
     };
     const expectedAsc = [
-      {a: 1}, {a: 5}, {a: 10}, {a: 20}, {a: NaN}, {a: undefined}, {a: NaN}, {a: NaN}
+      {a: 1}, {a: 5}, {a: 10}, {a: 20}, {a: null}, {a: null}, {a: null}, {a: null}
     ];
-    expectedAsc.schema = [{name: "a", type: "integer"}];
+    expectedAsc.schema = [{name: "a", type: "other"}];
     assert.deepStrictEqual(
       __table(sourceWithMissing, operationsAsc),
       expectedAsc
@@ -891,7 +891,7 @@ describe("inferSchema", () => {
         ]
       ),
       [
-        {name: "a", type: "integer"},
+        {name: "a", type: "other"},
         {name: "b", type: "integer"},
         {name: "c", type: "integer"}
       ]
@@ -907,7 +907,7 @@ describe("inferSchema", () => {
 
   it("infers booleans", () => {
     assert.deepStrictEqual(
-      inferSchema([{a: "true"}, {a: false}, {a: "false"}, {a: null}]),
+      inferSchema([{a: "true"}, {a: false}, {a: "false"}]),
       [{name: "a", type: "boolean"}]
     );
   });
@@ -915,7 +915,7 @@ describe("inferSchema", () => {
   it("infers dates", () => {
     assert.deepStrictEqual(
       inferSchema(
-        [{a: "1/2/20"}, {a: "2020-11-12 12:23:00"}, {a: new Date()}, {a: null}]
+        [{a: "1/2/20"}, {a: "2020-11-12 12:23:00"}, {a: new Date()}, {a: "2020-1-12"}]
       ),
       [{name: "a", type: "date"}]
     );
@@ -923,46 +923,46 @@ describe("inferSchema", () => {
 
   it("infers strings", () => {
     assert.deepStrictEqual(
-      inferSchema([{a: "cat"}, {a: "dog"}, {a: "1,000"}, {a: null}]),
+      inferSchema([{a: "cat"}, {a: "dog"}, {a: "1,000"}, {a: "null"}]),
       [{name: "a", type: "string"}]
     );
   });
 
   it("infers arrays", () => {
     assert.deepStrictEqual(
-      inferSchema([{a: ["cat"]}, {a: ["dog"]}, {a: []}, {a: null}]),
+      inferSchema([{a: ["cat"]}, {a: ["dog"]}, {a: []}]),
       [{name: "a", type: "array"}]
     );
   });
 
   it("infers objects", () => {
     assert.deepStrictEqual(
-      inferSchema([{a: {d: ["cat"]}}, {a: {d: "dog"}}, {a: {d: 12}}, {a: null}]),
+      inferSchema([{a: {d: ["cat"]}}, {a: {d: "dog"}}, {a: {d: 12}}]),
       [{name: "a", type: "object"}]
     );
   });
 
   it("infers bigints", () => {
     assert.deepStrictEqual(
-      inferSchema([{a: 10n}, {a: 22n}, {a: 22}, {a: null}]),
+      inferSchema([{a: 10n}, {a: 22n}, {a: 1n}]),
       [{name: "a", type: "bigint"}]
     );
     assert.deepStrictEqual(
-      inferSchema([{a: "10n"}, {a: "22n"}, {a: "0n"}, {a: null}]),
+      inferSchema([{a: "10n"}, {a: "22n"}, {a: "0n"}]),
       [{name: "a", type: "bigint"}]
     );
   });
 
   it("infers buffers", () => {
     assert.deepStrictEqual(
-      inferSchema([{a: new ArrayBuffer()}, {a: new ArrayBuffer()}, {a: null}]),
+      inferSchema([{a: new ArrayBuffer()}, {a: new ArrayBuffer()}]),
       [{name: "a", type: "buffer"}]
     );
   });
 
   it("infers other", () => {
     assert.deepStrictEqual(
-      inferSchema([{a: Symbol("a")}, {a: Symbol("b")}, {a: null}]),
+      inferSchema([{a: Symbol("a")}, {a: Symbol("b")}]),
       [{name: "a", type: "other"}]
     );
   });
