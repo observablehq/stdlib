@@ -947,6 +947,10 @@ describe("inferSchema", () => {
       inferSchema([{a: 10n}, {a: 22n}, {a: 22}, {a: null}]),
       [{name: "a", type: "bigint"}]
     );
+    assert.deepStrictEqual(
+      inferSchema([{a: "10n"}, {a: "22n"}, {a: "0n"}, {a: null}]),
+      [{name: "a", type: "bigint"}]
+    );
   });
 
   it("infers buffers", () => {

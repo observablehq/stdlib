@@ -796,7 +796,7 @@ function initKey() {
     string: 0,
     array: 0,
     object: 0,
-    bigint: 0, // TODO for csv, tsv?
+    bigint: 0,
     buffer: 0
   };
 }
@@ -834,7 +834,8 @@ export function inferSchema(source) {
         else if (value && !isNaN(value)) {
           if (Number.isInteger(+value)) typeCounts[key].integer++;
           else typeCounts[key].number++;
-        } else if (
+        } else if (/^\d+n$/.test(value)) typeCounts[key].bigint++;
+        else if (
           value &&
           value.match(
             /^(([-+]\d{2})?\d{4}(-\d{1,2}(-\d{1,2})?)|(\d{1,2})\/(\d{1,2})\/(\d{2,4}))?([T ]\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/
