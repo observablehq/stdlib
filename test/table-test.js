@@ -1070,11 +1070,13 @@ describe("coerceToType", () => {
   it("coerces to bigint", () => {
     assert.deepStrictEqual(coerceToType("32", "bigint"), 32n);
     assert.deepStrictEqual(coerceToType(32n, "bigint"), 32n);
+    assert.deepStrictEqual(coerceToType(1.1, "bigint"), NaN);
     assert.deepStrictEqual(coerceToType("A", "bigint"), NaN);
   });
 
   it("soft coerces to bigint", () => {
     assert.deepStrictEqual(coerceToType("32", "bigint", {soft: true}), 32n);
+    assert.deepStrictEqual(coerceToType(1.1, "bigint", {soft: true}), 1.1);
     assert.deepStrictEqual(coerceToType("A", "bigint", {soft: true}), "A");
   });
 

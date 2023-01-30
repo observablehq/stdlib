@@ -564,7 +564,7 @@ export function coerceToType(value, type, options = {}) {
     case "bigint":
       return typeof value === "bigint"
         ? value
-        : !value || isNaN(value)
+        : !value || isNaN(value) || !Number.isInteger(+value)
         ? numberDefault
         // eslint-disable-next-line no-undef
         : BigInt(value);
@@ -808,7 +808,7 @@ export function inferSchema(source) {
         else if (value instanceof Date) typeCounts[key].date++;
         else if (value instanceof ArrayBuffer) typeCounts[key].buffer++;
         else if (type === "number") {
-          if (/^-?[0-9]+$/.test(value)) typeCounts[key].integer++;
+          if (Number.isInteger(+value)) typeCounts[key].integer++;
           else typeCounts[key].number++;
         }
         // bigint, boolean, or object
@@ -817,7 +817,7 @@ export function inferSchema(source) {
       } else {
         if (value === "true" || value === "false") typeCounts[key].boolean++;
         else if (value && !isNaN(value)) {
-          if (/^-?[0-9]+$/.test(value)) typeCounts[key].integer++;
+          if (Number.isInteger(+value)) typeCounts[key].integer++;
           else typeCounts[key].number++;
         } else if (
           value &&
