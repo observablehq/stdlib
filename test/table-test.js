@@ -965,13 +965,22 @@ describe("inferSchema", () => {
 });
 
 describe("coerceToType", () => {
+  it("coerces to integer", () => {
+    assert.deepStrictEqual(coerceToType("1.2", "integer"), 1);
+    assert.deepStrictEqual(coerceToType("10", "integer"), 10);
+    assert.deepStrictEqual(coerceToType(0, "integer"), 0);
+    assert.deepStrictEqual(coerceToType("A", "integer"), NaN);
+  });
+
   it("coerces to number", () => {
     assert.deepStrictEqual(coerceToType("1.2", "number"), 1.2);
+    assert.deepStrictEqual(coerceToType(0, "number"), 0);
     assert.deepStrictEqual(coerceToType("A", "number"), NaN);
   });
 
   it("soft coerces to number", () => {
     assert.deepStrictEqual(coerceToType("1.2", "number", {soft: true}), 1.2);
+    assert.deepStrictEqual(coerceToType(0, "number", {soft: true}), 0);
     assert.deepStrictEqual(coerceToType("a", "number", {soft: true}), "a");
   });
 
@@ -1082,6 +1091,11 @@ describe("coerceToType", () => {
   it("coerces to bigint", () => {
     assert.deepStrictEqual(coerceToType("32", "bigint"), 32n);
     assert.deepStrictEqual(coerceToType(32n, "bigint"), 32n);
+    assert.deepStrictEqual(coerceToType(0, "bigint"), 0n);
+    assert.deepStrictEqual(coerceToType(false, "bigint"), 0n);
+    assert.deepStrictEqual(coerceToType(true, "bigint"), 1n);
+    assert.deepStrictEqual(coerceToType(null, "bigint"), NaN);
+    assert.deepStrictEqual(coerceToType(undefined, "bigint"), NaN);
     assert.deepStrictEqual(coerceToType(1.1, "bigint"), NaN);
     assert.deepStrictEqual(coerceToType("A", "bigint"), NaN);
   });

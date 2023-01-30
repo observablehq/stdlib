@@ -546,9 +546,10 @@ export function getTypeValidator(colType) {
 export function coerceToType(value, type, options = {}) {
   const defaultValue = options.soft ? value : null;
   const numberDefault = defaultValue === null ? NaN : defaultValue;
-  const stringValue = typeof value === "string" && !options.soft ? value.trim() : value;
+  const stringValue =
+    typeof value === "string" && !options.soft ? value.trim() : value;
   switch (type) {
-    case "string": 
+    case "string":
       return typeof value === "string"
         ? stringValue
         : value || value === 0
@@ -561,16 +562,27 @@ export function coerceToType(value, type, options = {}) {
         ? false
         : defaultValue;
     case "integer":
-      return !value || isNaN(parseInt(value)) ? numberDefault : parseInt(value);
+      return value === 0
+        ? value
+        : !value || isNaN(parseInt(value))
+        ? numberDefault
+        : parseInt(value);
     case "bigint":
       return typeof value === "bigint"
         ? value
+        : value === 0 || value === true || value === false
+        ? // eslint-disable-next-line no-undef
+          BigInt(value)
         : !value || isNaN(value) || !Number.isInteger(+value)
         ? numberDefault
-        // eslint-disable-next-line no-undef
-        : BigInt(value);
+        : // eslint-disable-next-line no-undef
+          BigInt(value);
     case "number": {
-      return !value || isNaN(value) ? numberDefault : Number(value);
+      return value === 0
+        ? value
+        : !value || isNaN(value)
+        ? numberDefault
+        : Number(value);
     }
     case "date": {
       if (value instanceof Date) return value;
