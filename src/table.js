@@ -543,29 +543,26 @@ export function getTypeValidator(colType) {
   }
 }
 
-export function coerceToType(value, type, options = {}) {
-  const defaultValue = options.soft ? value : null;
-  const numberDefault = defaultValue === null ? NaN : defaultValue;
-  const stringValue =
-    typeof value === "string" && !options.soft ? value.trim() : value;
+export function coerceToType(value, type) {
+  const stringValue = typeof value === "string" ? value.trim() : value;
   switch (type) {
     case "string":
       return typeof value === "string"
         ? stringValue
         : value || value === 0
         ? value.toString()
-        : defaultValue;
+        : null;
     case "boolean":
       return value === true || stringValue === "true"
         ? true
         : value === false || stringValue === "false"
         ? false
-        : defaultValue;
+        : null;
     case "integer":
       return value === 0
         ? value
         : !value || isNaN(parseInt(value))
-        ? numberDefault
+        ? NaN
         : parseInt(value);
     case "bigint":
       return typeof value === "bigint"
@@ -574,14 +571,14 @@ export function coerceToType(value, type, options = {}) {
         ? // eslint-disable-next-line no-undef
           BigInt(value)
         : !value || isNaN(value) || !Number.isInteger(+value)
-        ? numberDefault
+        ? NaN
         : // eslint-disable-next-line no-undef
           BigInt(value);
     case "number": {
       return value === 0
         ? value
         : !value || isNaN(value)
-        ? numberDefault
+        ? NaN
         : Number(value);
     }
     case "date": {
@@ -597,13 +594,7 @@ export function coerceToType(value, type, options = {}) {
             value = stringValue.replace(/-/g, "/").replace(/T/, " ");
         }
       }
-      // Invalid Date objects are still instances of Date, but they return true
-      // from isNaN(). If we are soft-coercing, we want to return the original
-      // value for invalid dates. Otherwise, if a date is invalid, return an
-      // Invalid Date object.
-      const date = new Date(value);
-      const dateDefault = options.soft ? value : date;
-      return isNaN(date) ? dateDefault : date;
+      return new Date(value);
     }
     case "array":
       if (Array.isArray(value)) return value;
@@ -616,7 +607,7 @@ export function coerceToType(value, type, options = {}) {
     case "buffer":
     case "other":
     default:
-      return value || value === 0 ? value : defaultValue;
+      return value || value === 0 ? value : null;
   }
 }
 
@@ -646,10 +637,9 @@ export function __table(source, operations) {
     source = source.map(d => coerceRow(d, types));
   }
   // Coerce data according to new schema, unless that happened due to
-  // operations.type, above. If coercing for the first time here, perform with
-  // option {soft: true}, so that original values remain visible.
+  // operations.type, above. 
   if (newlyInferred && !operations.type) {
-    source = source.map(d => coerceRow(d, types, {soft: true}));
+    source = source.map(d => coerceRow(d, types));
   }
   for (const {type, operands} of operations.filter) {
     const [{value: column}] = operands;
@@ -771,12 +761,12 @@ export function __table(source, operations) {
   return source;
 }
 
-function coerceRow(object, types, options) {
+function coerceRow(object, types) {
   let coerced = {};
   for (var key in object) {
     const type = types.get(key);
     const value = object[key];
-    coerced[key] = coerceToType(value, type, options);
+    coerced[key] = coerceToType(value, type);
   }
   return coerced;
 }
