@@ -977,6 +977,7 @@ describe("coerceToType", () => {
 
   it("coerces to boolean", () => {
     assert.deepStrictEqual(coerceToType("true", "boolean"), true);
+    assert.deepStrictEqual(coerceToType("true   ", "boolean"), true);
     assert.deepStrictEqual(coerceToType(true, "boolean"), true);
     assert.deepStrictEqual(coerceToType("A", "boolean"), null);
   });
@@ -984,12 +985,18 @@ describe("coerceToType", () => {
   it("soft coerces to boolean", () => {
     assert.deepStrictEqual(coerceToType("false", "boolean", {soft: true}), false);
     assert.deepStrictEqual(coerceToType("a", "boolean", {soft: true}), "a");
+    assert.deepStrictEqual(coerceToType("true   ", "boolean", {soft: true}), "true   ");
   });
 
   it("coerces to date", () => {
     const invalidDate = new Date("a");
     assert.deepStrictEqual(
       coerceToType("12/12/2020", "date"),
+      new Date("12/12/2020")
+    );
+    // with whitespace
+    assert.deepStrictEqual(
+      coerceToType("12/12/2020  ", "date", {soft: true}),
       new Date("12/12/2020")
     );
     assert.deepStrictEqual(
@@ -1009,6 +1016,11 @@ describe("coerceToType", () => {
   it("soft coerces to date", () => {
     assert.deepStrictEqual(
       coerceToType("12/12/2020", "date", {soft: true}),
+      new Date("12/12/2020")
+    );
+    // with whitespace
+    assert.deepStrictEqual(
+      coerceToType("12/12/2020  ", "date", {soft: true}),
       new Date("12/12/2020")
     );
     assert.deepStrictEqual(coerceToType("B", "date", {soft: true}), "B");

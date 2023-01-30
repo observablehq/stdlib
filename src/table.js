@@ -546,17 +546,18 @@ export function getTypeValidator(colType) {
 export function coerceToType(value, type, options = {}) {
   const defaultValue = options.soft ? value : null;
   const numberDefault = defaultValue === null ? NaN : defaultValue;
+  const stringValue = typeof value === "string" && !options.soft ? value.trim() : value;
   switch (type) {
     case "string": 
       return typeof value === "string"
-        ? value.trim()
+        ? stringValue
         : value || value === 0
         ? value.toString()
         : defaultValue;
     case "boolean":
-      return value === true || value === "true"
+      return value === true || stringValue === "true"
         ? true
-        : value === false || value === "false"
+        : value === false || stringValue === "false"
         ? false
         : defaultValue;
     case "integer":
@@ -576,12 +577,12 @@ export function coerceToType(value, type, options = {}) {
       if (typeof value === "string") {
         let match;
         if (
-          (match = value.match(
+          (match = stringValue.match(
             /^([-+]\d{2})?\d{4}(-\d{2}(-\d{2})?)?(T\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/
           ))
         ) {
           if (fixTz && !!match[4] && !match[7])
-            value = value.replace(/-/g, "/").replace(/T/, " ");
+            value = stringValue.replace(/-/g, "/").replace(/T/, " ");
         }
       }
       // Invalid Date objects are still instances of Date, but they return true
