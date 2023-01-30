@@ -585,7 +585,7 @@ export function coerceToType(value, type, options = {}) {
         }
       }
       // Invalid Date objects are still instances of Date, but they return true
-      // from isNaN(). If we are "soft-coercing," we want to return the original
+      // from isNaN(). If we are soft-coercing, we want to return the original
       // value for invalid dates. Otherwise, if a date is invalid, return an
       // Invalid Date object.
       const date = new Date(value);
@@ -624,11 +624,11 @@ export function __table(source, operations) {
   if (operations.type) {
     for (const {name, type} of operations.type) {
       types.set(name, type);
-      source = source.map(d => coerceRow(d, types));
       // update schema with user-selected type
       const colIndex = schema.findIndex((col) => col.name === name);
       if (colIndex > -1) schema[colIndex] = {name, type};
     }
+    source = source.map(d => coerceRow(d, types));
   }
   // Coerce data according to new schema, unless that happened due to
   // operations.type, above. If coercing for the first time here, perform with
