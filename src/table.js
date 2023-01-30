@@ -607,11 +607,13 @@ export function coerceToType(value, type, options = {}) {
     }
     case "array":
       if (Array.isArray(value)) return value;
-      return value && Array.isArray(Array.from(value))
-        ? Array.from(value)
-        : defaultValue;
-    case "buffer":
+      return [value];
     case "object":
+      // this will return true for everything except null, undefined, strings,
+      // numbers, boolean, and symbols, so may yield unexpected results.
+      if (typeof value === "object") return value;
+      return {value: value};
+    case "buffer":
     case "other":
     default:
       return value || value === 0 ? value : defaultValue;

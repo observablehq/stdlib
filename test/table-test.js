@@ -1058,33 +1058,33 @@ describe("coerceToType", () => {
   });
 
   it("coerces to array", () => {
-    assert.deepStrictEqual(coerceToType("true", "array"), ["t", "r", "u", "e"]);
+    assert.deepStrictEqual(coerceToType("true", "array"), ["true"]);
     assert.deepStrictEqual(coerceToType([1,2,3], "array"), [1,2,3]);
-    assert.deepStrictEqual(coerceToType(null, "array"), null);
-    assert.deepStrictEqual(coerceToType(undefined, "array"), null);
+    assert.deepStrictEqual(coerceToType(null, "array"), [null]);
+    assert.deepStrictEqual(coerceToType(undefined, "array"), [undefined]);
   });
 
   it("soft coerces to array", () => {
     assert.deepStrictEqual(coerceToType([1,2,3], "array", {soft: true}), [1,2,3]);
     assert.deepStrictEqual(
       coerceToType(undefined, "array", {soft: true}),
-      undefined
+      [undefined]
     );
   });
 
   it("coerces to object", () => {
-    assert.deepStrictEqual(coerceToType("true", "object"), "true");
+    assert.deepStrictEqual(coerceToType("true", "object"), {value: "true"});
     assert.deepStrictEqual(coerceToType({a: 1, b: 2}, "object"), {a: 1, b: 2});
     assert.deepStrictEqual(coerceToType(null, "object"), null);
-    assert.deepStrictEqual(coerceToType(undefined, "object"), null);
+    assert.deepStrictEqual(coerceToType(undefined, "object"), {value: undefined});
   });
 
   it("soft coerces to object", () => {
-    assert.deepStrictEqual(coerceToType("true", "object", {soft: true}), "true");
+    assert.deepStrictEqual(coerceToType("true", "object", {soft: true}), {value: "true"});
     assert.deepStrictEqual(coerceToType(null, "object", {soft: true}), null);
     assert.deepStrictEqual(
       coerceToType(undefined, "object", {soft: true}),
-      undefined
+      {value: undefined}
     );
   });
 
