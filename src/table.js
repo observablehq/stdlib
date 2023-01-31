@@ -620,10 +620,10 @@ export function coerceToType(value, type) {
 export function __table(source, operations) {
   const input = source;
   let {schema, columns} = source;
-  let newlyInferred = false;
+  let inferredSchema = false;
   if (!schema || !isQueryResultSetSchema(schema)) {
     schema = inferSchema(source);
-    newlyInferred = true;
+    inferredSchema = true;
   }
   let primitive = arrayIsPrimitive(source);
   if (primitive) source = Array.from(source, (value) => ({value}));
@@ -641,7 +641,7 @@ export function __table(source, operations) {
   }
   // Coerce data according to new schema, unless that happened due to
   // operations.type, above. 
-  if (newlyInferred && !operations.type) {
+  if (inferredSchema && !operations.type) {
     source = source.map(d => coerceRow(d, types));
   }
   for (const {type, operands} of operations.filter) {
