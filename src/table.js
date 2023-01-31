@@ -620,7 +620,7 @@ export function __table(source, operations) {
   let {schema, columns} = source;
   let inferredSchema = false;
   if (!isQueryResultSetSchema(schema)) {
-    schema = inferSchema(source);
+    schema = inferSchema(source, columns);
     inferredSchema = true;
   }
   let primitive = arrayIsPrimitive(source);
@@ -810,8 +810,7 @@ function getAllKeys(rows) {
   return Array.from(keys);
 }
 
-export function inferSchema(source) {
-  const allKeys = getAllKeys(source);
+export function inferSchema(source, columns = getAllKeys(source)) {
   const schema = [];
   const sampleSize = 100;
   let sample = source.slice(0, sampleSize);
@@ -819,43 +818,43 @@ export function inferSchema(source) {
     sample = sample.map((d) => {
       return {value: d};
     });
-    allKeys.push("value");
+    columns.push("value");
   }
   const typeCounts = {};
   for (const d of sample) {
-    for (const key of allKeys) {
-      if (!typeCounts[key]) typeCounts[key] = initKey();
+    for (const col of columns) {
+      if (!typeCounts[col]) typeCounts[col] = initKey();
       // for json and sqlite, we already have some types, but for csv and tsv, all
       // columns are strings here.
-      const type = typeof d[key];
-      const value = type === "string" ? d[key].trim() : d[key];
+      const type = typeof d[col];
+      const value = type === "string" ? d[col].trim() : d[col];
       if (type !== "string") {
-        if (Array.isArray(value)) typeCounts[key].array++;
-        else if (value instanceof Date) typeCounts[key].date++;
-        else if (value instanceof ArrayBuffer) typeCounts[key].buffer++;
+        if (Array.isArray(value)) typeCounts[col].array++;
+        else if (value instanceof Date) typeCounts[col].date++;
+        else if (value instanceof ArrayBuffer) typeCounts[col].buffer++;
         else if (type === "number") {
-          if (Number.isInteger(+value)) typeCounts[key].integer++;
-          else typeCounts[key].number++;
+          if (Number.isInteger(+value)) typeCounts[col].integer++;
+          else typeCounts[col].number++;
         }
         // bigint, boolean, or object
-        else if (type in typeCounts[key]) typeCounts[key][type]++;
-        else if (value !== null && value !== undefined) typeCounts[key].other++;
+        else if (type in typeCounts[col]) typeCounts[col][type]++;
+        else if (value !== null && value !== undefined) typeCounts[col].other++;
       } else {
-        if (value === "true" || value === "false") typeCounts[key].boolean++;
+        if (value === "true" || value === "false") typeCounts[col].boolean++;
         else if (value && !isNaN(value)) {
-          if (Number.isInteger(+value)) typeCounts[key].integer++;
-          else typeCounts[key].number++;
-        } else if (/^\d+n$/.test(value)) typeCounts[key].bigint++;
+          if (Number.isInteger(+value)) typeCounts[col].integer++;
+          else typeCounts[col].number++;
+        } else if (/^\d+n$/.test(value)) typeCounts[col].bigint++;
         else if (
           value &&
           value.match(
             /^(([-+]\d{2})?\d{4}(-\d{1,2}(-\d{1,2})?)|(\d{1,2})\/(\d{1,2})\/(\d{2,4}))?([T ]\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/
           )
         )
-          typeCounts[key].date++;
+          typeCounts[col].date++;
         // the long regex accepts dates in the form of ISOString and
         // LocaleDateString, with or without times
-        else if (value) typeCounts[key].string++;
+        else if (value) typeCounts[col].string++;
       }
     }
   }
