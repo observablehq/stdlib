@@ -764,12 +764,12 @@ export function __table(source, operations) {
   return source;
 }
 
-function coerceRow(object, types) {
-  let coerced = {};
-  for (var key in object) {
-    const type = types.get(key);
-    const value = object[key];
-    coerced[key] = coerceToType(value, type);
+function coerceRow(object, types, schema) {
+  const coerced = {};
+  for (const col of schema) {
+    const type = types.get(col.name);
+    const value = object[col.name];
+    coerced[col.name] = type === "raw" ? value : coerceToType(value, type);
   }
   return coerced;
 }
