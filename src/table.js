@@ -546,6 +546,8 @@ export function getTypeValidator(colType) {
 export function coerceToType(value, type) {
   const stringValue = typeof value === "string" ? value.trim() : value;
   switch (type) {
+    case "raw":
+      return value;
     case "string":
       return typeof value === "string"
         ? stringValue
