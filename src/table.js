@@ -791,7 +791,27 @@ function initKey() {
   };
 }
 
+// We need to show *all* keys present in the array of Objects
+function getAllKeys(rows) {
+  const keys = new Set();
+  for (const row of rows) {
+    // avoid crash if row is null or undefined
+    if (row) {
+      // only enumerable properties
+      for (const key in row) {
+        // only own properties
+        if (Object.prototype.hasOwnProperty.call(row, key)) {
+          // unique properties, in the order they appear
+          keys.add(key);
+        }
+      }
+    }
+  }
+  return Array.from(keys);
+}
+
 export function inferSchema(source) {
+  const allKeys = getAllKeys(source);
   const schema = [];
   const sampleSize = 100;
   let sample = source.slice(0, sampleSize);
@@ -799,10 +819,11 @@ export function inferSchema(source) {
     sample = sample.map((d) => {
       return {value: d};
     });
+    allKeys.push("value");
   }
   const typeCounts = {};
   for (const d of sample) {
-    for (const key in d) {
+    for (const key of allKeys) {
       if (!typeCounts[key]) typeCounts[key] = initKey();
       // for json and sqlite, we already have some types, but for csv and tsv, all
       // columns are strings here.

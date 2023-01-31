@@ -609,7 +609,7 @@ describe("__table", () => {
       expectedPrimitive
     );
     const expectedUint32Array = [1];
-    expectedUint32Array.schema = [];
+    expectedUint32Array.schema = [{name: "value", type: "other"}];
     assert.deepStrictEqual(
       __table(Uint32Array.of(1, 2, 3), {
         ...EMPTY_TABLE_DATA.operations,
@@ -990,6 +990,8 @@ describe("coerceToType", () => {
     assert.deepStrictEqual(coerceToType("true", "boolean"), true);
     assert.deepStrictEqual(coerceToType("true   ", "boolean"), true);
     assert.deepStrictEqual(coerceToType(true, "boolean"), true);
+    assert.deepStrictEqual(coerceToType("false", "boolean"), false);
+    assert.deepStrictEqual(coerceToType(false, "boolean"), false);
     assert.deepStrictEqual(coerceToType("A", "boolean"), null);
     assert.deepStrictEqual(coerceToType(null, "boolean"), null);
     assert.deepStrictEqual(coerceToType(undefined, "boolean"), null);
