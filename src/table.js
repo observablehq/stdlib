@@ -546,8 +546,6 @@ export function getTypeValidator(colType) {
 export function coerceToType(value, type) {
   const stringValue = typeof value === "string" ? value.trim() : value;
   switch (type) {
-    case "raw":
-      return value;
     case "string":
       return typeof value === "string"
         ? stringValue
@@ -637,12 +635,11 @@ export function __table(source, operations) {
       const colIndex = schema.findIndex((col) => col.name === name);
       if (colIndex > -1) schema[colIndex] = {...schema[colIndex], type};
     }
-    source = source.map(d => coerceRow(d, types));
-  }
-  // Coerce data according to new schema, unless that happened due to
-  // operations.type, above. 
-  if (inferredSchema && !operations.type) {
-    source = source.map(d => coerceRow(d, types));
+    source = source.map(d => coerceRow(d, types, schema));
+  } else if (inferredSchema) {
+    // Coerce data according to new schema, unless that happened due to
+    // operations.type, above. 
+    source = source.map(d => coerceRow(d, types, schema));
   }
   for (const {type, operands} of operations.filter) {
     const [{value: column}] = operands;

@@ -1080,20 +1080,8 @@ describe("coerceToType", () => {
     assert.deepStrictEqual(coerceToType(undefined, "other"), null);
   });
 
-  it("coerces to raw", () => {
-    assert.deepStrictEqual(coerceToType(0, "raw"), 0);
-    assert.deepStrictEqual(coerceToType("a", "raw"), "a");
-    assert.deepStrictEqual(coerceToType(32n, "raw"), 32n);
-    assert.deepStrictEqual(
-      coerceToType(new ArrayBuffer(), "raw"),
-      new ArrayBuffer()
-    );
-    assert.deepStrictEqual(coerceToType([1,2,3], "raw"), [1,2,3]);
-    assert.deepStrictEqual(
-      coerceToType("12/12/2020  ", "raw"), "12/12/2020  "
-    );
-    assert.deepStrictEqual(coerceToType(null, "raw"), null);
-    assert.deepStrictEqual(coerceToType(NaN, "raw"), NaN);
-    assert.deepStrictEqual(coerceToType(undefined, "raw"), undefined);
-  });
+  // Note: if type is "raw", coerceToType() will not be called. Instead, values
+  // will be returned from coerceRow().
+  // it("coerces to raw", () => {
+  // });
 });
