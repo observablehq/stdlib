@@ -621,7 +621,7 @@ export function __table(source, operations) {
   const input = source;
   let {schema, columns} = source;
   let inferredSchema = false;
-  if (!schema || !isQueryResultSetSchema(schema)) {
+  if (!isQueryResultSetSchema(schema)) {
     schema = inferSchema(source);
     inferredSchema = true;
   }
