@@ -9,6 +9,5 @@ export {
   isDataArray,
   isDatabaseClient,
   __table as applyDataTableOperations,
-  getTypeValidator,
-  inferSchema
+  getTypeValidator
 } from "./table.js";
