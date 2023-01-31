@@ -815,9 +815,8 @@ export function inferFromPrimitive(source) {
   const primitiveSource = source.map((d) => {
     return {value: d};
   });
- return inferSchema(primitiveSource, ["value"]);
+  return inferSchema(primitiveSource, ["value"]);
 }
-
 
 export function inferSchema(source, columns = getAllKeys(source)) {
   const schema = [];
@@ -862,7 +861,10 @@ export function inferSchema(source, columns = getAllKeys(source)) {
     }
   }
   for (const col in typeCounts) {
-    let type = greatest(Object.keys(typeCounts[col]), (d) => typeCounts[col][d]);
+    let type = greatest(
+      Object.keys(typeCounts[col]),
+      (d) => typeCounts[col][d]
+    );
     // If over 90% of the sampled data counted as this type, use it. Otherwise,
     // use "other."
     type =
