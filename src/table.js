@@ -663,7 +663,7 @@ export function __table(source, operations) {
       Object.fromEntries(operations.select.columns.map((c) => [c, d[c]]))
     );
   }
-  if (operations.names) {
+  if (!primitive && operations.names) {
     const overridesByName = new Map(operations.names.map((n) => [n.column, n]));
     if (schema) {
       schema = schema.map((s) => {
