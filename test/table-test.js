@@ -1,6 +1,7 @@
 import {
   coerceToType,
   getTypeValidator,
+  inferFromPrimitive,
   inferSchema,
   makeQueryTemplate,
   __table
@@ -964,6 +965,17 @@ describe("inferSchema", () => {
     assert.deepStrictEqual(
       inferSchema([{a: Symbol("a")}, {a: Symbol("b")}]),
       [{name: "a", type: "other", inferred: "other"}]
+    );
+  });
+
+  it("infers from arrays of primitives", () => {
+    assert.deepStrictEqual(
+      inferFromPrimitive(["true", "false"]),
+      [{name: "value", type: "boolean", inferred: "boolean"}]
+    );
+    assert.deepStrictEqual(
+      inferFromPrimitive([1, 2, 3]),
+      [{name: "value", type: "integer", inferred: "integer"}]
     );
   });
 });

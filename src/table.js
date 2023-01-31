@@ -620,7 +620,8 @@ export function __table(source, operations) {
   let {schema, columns} = source;
   let inferredSchema = false;
   if (!isQueryResultSetSchema(schema)) {
-    schema = inferSchema(source, columns);
+    if (arrayIsPrimitive(source)) schema = inferFromPrimitive(source, columns);
+    else schema = inferSchema(source, columns);
     inferredSchema = true;
   }
   let primitive = arrayIsPrimitive(source);
@@ -810,16 +811,18 @@ function getAllKeys(rows) {
   return Array.from(keys);
 }
 
+export function inferFromPrimitive(source) {
+  const primitiveSource = source.map((d) => {
+    return {value: d};
+  });
+ return inferSchema(primitiveSource, ["value"]);
+}
+
+
 export function inferSchema(source, columns = getAllKeys(source)) {
   const schema = [];
   const sampleSize = 100;
   let sample = source.slice(0, sampleSize);
-  if (arrayIsPrimitive(sample)) {
-    sample = sample.map((d) => {
-      return {value: d};
-    });
-    columns.push("value");
-  }
   const typeCounts = {};
   for (const d of sample) {
     for (const col of columns) {
