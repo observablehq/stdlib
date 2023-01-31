@@ -455,9 +455,9 @@ describe("__table", () => {
       {a: 3, b: 6, c: 9}
     ];
     source.schema = [
-      {name: "a", type: "integer"},
-      {name: "b", type: "integer"},
-      {name: "c", type: "integer"}
+      {name: "a", type: "integer", inferred: "integer"},
+      {name: "b", type: "integer", inferred: "integer"},
+      {name: "c", type: "integer", inferred: "integer"}
     ];
   });
 
@@ -489,7 +489,7 @@ describe("__table", () => {
       select: {columns: ["a"]}
     };
     const expectedSelected = [{a: 1}, {a: 2}, {a: 3}];
-    expectedSelected.schema = [{name: "a", type: "integer"}];
+    expectedSelected.schema = [{name: "a", type: "integer", inferred: "integer"}];
     assert.deepStrictEqual(
       __table(source, operationsSelectedColumns),
       expectedSelected
@@ -592,7 +592,7 @@ describe("__table", () => {
 
   it("__table filter primitive lte + gte", () => {
     const expectedPrimitive = [1];
-    expectedPrimitive.schema = [{name: "value", type: "integer"}];
+    expectedPrimitive.schema = [{name: "value", type: "integer", inferred: "integer"}];
     assert.deepStrictEqual(
       __table([1, 2, 3], {
         ...EMPTY_TABLE_DATA.operations,
@@ -609,7 +609,7 @@ describe("__table", () => {
       expectedPrimitive
     );
     const expectedUint32Array = [1];
-    expectedUint32Array.schema = [{name: "value", type: "other"}];
+    expectedUint32Array.schema = [{name: "value", type: "other", inferred: "other"}];
     assert.deepStrictEqual(
       __table(Uint32Array.of(1, 2, 3), {
         ...EMPTY_TABLE_DATA.operations,
@@ -646,7 +646,7 @@ describe("__table", () => {
       {a: new Date("2021-01-03")}
     ];
     const expected = [{a: new Date("2021-01-02")}];
-    expected.schema = [{name: "a", type: "date"}];
+    expected.schema = [{name: "a", type: "date", inferred: "date"}];
     assert.deepStrictEqual(__table(source, operationsEquals), expected);
   });
 
@@ -706,7 +706,7 @@ describe("__table", () => {
     const expectedDesc = [
       {a: 20}, {a: 10}, {a: 5}, {a: 1}, {a: null}, {a: null}, {a: null}, {a: null}
     ];
-    expectedDesc.schema = [{name: "a", type: "other"}];
+    expectedDesc.schema = [{name: "a", type: "other", inferred: "other"}];
     assert.deepStrictEqual(
       __table(sourceWithMissing, operationsDesc),
       expectedDesc
@@ -718,7 +718,7 @@ describe("__table", () => {
     const expectedAsc = [
       {a: 1}, {a: 5}, {a: 10}, {a: 20}, {a: null}, {a: null}, {a: null}, {a: null}
     ];
-    expectedAsc.schema = [{name: "a", type: "other"}];
+    expectedAsc.schema = [{name: "a", type: "other", inferred: "other"}];
     assert.deepStrictEqual(
       __table(sourceWithMissing, operationsAsc),
       expectedAsc
@@ -783,16 +783,16 @@ describe("__table", () => {
       ["a", "b", "c"]
     );
     source.schema = [
-      {name: "a", type: "number"},
-      {name: "b", type: "number"},
-      {name: "c", type: "number"}
+      {name: "a", type: "number", inferred: "number"},
+      {name: "b", type: "number", inferred: "number"},
+      {name: "c", type: "number", inferred: "number"}
     ];
     assert.deepStrictEqual(
       __table(source, EMPTY_TABLE_DATA.operations).schema,
       [
-        {name: "a", type: "number"},
-        {name: "b", type: "number"},
-        {name: "c", type: "number"}
+        {name: "a", type: "number", inferred: "number"},
+        {name: "b", type: "number", inferred: "number"},
+        {name: "c", type: "number", inferred: "number"}
       ]
     );
   });
@@ -891,9 +891,9 @@ describe("inferSchema", () => {
         ]
       ),
       [
-        {name: "a", type: "other"},
-        {name: "b", type: "integer"},
-        {name: "c", type: "integer"}
+        {name: "a", type: "other", inferred: "other"},
+        {name: "b", type: "integer", inferred: "integer"},
+        {name: "c", type: "integer", inferred: "integer"}
       ]
     );
   });
@@ -901,14 +901,14 @@ describe("inferSchema", () => {
   it("infers numbers", () => {
     assert.deepStrictEqual(
       inferSchema([{a: 1.2}, {a: 3.4}, {a: 5.67}]),
-      [{name: "a", type: "number"}]
+      [{name: "a", type: "number", inferred: "number"}]
     );
   });
 
   it("infers booleans", () => {
     assert.deepStrictEqual(
       inferSchema([{a: "true"}, {a: false}, {a: "false"}]),
-      [{name: "a", type: "boolean"}]
+      [{name: "a", type: "boolean", inferred: "boolean"}]
     );
   });
 
@@ -917,53 +917,53 @@ describe("inferSchema", () => {
       inferSchema(
         [{a: "1/2/20"}, {a: "2020-11-12 12:23:00"}, {a: new Date()}, {a: "2020-1-12"}]
       ),
-      [{name: "a", type: "date"}]
+      [{name: "a", type: "date", inferred: "date"}]
     );
   });
 
   it("infers strings", () => {
     assert.deepStrictEqual(
       inferSchema([{a: "cat"}, {a: "dog"}, {a: "1,000"}, {a: "null"}]),
-      [{name: "a", type: "string"}]
+      [{name: "a", type: "string", inferred: "string"}]
     );
   });
 
   it("infers arrays", () => {
     assert.deepStrictEqual(
       inferSchema([{a: ["cat"]}, {a: ["dog"]}, {a: []}]),
-      [{name: "a", type: "array"}]
+      [{name: "a", type: "array", inferred: "array"}]
     );
   });
 
   it("infers objects", () => {
     assert.deepStrictEqual(
       inferSchema([{a: {d: ["cat"]}}, {a: {d: "dog"}}, {a: {d: 12}}]),
-      [{name: "a", type: "object"}]
+      [{name: "a", type: "object", inferred: "object"}]
     );
   });
 
   it("infers bigints", () => {
     assert.deepStrictEqual(
       inferSchema([{a: 10n}, {a: 22n}, {a: 1n}]),
-      [{name: "a", type: "bigint"}]
+      [{name: "a", type: "bigint", inferred: "bigint"}]
     );
     assert.deepStrictEqual(
       inferSchema([{a: "10n"}, {a: "22n"}, {a: "0n"}]),
-      [{name: "a", type: "bigint"}]
+      [{name: "a", type: "bigint", inferred: "bigint"}]
     );
   });
 
   it("infers buffers", () => {
     assert.deepStrictEqual(
       inferSchema([{a: new ArrayBuffer()}, {a: new ArrayBuffer()}]),
-      [{name: "a", type: "buffer"}]
+      [{name: "a", type: "buffer", inferred: "buffer"}]
     );
   });
 
   it("infers other", () => {
     assert.deepStrictEqual(
       inferSchema([{a: Symbol("a")}, {a: Symbol("b")}]),
-      [{name: "a", type: "other"}]
+      [{name: "a", type: "other", inferred: "other"}]
     );
   });
 });

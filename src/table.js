@@ -869,7 +869,8 @@ export function inferSchema(source) {
         : "other";
     schema.push({
       name: col,
-      type: type
+      type: type,
+      inferred: type
     });
   }
   return schema;
