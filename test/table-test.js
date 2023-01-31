@@ -1005,7 +1005,7 @@ describe("coerceToType", () => {
     );
     // with whitespace
     assert.deepStrictEqual(
-      coerceToType("12/12/2020  ", "date", {soft: true}),
+      coerceToType("12/12/2020  ", "date"),
       new Date("12/12/2020")
     );
     assert.deepStrictEqual(
@@ -1090,7 +1090,7 @@ describe("coerceToType", () => {
     );
     assert.deepStrictEqual(coerceToType([1,2,3], "raw"), [1,2,3]);
     assert.deepStrictEqual(
-      coerceToType("12/12/2020  ", "raw", {soft: true}), "12/12/2020  "
+      coerceToType("12/12/2020  ", "raw"), "12/12/2020  "
     );
     assert.deepStrictEqual(coerceToType(null, "raw"), null);
     assert.deepStrictEqual(coerceToType(NaN, "raw"), NaN);
