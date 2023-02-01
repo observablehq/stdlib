@@ -586,7 +586,9 @@ export function coerceToType(value, type) {
     case "date": {
       if (value instanceof Date) return value;
       const trimValue = typeof value === "string" ? value.trim() : value;
-      return new Date(trimValue);
+      return value && /^(([-+]\d{2})?\d{4}(-\d{2}(-\d{2})?)|(\d{1,2})\/(\d{1,2})\/(\d{2,4}))?([T ]\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/.test(trimValue)
+        ? new Date(trimValue)
+        : new Date("");
     }
     case "array":
     case "object":
