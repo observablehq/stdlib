@@ -579,7 +579,7 @@ export function coerceToType(value, type) {
     case "number": {
       return typeof value === "number"
         ? value
-        : value == null || value === ""
+        : value == null || (typeof value === "string" && !value)
         ? NaN
         : Number(value);
     }
