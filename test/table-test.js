@@ -1028,12 +1028,13 @@ describe("coerceToType", () => {
 
   it("coerces to string", () => {
     assert.deepStrictEqual(coerceToType(true, "string"), "true");
+    assert.deepStrictEqual(coerceToType(false, "string"), "false");
     assert.deepStrictEqual(coerceToType(10, "string"), "10");
     assert.deepStrictEqual(coerceToType({a: 1}, "string"), "[object Object]");
     assert.deepStrictEqual(coerceToType(0, "string"), "0");
     assert.deepStrictEqual(coerceToType(null, "string"), null);
-    assert.deepStrictEqual(coerceToType(undefined, "string"), null);
-    assert.deepStrictEqual(coerceToType(NaN, "string"), null);
+    assert.deepStrictEqual(coerceToType(undefined, "string"), undefined);
+    assert.deepStrictEqual(coerceToType(NaN, "string"), "NaN");
   });
 
   it("coerces to array", () => {

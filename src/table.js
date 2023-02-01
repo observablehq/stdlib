@@ -68,14 +68,16 @@ function objectHasEnumerableKeys(value) {
 function isQueryResultSetSchema(schemas) {
   return (
     Array.isArray(schemas) &&
-    schemas.every(
-      (s) => s && typeof s.name === "string" && typeof s.type === "string"
-    )
+    schemas.every(isColumnSchema)
   );
 }
 
 function isQueryResultSetColumns(columns) {
   return (Array.isArray(columns) && columns.every((name) => typeof name === "string"));
+}
+
+function isColumnSchema(schema) {
+  return schema && typeof schema.name === "string" && typeof schema.type === "string";
 }
 
 // Returns true if the value represents an array of primitives (i.e., a
@@ -547,11 +549,9 @@ export function coerceToType(value, type) {
   const stringValue = typeof value === "string" ? value.trim() : value;
   switch (type) {
     case "string":
-      return typeof value === "string"
-        ? stringValue
-        : value || value === 0
-        ? value.toString()
-        : null;
+      return typeof value === "string" || value == null
+        ? value
+        : String(value);
     case "boolean":
       return value === true || stringValue === "true"
         ? true
