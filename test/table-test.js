@@ -690,7 +690,7 @@ describe("__table", () => {
       sort: [{column: "a", direction: "desc"}]
     };
     const expectedDesc = [
-      {a: 20}, {a: 10}, {a: 5}, {a: 1}, {a: null}, {a: null}, {a: null}, {a: null}
+      {a: 20}, {a: 10}, {a: 5}, {a: 1}, {a: null}, {a: undefined}, {a: NaN}, {a: null}
     ];
     expectedDesc.schema = [{name: "a", type: "other", inferred: "other"}];
     assert.deepStrictEqual(
@@ -702,7 +702,7 @@ describe("__table", () => {
       sort: [{column: "a", direction: "asc"}]
     };
     const expectedAsc = [
-      {a: 1}, {a: 5}, {a: 10}, {a: 20}, {a: null}, {a: null}, {a: null}, {a: null}
+      {a: 1}, {a: 5}, {a: 10}, {a: 20}, {a: null}, {a: undefined}, {a: NaN}, {a: null}
     ];
     expectedAsc.schema = [{name: "a", type: "other", inferred: "other"}];
     assert.deepStrictEqual(
@@ -1003,6 +1003,7 @@ describe("coerceToType", () => {
   it("coerces to number", () => {
     assert.deepStrictEqual(coerceToType("1.2", "number"), 1.2);
     assert.deepStrictEqual(coerceToType(0, "number"), 0);
+    assert.deepStrictEqual(coerceToType("", "number"), NaN);
     assert.deepStrictEqual(coerceToType("A", "number"), NaN);
     assert.deepStrictEqual(coerceToType(null, "number"), NaN);
     assert.deepStrictEqual(coerceToType(undefined, "number"), NaN);
@@ -1062,20 +1063,6 @@ describe("coerceToType", () => {
     assert.deepStrictEqual(coerceToType(NaN, "string"), "NaN");
   });
 
-  it("coerces to array", () => {
-    // "array" is not a target type for coercion, but can be inferred.
-    assert.deepStrictEqual(coerceToType([1,2,3], "array"), [1,2,3]);
-    assert.deepStrictEqual(coerceToType(null, "array"), null);
-    assert.deepStrictEqual(coerceToType(undefined, "array"), null);
-  });
-
-  it("coerces to object", () => {
-    // "object" is not a target type for coercion, but can be inferred.
-    assert.deepStrictEqual(coerceToType({a: 1, b: 2}, "object"), {a: 1, b: 2});
-    assert.deepStrictEqual(coerceToType(null, "object"), null);
-    assert.deepStrictEqual(coerceToType(undefined, "object"), null);
-  });
-
   it("coerces to bigint", () => {
     assert.deepStrictEqual(coerceToType("32", "bigint"), 32n);
     assert.deepStrictEqual(coerceToType(32n, "bigint"), 32n);
@@ -1089,6 +1076,20 @@ describe("coerceToType", () => {
     assert.deepStrictEqual(coerceToType(NaN, "bigint"), NaN);
   });
 
+  it("coerces to array", () => {
+    // "array" is not a target type for coercion, but can be inferred.
+    assert.deepStrictEqual(coerceToType([1,2,3], "array"), [1,2,3]);
+    assert.deepStrictEqual(coerceToType(null, "array"), null);
+    assert.deepStrictEqual(coerceToType(undefined, "array"), undefined);
+  });
+
+  it("coerces to object", () => {
+    // "object" is not a target type for coercion, but can be inferred.
+    assert.deepStrictEqual(coerceToType({a: 1, b: 2}, "object"), {a: 1, b: 2});
+    assert.deepStrictEqual(coerceToType(null, "object"), null);
+    assert.deepStrictEqual(coerceToType(undefined, "object"), undefined);
+  });
+
   it("coerces to buffer", () => {
     // "buffer" is not a target type for coercion, but can be inferred.
     assert.deepStrictEqual(
@@ -1097,7 +1098,7 @@ describe("coerceToType", () => {
     );
     assert.deepStrictEqual(coerceToType("A", "buffer"), "A");
     assert.deepStrictEqual(coerceToType(null, "buffer"), null);
-    assert.deepStrictEqual(coerceToType(undefined, "buffer"), null);
+    assert.deepStrictEqual(coerceToType(undefined, "buffer"), undefined);
   });
 
   it("coerces to other", () => {
@@ -1105,7 +1106,7 @@ describe("coerceToType", () => {
     assert.deepStrictEqual(coerceToType(0, "other"), 0);
     assert.deepStrictEqual(coerceToType("a", "other"), "a");
     assert.deepStrictEqual(coerceToType(null, "other"), null);
-    assert.deepStrictEqual(coerceToType(undefined, "other"), null);
+    assert.deepStrictEqual(coerceToType(undefined, "other"), undefined);
   });
 
   // Note: if type is "raw", coerceToType() will not be called. Instead, values

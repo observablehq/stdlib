@@ -591,7 +591,7 @@ export function coerceToType(value, type) {
     case "object":
     case "buffer":
     case "other":
-      return value || value === 0 ? value : null;
+      return value;
     default:
       throw new Error(`Unable to coerce to type: ${type}`);
   }
