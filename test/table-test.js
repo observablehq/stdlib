@@ -788,17 +788,33 @@ describe("__table", () => {
       ...EMPTY_TABLE_DATA.operations,
       names: [{column: "a", name: "nameA"}]
     };
-    assert.deepStrictEqual(__table(source, operations), [{nameA: 1, b: 2, c: 3}, {nameA: 2, b: 4, c: 6}, {nameA: 3, b: 6, c: 9}]);
+    const expected = [
+      {nameA: 1, b: 2, c: 3},
+      {nameA: 2, b: 4, c: 6},
+      {nameA: 3, b: 6, c: 9}
+    ];
+    expected.schema = [
+      {name: "nameA", type: "integer", inferred: "integer"},
+      {name: "b", type: "integer", inferred: "integer"},
+      {name: "c", type: "integer", inferred: "integer"}
+    ];
+    assert.deepStrictEqual(__table(source, operations), expected);
     source.columns = ["a", "b", "c"];
-    assert.deepStrictEqual(
-      __table(source, operations).columns,
-      ["nameA", "b", "c"]
-    );
-    source.schema = [{name: "a", type: "number"}, {name: "b", type: "number"}, {name: "c", type: "number"}];
-    assert.deepStrictEqual(
-      __table(source, operations).schema,
-      [{name: "nameA", type: "number"}, {name: "b", type: "number"}, {name: "c", type: "number"}]
-    );
+    assert.deepStrictEqual(__table(source, operations).columns, [
+      "nameA",
+      "b",
+      "c"
+    ]);
+    source.schema = [
+      {name: "a", type: "integer", inferred: "integer"},
+      {name: "b", type: "integer", inferred: "integer"},
+      {name: "c", type: "integer", inferred: "integer"}
+    ];
+    assert.deepStrictEqual(__table(source, operations).schema, [
+      {name: "nameA", type: "integer", inferred: "integer"},
+      {name: "b", type: "integer", inferred: "integer"},
+      {name: "c", type: "integer", inferred: "integer"}
+    ]);
   });
 });
 
