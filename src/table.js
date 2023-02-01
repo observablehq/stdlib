@@ -840,10 +840,7 @@ export function inferSchema(source, columns = getAllKeys(source)) {
           else typeCounts[col].number++;
         } else if (/^\d+n$/.test(value)) typeCounts[col].bigint++;
         else if (
-          value &&
-          value.match(
-            /^(([-+]\d{2})?\d{4}(-\d{1,2}(-\d{1,2})?)|(\d{1,2})\/(\d{1,2})\/(\d{2,4}))?([T ]\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/
-          )
+          /^(([-+]\d{2})?\d{4}(-\d{2}(-\d{2})?)|(\d{1,2})\/(\d{1,2})\/(\d{2,4}))?([T ]\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/.test(value)
         )
           typeCounts[col].date++;
         // the long regex accepts dates in the form of ISOString and

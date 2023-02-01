@@ -935,7 +935,7 @@ describe("inferSchema", () => {
   it("infers dates", () => {
     assert.deepStrictEqual(
       inferSchema(
-        [{a: "1/2/20"}, {a: "2020-11-12 12:23:00"}, {a: new Date()}, {a: "2020-1-12"}]
+        [{a: "1/2/20"}, {a: "2020-11-12 12:23:00"}, {a: new Date()}, {a: "2020-01-12"}]
       ),
       [{name: "a", type: "date", inferred: "date"}]
     );
