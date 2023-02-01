@@ -590,43 +590,6 @@ describe("__table", () => {
     );
   });
 
-  it("__table filter primitive lte + gte", () => {
-    const expectedPrimitive = [1];
-    expectedPrimitive.schema = [{name: "value", type: "integer", inferred: "integer"}];
-    assert.deepStrictEqual(
-      __table([1, 2, 3], {
-        ...EMPTY_TABLE_DATA.operations,
-        filter: [
-          {
-            type: "eq",
-            operands: [
-              {type: "column", value: "value"},
-              {type: "resolved", value: 1}
-            ]
-          }
-        ]
-      }),
-      expectedPrimitive
-    );
-    const expectedUint32Array = [1];
-    expectedUint32Array.schema = [{name: "value", type: "integer", inferred: "integer"}];
-    assert.deepStrictEqual(
-      __table(Uint32Array.of(1, 2, 3), {
-        ...EMPTY_TABLE_DATA.operations,
-        filter: [
-          {
-            type: "eq",
-            operands: [
-              {type: "column", value: "value"},
-              {type: "resolved", value: 1}
-            ]
-          }
-        ]
-      }),
-      expectedUint32Array
-    );
-  });
-
   it("__table filter eq date", () => {
     const operationsEquals = {
       ...EMPTY_TABLE_DATA.operations,

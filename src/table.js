@@ -207,6 +207,7 @@ const loadTableDataSource = sourceCache(async (source, name) => {
     throw new Error(`unsupported file type: ${source.mimeType}`);
   }
   if (isArrowTable(source) || isArqueroTable(source)) return loadDuckDBClient(source, name);
+  if (arrayIsPrimitive(source)) return Array.from(source, (value) => ({value}));
   return source;
 });
 
@@ -610,12 +611,9 @@ export function coerceToType(value, type) {
 export function __table(source, operations) {
   const input = source;
   let {schema, columns} = source;
-  let primitive = arrayIsPrimitive(source);
-  if (primitive) source = Array.from(source, (value) => ({value}));
   let inferredSchema = false;
   if (!isQueryResultSetSchema(schema)) {
-    if (primitive) schema = inferSchema(source, ["value"]);
-    else schema = inferSchema(source, columns);
+    schema = inferSchema(source, columns);
     inferredSchema = true;
   }
   // Combine column types from schema with user-selected types in operations
@@ -746,7 +744,6 @@ export function __table(source, operations) {
       Object.fromEntries(operations.select.columns.map((c) => [c, d[c]]))
     );
   }
-  if (primitive) source = source.map((d) => d.value);
   if (source !== input) {
     if (schema) source.schema = schema;
     if (columns) source.columns = columns;
