@@ -618,14 +618,14 @@ export function coerceToType(value, type) {
 export function __table(source, operations) {
   const input = source;
   let {schema, columns} = source;
+  let primitive = arrayIsPrimitive(source);
+  if (primitive) source = Array.from(source, (value) => ({value}));
   let inferredSchema = false;
   if (!isQueryResultSetSchema(schema)) {
-    if (arrayIsPrimitive(source)) schema = inferFromPrimitive(source, columns);
+    if (primitive) schema = inferSchema(source, ["value"]);
     else schema = inferSchema(source, columns);
     inferredSchema = true;
   }
-  let primitive = arrayIsPrimitive(source);
-  if (primitive) source = Array.from(source, (value) => ({value}));
   // Combine column types from schema with user-selected types in operations
   const types = new Map(schema.map(({name, type}) => [name, type]));
   if (operations.type) {
@@ -809,13 +809,6 @@ function getAllKeys(rows) {
     }
   }
   return Array.from(keys);
-}
-
-export function inferFromPrimitive(source) {
-  const primitiveSource = source.map((d) => {
-    return {value: d};
-  });
-  return inferSchema(primitiveSource, ["value"]);
 }
 
 export function inferSchema(source, columns = getAllKeys(source)) {

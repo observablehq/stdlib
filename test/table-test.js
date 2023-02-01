@@ -1,7 +1,6 @@
 import {
   coerceToType,
   getTypeValidator,
-  inferFromPrimitive,
   inferSchema,
   makeQueryTemplate,
   __table
@@ -610,7 +609,7 @@ describe("__table", () => {
       expectedPrimitive
     );
     const expectedUint32Array = [1];
-    expectedUint32Array.schema = [{name: "value", type: "other", inferred: "other"}];
+    expectedUint32Array.schema = [{name: "value", type: "integer", inferred: "integer"}];
     assert.deepStrictEqual(
       __table(Uint32Array.of(1, 2, 3), {
         ...EMPTY_TABLE_DATA.operations,
@@ -965,17 +964,6 @@ describe("inferSchema", () => {
     assert.deepStrictEqual(
       inferSchema([{a: Symbol("a")}, {a: Symbol("b")}]),
       [{name: "a", type: "other", inferred: "other"}]
-    );
-  });
-
-  it("infers from arrays of primitives", () => {
-    assert.deepStrictEqual(
-      inferFromPrimitive(["true", "false"]),
-      [{name: "value", type: "boolean", inferred: "boolean"}]
-    );
-    assert.deepStrictEqual(
-      inferFromPrimitive([1, 2, 3]),
-      [{name: "value", type: "integer", inferred: "integer"}]
     );
   });
 });
