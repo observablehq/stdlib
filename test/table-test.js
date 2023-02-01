@@ -35,6 +35,10 @@ const baseOperations = {
   }
 };
 
+function escape(identifier) {
+  return `\`${identifier.replace(/`/g, "``")}\``;
+}
+
 describe("makeQueryTemplate", () => {
   it("makeQueryTemplate null table", () => {
     const source = {};
@@ -437,6 +441,25 @@ describe("makeQueryTemplate", () => {
     );
     assert.deepStrictEqual(params, ["val1", "val2"]);
   });
+
+  it("makeQueryTemplate names", () => {
+    const source = {name: "db", dialect: "mysql", escape};
+    let operations = {
+      ...baseOperations,
+      select: {
+        columns: ["col1", "col2", "col3"]
+      },
+      names: [
+        {column: "col1", name: "name1"},
+        {column: "col2", name: "name2"},
+        {column: "col3", name: "name3"}
+      ]
+    };
+
+    const [parts, ...params] = makeQueryTemplate(operations, source);
+    assert.deepStrictEqual(parts.join("?"), "SELECT `col1` AS `name1`, `col2` AS `name2`, `col3` AS `name3` FROM `table1`");
+    assert.deepStrictEqual(params, []);
+  });
 });
 
 describe("__table", () => {
@@ -583,6 +606,24 @@ describe("__table", () => {
     assert.deepStrictEqual(
       __table(source, EMPTY_TABLE_DATA.operations).schema,
       [{name: "a", type: "number"}, {name: "b", type: "number"}, {name: "c", type: "number"}]
+    );
+  });
+
+  it("__table names", () => {
+    const operations = {
+      ...EMPTY_TABLE_DATA.operations,
+      names: [{column: "a", name: "nameA"}]
+    };
+    assert.deepStrictEqual(__table(source, operations), [{nameA: 1, b: 2, c: 3}, {nameA: 2, b: 4, c: 6}, {nameA: 3, b: 6, c: 9}]);
+    source.columns = ["a", "b", "c"];
+    assert.deepStrictEqual(
+      __table(source, operations).columns,
+      ["nameA", "b", "c"]
+    );
+    source.schema = [{name: "a", type: "number"}, {name: "b", type: "number"}, {name: "c", type: "number"}];
+    assert.deepStrictEqual(
+      __table(source, operations).schema,
+      [{name: "nameA", type: "number"}, {name: "b", type: "number"}, {name: "c", type: "number"}]
     );
   });
 });

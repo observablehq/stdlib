@@ -307,7 +307,11 @@ export function makeQueryTemplate(operations, source) {
     throw new Error("missing from table");
   if (select.columns && select.columns.length === 0)
     throw new Error("at least one column must be selected");
-  const columns = select.columns ? select.columns.map(escaper).join(", ") : "*";
+  const names = new Map(operations.names?.map(({column, name}) => [column, name]));
+  const columns = select.columns ? select.columns.map((column) =>  {
+    const override = names.get(column);
+    return override ? `${escaper(column)} AS ${escaper(override)}` : escaper(column);
+  }).join(", ") : "*";
   const args = [
     [`SELECT ${columns} FROM ${formatTable(from.table, escaper)}`]
   ];
@@ -657,6 +661,27 @@ export function __table(source, operations) {
     }
     source = source.map((d) =>
       Object.fromEntries(operations.select.columns.map((c) => [c, d[c]]))
+    );
+  }
+  if (!primitive && operations.names) {
+    const overridesByName = new Map(operations.names.map((n) => [n.column, n]));
+    if (schema) {
+      schema = schema.map((s) => {
+        const override = overridesByName.get(s.name);
+        return ({...s, ...(override ? {name: override.name} : null)});
+      });
+    }
+    if (columns) {
+      columns = columns.map((c) => {
+        const override = overridesByName.get(c);
+        return override?.name ?? c;
+      });
+    }
+    source = source.map((d) =>
+      Object.fromEntries(Object.keys(d).map((k) => {
+        const override = overridesByName.get(k);
+        return [override?.name ?? k, d[k]];
+      }))
     );
   }
   if (primitive) source = source.map((d) => d.value);
