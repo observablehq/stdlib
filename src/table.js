@@ -576,27 +576,16 @@ export function coerceToType(value, type) {
           BigInt(value);
     case "integer": // not a target type for coercion, but can be inferred
     case "number": {
-      return value === 0
+      return typeof value === "number"
         ? value
-        : !value || isNaN(value)
+        : value == null || value === ""
         ? NaN
         : Number(value);
     }
     case "date": {
       if (value instanceof Date) return value;
-      if (typeof value === "string") {
-        const trimValue = value.trim();
-        let match;
-        if (
-          (match = trimValue.match(
-            /^([-+]\d{2})?\d{4}(-\d{2}(-\d{2})?)?(T\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/
-          ))
-        ) {
-          if (fixTz && !!match[4] && !match[7])
-            value = trimValue.replace(/-/g, "/").replace(/T/, " ");
-        }
-      }
-      return new Date(value);
+      const trimValue = typeof value === "string" ? value.trim() : value;
+      return new Date(trimValue);
     }
     case "array":
     case "object":
@@ -785,11 +774,6 @@ function coerceRow(object, types, schema) {
   }
   return coerced;
 }
-
-// https://github.com/d3/d3-dsv/issues/45
-const fixTz =
-  new Date("2019-01-01T00:00").getHours() ||
-  new Date("2019-07-01T00:00").getHours();
 
 function initKey() {
   return {
