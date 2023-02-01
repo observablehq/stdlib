@@ -207,7 +207,8 @@ const loadTableDataSource = sourceCache(async (source, name) => {
     throw new Error(`unsupported file type: ${source.mimeType}`);
   }
   if (isArrowTable(source) || isArqueroTable(source)) return loadDuckDBClient(source, name);
-  if (arrayIsPrimitive(source)) return Array.from(source, (value) => ({value}));
+  if (isDataArray(source) && arrayIsPrimitive(source))
+    return Array.from(source, (value) => ({value}));
   return source;
 });
 
