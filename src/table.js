@@ -559,12 +559,6 @@ export function coerceToType(value, type) {
       return typeof value === "boolean" || value == null
         ? value
         : Boolean(value);
-    case "integer":
-      return value === 0
-        ? value
-        : !value || isNaN(parseInt(value))
-        ? NaN
-        : parseInt(value);
     case "bigint":
       return typeof value === "bigint"
         ? value
@@ -575,6 +569,7 @@ export function coerceToType(value, type) {
         ? NaN
         : // eslint-disable-next-line no-undef
           BigInt(value);
+    case "integer": // not a target type for coercion, but can be inferred
     case "number": {
       return value === 0
         ? value
@@ -599,17 +594,12 @@ export function coerceToType(value, type) {
       return new Date(value);
     }
     case "array":
-      if (Array.isArray(value)) return value;
-      return [value];
     case "object":
-      // this will return true for everything except null, undefined, strings,
-      // numbers, boolean, and symbols, so may yield unexpected results.
-      if (typeof value === "object") return value;
-      return {value: value};
     case "buffer":
     case "other":
-    default:
       return value || value === 0 ? value : null;
+    default:
+      throw new Error(`Unable to coerce to type: ${type}`);
   }
 }
 

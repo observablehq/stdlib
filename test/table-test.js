@@ -970,7 +970,10 @@ describe("inferSchema", () => {
 
 describe("coerceToType", () => {
   it("coerces to integer", () => {
-    assert.deepStrictEqual(coerceToType("1.2", "integer"), 1);
+    // "integer" is not a target type for coercion, but can be inferred. So it
+    // will be handled as an alias for "number".
+    assert.deepStrictEqual(coerceToType("1.2", "integer"), 1.2);
+    assert.deepStrictEqual(coerceToType(1.2, "integer"), 1.2);
     assert.deepStrictEqual(coerceToType("10", "integer"), 10);
     assert.deepStrictEqual(coerceToType(0, "integer"), 0);
     assert.deepStrictEqual(coerceToType("A", "integer"), NaN);
@@ -1040,17 +1043,17 @@ describe("coerceToType", () => {
   });
 
   it("coerces to array", () => {
-    assert.deepStrictEqual(coerceToType("true", "array"), ["true"]);
+    // "array" is not a target type for coercion, but can be inferred.
     assert.deepStrictEqual(coerceToType([1,2,3], "array"), [1,2,3]);
-    assert.deepStrictEqual(coerceToType(null, "array"), [null]);
-    assert.deepStrictEqual(coerceToType(undefined, "array"), [undefined]);
+    assert.deepStrictEqual(coerceToType(null, "array"), null);
+    assert.deepStrictEqual(coerceToType(undefined, "array"), null);
   });
 
   it("coerces to object", () => {
-    assert.deepStrictEqual(coerceToType("true", "object"), {value: "true"});
+    // "object" is not a target type for coercion, but can be inferred.
     assert.deepStrictEqual(coerceToType({a: 1, b: 2}, "object"), {a: 1, b: 2});
     assert.deepStrictEqual(coerceToType(null, "object"), null);
-    assert.deepStrictEqual(coerceToType(undefined, "object"), {value: undefined});
+    assert.deepStrictEqual(coerceToType(undefined, "object"), null);
   });
 
   it("coerces to bigint", () => {
@@ -1067,6 +1070,7 @@ describe("coerceToType", () => {
   });
 
   it("coerces to buffer", () => {
+    // "buffer" is not a target type for coercion, but can be inferred.
     assert.deepStrictEqual(
       coerceToType(new ArrayBuffer(), "buffer"),
       new ArrayBuffer()
@@ -1077,6 +1081,7 @@ describe("coerceToType", () => {
   });
 
   it("coerces to other", () => {
+    // "other" is not a target type for coercion, but can be inferred.
     assert.deepStrictEqual(coerceToType(0, "other"), 0);
     assert.deepStrictEqual(coerceToType("a", "other"), "a");
     assert.deepStrictEqual(coerceToType(null, "other"), null);
@@ -1085,6 +1090,4 @@ describe("coerceToType", () => {
 
   // Note: if type is "raw", coerceToType() will not be called. Instead, values
   // will be returned from coerceRow().
-  // it("coerces to raw", () => {
-  // });
 });
