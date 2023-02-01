@@ -546,7 +546,6 @@ export function getTypeValidator(colType) {
 }
 
 export function coerceToType(value, type) {
-  const stringValue = typeof value === "string" ? value.trim() : value;
   switch (type) {
     case "string":
       return typeof value === "string" || value == null
@@ -586,14 +585,15 @@ export function coerceToType(value, type) {
     case "date": {
       if (value instanceof Date) return value;
       if (typeof value === "string") {
+        const trimValue = value.trim();
         let match;
         if (
-          (match = stringValue.match(
+          (match = trimValue.match(
             /^([-+]\d{2})?\d{4}(-\d{2}(-\d{2})?)?(T\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/
           ))
         ) {
           if (fixTz && !!match[4] && !match[7])
-            value = stringValue.replace(/-/g, "/").replace(/T/, " ");
+            value = trimValue.replace(/-/g, "/").replace(/T/, " ");
         }
       }
       return new Date(value);
