@@ -553,11 +553,13 @@ export function coerceToType(value, type) {
         ? value
         : String(value);
     case "boolean":
-      return value === true || stringValue === "true"
-        ? true
-        : value === false || stringValue === "false"
-        ? false
-        : null;
+      if (typeof value === "string") {
+        const trimValue = value.trim();
+        return trimValue === "true" ? true : trimValue === "false" ? false : null;
+      }
+      return typeof value === "boolean" || value == null
+        ? value
+        : Boolean(value);
     case "integer":
       return value === 0
         ? value
