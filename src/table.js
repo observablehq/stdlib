@@ -820,35 +820,9 @@ export function inferSchema(source, columns = getAllKeys(source)) {
   for (const d of sample) {
     for (const col of columns) {
       if (!typeCounts[col]) typeCounts[col] = initKey();
-      // for json and sqlite, we already have some types, but for csv and tsv, all
-      // columns are strings here.
       const type = typeof d[col];
       const value = type === "string" ? d[col].trim() : d[col];
-      if (type !== "string") {
-        if (Array.isArray(value)) typeCounts[col].array++;
-        else if (value instanceof Date) typeCounts[col].date++;
-        else if (value instanceof ArrayBuffer) typeCounts[col].buffer++;
-        else if (type === "number") {
-          if (Number.isInteger(+value)) typeCounts[col].integer++;
-          else typeCounts[col].number++;
-        }
-        // bigint, boolean, or object
-        else if (type in typeCounts[col]) typeCounts[col][type]++;
-        else if (value !== null && value !== undefined) typeCounts[col].other++;
-      } else {
-        if (value === "true" || value === "false") typeCounts[col].boolean++;
-        else if (value && !isNaN(value)) {
-          if (Number.isInteger(+value)) typeCounts[col].integer++;
-          else typeCounts[col].number++;
-        } else if (/^\d+n$/.test(value)) typeCounts[col].bigint++;
-        else if (
-          /^(([-+]\d{2})?\d{4}(-\d{2}(-\d{2})?)|(\d{1,2})\/(\d{1,2})\/(\d{2,4}))?([T ]\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/.test(value)
-        )
-          typeCounts[col].date++;
-        // the long regex accepts dates in the form of ISOString and
-        // LocaleDateString, with or without times
-        else if (value) typeCounts[col].string++;
-      }
+      typeCounts[col][inferType(type, value)]++;
     }
   }
   for (const col in typeCounts) {
@@ -869,4 +843,34 @@ export function inferSchema(source, columns = getAllKeys(source)) {
     });
   }
   return schema;
+}
+
+function inferType(type, value) {
+  // for json and sqlite, we already have some types, but for csv and tsv, all
+  // columns are strings here.
+  const typedNonStrings = ["bigint", "boolean", "object"];
+  if (type !== "string") {
+    if (Array.isArray(value)) return "array";
+    else if (value instanceof Date) return "date";
+    else if (value instanceof ArrayBuffer) return "buffer";
+    else if (type === "number") {
+      if (Number.isInteger(+value)) return "integer";
+      else return "number";
+    }
+    else if (typedNonStrings.includes(type)) return type;
+    else if (value !== null && value !== undefined) return "other";
+  } else {
+    if (value === "true" || value === "false") return "boolean";
+    else if (value && !isNaN(value)) {
+      if (Number.isInteger(+value)) return "integer";
+      else return "number";
+    } else if (/^\d+n$/.test(value)) return "bigint";
+    else if (
+      /^(([-+]\d{2})?\d{4}(-\d{2}(-\d{2})?)|(\d{1,2})\/(\d{1,2})\/(\d{2,4}))?([T ]\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/.test(value)
+    )
+      return "date";
+    // the long regex accepts dates in the form of ISOString and
+    // LocaleDateString, with or without times
+    else if (value) return "string";
+  }
 }
