@@ -551,6 +551,9 @@ export function getTypeValidator(colType) {
   }
 }
 
+// Accepts dates in the form of ISOString and LocaleDateString, with or without time
+const DATE_TEST = /^(([-+]\d{2})?\d{4}(-\d{2}(-\d{2}))|(\d{1,2})\/(\d{1,2})\/(\d{2,4}))([T ]\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/;
+
 export function coerceToType(value, type) {
   switch (type) {
     case "string":
@@ -582,7 +585,7 @@ export function coerceToType(value, type) {
     case "date": {
       if (value instanceof Date) return value;
       const trimValue = typeof value === "string" ? value.trim() : value;
-      return /^(([-+]\d{2})?\d{4}(-\d{2}(-\d{2}))|(\d{1,2})\/(\d{1,2})\/(\d{2,4}))([T ]\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/.test(trimValue)
+      return DATE_TEST.test(trimValue)
         ? new Date(trimValue)
         : new Date("");
     }
@@ -856,12 +859,7 @@ function inferType(type, value) {
       if (Number.isInteger(+value)) return "integer";
       else return "number";
     } else if (/^\d+n$/.test(value)) return "bigint";
-    else if (
-      /^(([-+]\d{2})?\d{4}(-\d{2}(-\d{2}))|(\d{1,2})\/(\d{1,2})\/(\d{2,4}))([T ]\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/.test(value)
-    )
-      return "date";
-    // the long regex accepts dates in the form of ISOString and
-    // LocaleDateString, with or without times
+    else if (DATE_TEST.test(value)) return "date";
     else if (value) return "string";
     else return "other";
   }
