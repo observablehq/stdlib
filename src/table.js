@@ -866,7 +866,7 @@ export function inferSchema(source, columns = getAllKeys(source)) {
     // Chose the non-string, non-other type with the greatest count that is also
     // ≥90%; or if no such type meets that criterion, fallback to string if
     // ≥90%; and lastly fallback to other.
-    const minCount = colCount.defined * 0.9;
+    const minCount = Math.max(1, colCount.defined * 0.9);
     const type =
       greatest(types, (type) =>
         colCount[type] >= minCount ? colCount[type] : NaN

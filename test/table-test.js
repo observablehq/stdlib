@@ -985,6 +985,10 @@ describe("inferSchema", () => {
       inferSchema([{a: Symbol("a")}, {a: Symbol("b")}]),
       [{name: "a", type: "other", inferred: "other"}]
     );
+    assert.deepStrictEqual(
+      inferSchema([{a: null}, {a: null}]),
+      [{name: "a", type: "other", inferred: "other"}]
+    );
   });
 
   it("infers mixed integers and numbers as numbers", () => {
