@@ -573,21 +573,21 @@ export function coerceToType(value, type) {
     case "bigint":
       return typeof value === "bigint" || value == null
         ? value
-        : Number.isInteger(typeof value === "string" && !value ? NaN : +value)
+        : Number.isInteger(typeof value === "string" && !value.trim() ? NaN : +value)
         ? BigInt(value) // eslint-disable-line no-undef
         : undefined;
     case "integer": // not a target type for coercion, but can be inferred
     case "number": {
       return typeof value === "number"
         ? value
-        : value == null || (typeof value === "string" && !value)
+        : value == null || (typeof value === "string" && !value.trim())
         ? NaN
         : Number(value);
     }
     case "date": {
       if (value instanceof Date || value == null) return value;
       if (typeof value === "number") return new Date(value);
-      if (typeof value === "string" && !value) return null;
+      if (typeof value === "string" && !value.trim()) return null;
       const trimValue = String(value).trim();
       return new Date(DATE_TEST.test(trimValue) ? trimValue : NaN);
     }
@@ -860,8 +860,7 @@ export function inferSchema(source, columns = getAllKeys(source)) {
         } else if (value && !isNaN(value)) {
           ++colCount.number;
           if (Number.isInteger(+value)) ++colCount.integer;
-        } else if (/^\d+n$/.test(value)) ++colCount.bigint;
-        else if (DATE_TEST.test(value)) ++colCount.date;
+        } else if (DATE_TEST.test(value)) ++colCount.date;
       }
     }
     // Chose the non-string, non-other type with the greatest count that is also

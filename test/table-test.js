@@ -946,6 +946,10 @@ describe("inferSchema", () => {
       inferSchema([{a: "cat"}, {a: "dog"}, {a: "1,000"}, {a: "null"}]),
       [{name: "a", type: "string", inferred: "string"}]
     );
+    assert.deepStrictEqual(
+      inferSchema([{a: "10n"}, {a: "22n"}, {a: "0n"}]), // not considered bigints
+      [{name: "a", type: "string", inferred: "string"}]
+    );
   });
 
   it("infers arrays", () => {
@@ -965,10 +969,6 @@ describe("inferSchema", () => {
   it("infers bigints", () => {
     assert.deepStrictEqual(
       inferSchema([{a: 10n}, {a: 22n}, {a: 1n}]),
-      [{name: "a", type: "bigint", inferred: "bigint"}]
-    );
-    assert.deepStrictEqual(
-      inferSchema([{a: "10n"}, {a: "22n"}, {a: "0n"}]),
       [{name: "a", type: "bigint", inferred: "bigint"}]
     );
   });
@@ -1049,17 +1049,24 @@ describe("coerceToType", () => {
     // "integer" is not a target type for coercion, but can be inferred. So it
     // will be handled as an alias for "number".
     assert.deepStrictEqual(coerceToType("1.2", "integer"), 1.2);
+    assert.deepStrictEqual(coerceToType(" 1.2", "integer"), 1.2);
+    assert.deepStrictEqual(coerceToType(" 1.2 ", "integer"), 1.2);
     assert.deepStrictEqual(coerceToType(1.2, "integer"), 1.2);
     assert.deepStrictEqual(coerceToType("10", "integer"), 10);
     assert.deepStrictEqual(coerceToType(0, "integer"), 0);
     assert.deepStrictEqual(coerceToType("A", "integer"), NaN);
+    assert.deepStrictEqual(coerceToType("", "integer"), NaN);
+    assert.deepStrictEqual(coerceToType(" ", "integer"), NaN);
     assert.deepStrictEqual(coerceToType(null, "integer"), NaN);
   });
 
   it("coerces to number", () => {
     assert.deepStrictEqual(coerceToType("1.2", "number"), 1.2);
+    assert.deepStrictEqual(coerceToType(" 1.2", "number"), 1.2);
+    assert.deepStrictEqual(coerceToType(" 1.2 ", "number"), 1.2);
     assert.deepStrictEqual(coerceToType(0, "number"), 0);
     assert.deepStrictEqual(coerceToType("", "number"), NaN);
+    assert.deepStrictEqual(coerceToType(" ", "number"), NaN);
     assert.deepStrictEqual(coerceToType("A", "number"), NaN);
     assert.deepStrictEqual(coerceToType(null, "number"), NaN);
     assert.deepStrictEqual(coerceToType(undefined, "number"), NaN);
@@ -1078,6 +1085,8 @@ describe("coerceToType", () => {
     assert.deepStrictEqual(coerceToType({}, "boolean"), true);
     assert.deepStrictEqual(coerceToType(new Date(), "boolean"), true);
     assert.deepStrictEqual(coerceToType("A", "boolean"), null);
+    assert.deepStrictEqual(coerceToType("", "boolean"), null);
+    assert.deepStrictEqual(coerceToType(" ", "boolean"), null);
     assert.deepStrictEqual(coerceToType(null, "boolean"), null);
     assert.deepStrictEqual(coerceToType(undefined, "boolean"), undefined);
   });
@@ -1116,6 +1125,7 @@ describe("coerceToType", () => {
     assert.deepStrictEqual(coerceToType(undefined, "date"), undefined);
     assert.deepStrictEqual(coerceToType(null, "date"), null);
     assert.deepStrictEqual(coerceToType("", "date"), null);
+    assert.deepStrictEqual(coerceToType(" ", "date"), null);
   });
 
   it("coerces to string", () => {
@@ -1124,6 +1134,10 @@ describe("coerceToType", () => {
     assert.deepStrictEqual(coerceToType(10, "string"), "10");
     assert.deepStrictEqual(coerceToType({a: 1}, "string"), "[object Object]");
     assert.deepStrictEqual(coerceToType(0, "string"), "0");
+    assert.deepStrictEqual(coerceToType("", "string"), "");
+    assert.deepStrictEqual(coerceToType(" ", "string"), " ");
+    assert.deepStrictEqual(coerceToType(" foo", "string"), " foo");
+    assert.deepStrictEqual(coerceToType(" foo ", "string"), " foo ");
     assert.deepStrictEqual(coerceToType(null, "string"), null);
     assert.deepStrictEqual(coerceToType(undefined, "string"), undefined);
     assert.deepStrictEqual(coerceToType(NaN, "string"), "NaN");
@@ -1131,6 +1145,7 @@ describe("coerceToType", () => {
 
   it("coerces to bigint", () => {
     assert.deepStrictEqual(coerceToType("32", "bigint"), 32n);
+    assert.deepStrictEqual(coerceToType(" 32", "bigint"), 32n);
     assert.deepStrictEqual(coerceToType(32n, "bigint"), 32n);
     assert.deepStrictEqual(coerceToType(0, "bigint"), 0n);
     assert.deepStrictEqual(coerceToType(false, "bigint"), 0n);
@@ -1138,13 +1153,17 @@ describe("coerceToType", () => {
     assert.deepStrictEqual(coerceToType(null, "bigint"), null);
     assert.deepStrictEqual(coerceToType(undefined, "bigint"), undefined);
     assert.deepStrictEqual(coerceToType(1.1, "bigint"), undefined);
+    assert.deepStrictEqual(coerceToType("1.1", "bigint"), undefined);
+    assert.deepStrictEqual(coerceToType(" 32n", "bigint"), undefined);
     assert.deepStrictEqual(coerceToType("A", "bigint"), undefined);
+    assert.deepStrictEqual(coerceToType("", "bigint"), undefined);
+    assert.deepStrictEqual(coerceToType(" ", "bigint"), undefined);
     assert.deepStrictEqual(coerceToType(NaN, "bigint"), undefined);
   });
 
   it("coerces to array", () => {
     // "array" is not a target type for coercion, but can be inferred.
-    assert.deepStrictEqual(coerceToType([1,2,3], "array"), [1,2,3]);
+    assert.deepStrictEqual(coerceToType([1, 2, 3], "array"), [1,2,3]);
     assert.deepStrictEqual(coerceToType(null, "array"), null);
     assert.deepStrictEqual(coerceToType(undefined, "array"), undefined);
   });
