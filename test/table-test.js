@@ -1012,12 +1012,15 @@ describe("coerceToType", () => {
 
   it("coerces to boolean", () => {
     assert.deepStrictEqual(coerceToType("true", "boolean"), true);
-    assert.deepStrictEqual(coerceToType("true   ", "boolean"), true);
+    assert.deepStrictEqual(coerceToType("True   ", "boolean"), true);
     assert.deepStrictEqual(coerceToType(true, "boolean"), true);
-    assert.deepStrictEqual(coerceToType("false", "boolean"), false);
+    assert.deepStrictEqual(coerceToType("False", "boolean"), false);
     assert.deepStrictEqual(coerceToType(false, "boolean"), false);
     assert.deepStrictEqual(coerceToType(1, "boolean"), true);
+    assert.deepStrictEqual(coerceToType(2, "boolean"), true);
     assert.deepStrictEqual(coerceToType(0, "boolean"), false);
+    assert.deepStrictEqual(coerceToType({}, "boolean"), true);
+    assert.deepStrictEqual(coerceToType(new Date(), "boolean"), true);
     assert.deepStrictEqual(coerceToType("A", "boolean"), null);
     assert.deepStrictEqual(coerceToType(null, "boolean"), null);
     assert.deepStrictEqual(coerceToType(undefined, "boolean"), undefined);

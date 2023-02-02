@@ -557,13 +557,15 @@ const DATE_TEST = /^(([-+]\d{2})?\d{4}(-\d{2}(-\d{2}))|(\d{1,2})\/(\d{1,2})\/(\d
 export function coerceToType(value, type) {
   switch (type) {
     case "string":
-      return typeof value === "string" || value == null
-        ? value
-        : String(value);
+      return typeof value === "string" || value == null ? value : String(value);
     case "boolean":
       if (typeof value === "string") {
         const trimValue = value.trim();
-        return trimValue === "true" ? true : trimValue === "false" ? false : null;
+        return trimValue.toLowerCase() === "true"
+          ? true
+          : trimValue.toLowerCase() === "false"
+          ? false
+          : null;
       }
       return typeof value === "boolean" || value == null
         ? value
@@ -850,11 +852,11 @@ function inferType(colValue) {
     else if (type === "number") {
       if (Number.isInteger(+value)) return "integer";
       else return "number";
-    }
-    else if (typedNonStrings.includes(type)) return type;
+    } else if (typedNonStrings.includes(type)) return type;
     else if (value) return "other";
   } else {
-    if (value === "true" || value === "false") return "boolean";
+    if (value.toLowerCase() === "true" || value.toLowerCase() === "false")
+      return "boolean";
     else if (value && !isNaN(value)) {
       if (Number.isInteger(+value)) return "integer";
       else return "number";
