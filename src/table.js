@@ -853,7 +853,7 @@ function inferType(type, value) {
       else return "number";
     }
     else if (typedNonStrings.includes(type)) return type;
-    else if (value !== null && value !== undefined) return "other";
+    else return "other";
   } else {
     if (value === "true" || value === "false") return "boolean";
     else if (value && !isNaN(value)) {
@@ -867,5 +867,6 @@ function inferType(type, value) {
     // the long regex accepts dates in the form of ISOString and
     // LocaleDateString, with or without times
     else if (value) return "string";
+    else return "other";
   }
 }
