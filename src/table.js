@@ -822,7 +822,7 @@ export function inferSchema(source, columns = getAllKeys(source)) {
     for (const col of columns) {
       if (!typeCounts[col]) typeCounts[col] = initKey();
       const type = typeof d[col];
-      const value = type === "string" ? d[col].trim() : d[col];
+      let value = d[col];
       if (type !== "string") {
         if (Array.isArray(value)) ++typeCounts[col].array;
         else if (value instanceof Date) ++typeCounts[col].date;
@@ -835,7 +835,8 @@ export function inferSchema(source, columns = getAllKeys(source)) {
         else if (type in typeCounts[col]) ++typeCounts[col][type];
         else if (value !== null && value !== undefined) ++typeCounts[col].other;
       } else {
-        if (value.toLowerCase() === "true" || value.toLowerCase() === "false") {
+        value = value.trim();
+        if (/^(true|false)$/i.test(value)) {
           ++typeCounts[col].string;
           ++typeCounts[col].boolean;
         } else if (value && !isNaN(value)) {
