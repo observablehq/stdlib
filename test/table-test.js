@@ -1014,6 +1014,34 @@ describe("inferSchema", () => {
       [{name: "x", type: "string", inferred: "string"}]
     );
   });
+
+  it("infers boolean-ish strings and strings as booleans", () => {
+    assert.deepStrictEqual(
+      inferSchema(["true", "false", "true", "false", "true", "false", "true", "false", "true", "false", "pants on fire"].map((x) => ({x}))),
+      [{name: "x", type: "boolean", inferred: "boolean"}]
+    );
+  });
+
+  it("infers booleans and strings as booleans", () => {
+    assert.deepStrictEqual(
+      inferSchema([true, false, true, false, true, false, true, false, true, false, "pants on fire"].map((x) => ({x}))),
+      [{name: "x", type: "boolean", inferred: "boolean"}]
+    );
+  });
+
+  it("infers numbers and strings as numbers", () => {
+    assert.deepStrictEqual(
+      inferSchema([0.1, 0.2, 0.1, 0.2, 0.1, 0.2, 0.1, 0.2, 0.1, 0.2, "x"].map((x) => ({x}))),
+      [{name: "x", type: "number", inferred: "number"}]
+    );
+  });
+
+  it("infers number-ish strings and strings as numbers", () => {
+    assert.deepStrictEqual(
+      inferSchema(["0.1", "0.2", "0.1", "0.2", "0.1", "0.2", "0.1", "0.2", "0.1", "0.2", "x"].map((x) => ({x}))),
+      [{name: "x", type: "number", inferred: "number"}]
+    );
+  });
 });
 
 describe("coerceToType", () => {

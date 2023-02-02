@@ -805,9 +805,8 @@ const types = [
   "bigint",
   "array",
   "object",
-  "buffer",
-  "string" // should probably always be last since it’s least specific
-  // Note: "other" is intentionally omitted; it is handed specially!
+  "buffer"
+  // Note: "other" and "string" are intentionally omitted; see below!
 ];
 
 // We need to show *all* keys present in the array of Objects
@@ -832,15 +831,13 @@ function getAllKeys(rows) {
 export function inferSchema(source, columns = getAllKeys(source)) {
   const schema = [];
   const sampleSize = 100;
-  let sample = source.slice(0, sampleSize);
+  const sample = source.slice(0, sampleSize);
   const typeCounts = {};
-  for (const col of columns) typeCounts[col] = createTypeCount();
-  // TODO invert order of these loops?
-  for (const d of sample) {
-    for (const col of columns) {
+  for (const col of columns) {
+    const colCount = typeCounts[col] = createTypeCount();
+    for (const d of sample) {
       let value = d[col];
       if (value == null) continue;
-      const colCount = typeCounts[col];
       const type = typeof value;
       if (type !== "string") {
         ++colCount.defined;
@@ -870,13 +867,14 @@ export function inferSchema(source, columns = getAllKeys(source)) {
   }
   for (const col in typeCounts) {
     const colCount = typeCounts[col];
-    // Chose the type with the greatest count that is also ≥90%; or, if no type
-    // meets that criterion, fallback to other.
+    // Chose the non-string, non-other type with the greatest count that is also
+    // ≥90%; or if no such type meets that criterion, fallback to string if
+    // ≥90%; and lastly fallback to other.
     const minCount = colCount.defined * 0.9;
     const type =
       greatest(types, (type) =>
         colCount[type] >= minCount ? colCount[type] : NaN
-      ) ?? "other";
+      ) ?? (colCount.string >= minCount ? "string" : "other");
     schema.push({
       name: col,
       type: type,
