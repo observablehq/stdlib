@@ -1001,6 +1001,13 @@ describe("inferSchema", () => {
     );
   });
 
+  it("infers mixed integers and strings as integers", () => {
+    assert.deepStrictEqual(
+      inferSchema(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "x"].map((x) => ({x}))),
+      [{name: "x", type: "integer", inferred: "integer"}]
+    );
+  });
+
   it("infers boolean-ish strings and strings as strings", () => {
     assert.deepStrictEqual(
       inferSchema(["true", "false", "pants on fire"].map((x) => ({x}))),

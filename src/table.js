@@ -626,7 +626,7 @@ export function __table(source, operations) {
     source = source.map(d => coerceRow(d, types, schema));
   } else if (inferredSchema) {
     // Coerce data according to new schema, unless that happened due to
-    // operations.type, above. 
+    // operations.type, above.
     source = source.map(d => coerceRow(d, types, schema));
   }
   for (const {type, operands} of operations.filter) {
@@ -779,9 +779,8 @@ function coerceRow(object, types, schema) {
   return coerced;
 }
 
-function initKey() {
+function createTypeCount() {
   return {
-    other: 0,
     boolean: 0,
     integer: 0,
     number: 0,
@@ -790,9 +789,26 @@ function initKey() {
     array: 0,
     object: 0,
     bigint: 0,
-    buffer: 0
+    buffer: 0,
+    defined: 0
   };
 }
+
+// Caution: the order below matters! 🌶️ The first one that passes the ≥90% test
+// should be the one that we chose, and therefore these types should be listed
+// from most specific to least specific.
+const types = [
+  "boolean",
+  "integer",
+  "number",
+  "date",
+  "bigint",
+  "array",
+  "object",
+  "buffer",
+  "string" // should probably always be last since it’s least specific
+  // Note: "other" is intentionally omitted; it is handed specially!
+];
 
 // We need to show *all* keys present in the array of Objects
 function getAllKeys(rows) {
@@ -818,48 +834,49 @@ export function inferSchema(source, columns = getAllKeys(source)) {
   const sampleSize = 100;
   let sample = source.slice(0, sampleSize);
   const typeCounts = {};
+  for (const col of columns) typeCounts[col] = createTypeCount();
+  // TODO invert order of these loops?
   for (const d of sample) {
     for (const col of columns) {
-      if (!typeCounts[col]) typeCounts[col] = initKey();
-      const type = typeof d[col];
       let value = d[col];
+      if (value == null) continue;
+      const colCount = typeCounts[col];
+      const type = typeof value;
       if (type !== "string") {
-        if (Array.isArray(value)) ++typeCounts[col].array;
-        else if (value instanceof Date) ++typeCounts[col].date;
-        else if (value instanceof ArrayBuffer) ++typeCounts[col].buffer;
+        ++colCount.defined;
+        if (Array.isArray(value)) ++colCount.array;
+        else if (value instanceof Date) ++colCount.date;
+        else if (value instanceof ArrayBuffer) ++colCount.buffer;
         else if (type === "number") {
-          ++typeCounts[col].number;
-          if (Number.isInteger(value)) ++typeCounts[col].integer;
+          ++colCount.number;
+          if (Number.isInteger(value)) ++colCount.integer;
         }
         // bigint, boolean, or object
-        else if (type in typeCounts[col]) ++typeCounts[col][type];
-        else if (value !== null && value !== undefined) ++typeCounts[col].other;
+        else if (type in colCount) ++colCount[type];
       } else {
         value = value.trim();
+        if (!value) continue;
+        ++colCount.defined;
+        ++colCount.string;
         if (/^(true|false)$/i.test(value)) {
-          ++typeCounts[col].string;
-          ++typeCounts[col].boolean;
+          ++colCount.boolean;
         } else if (value && !isNaN(value)) {
-          ++typeCounts[col].number;
-          if (Number.isInteger(+value)) ++typeCounts[col].integer;
-        } else if (/^\d+n$/.test(value)) ++typeCounts[col].bigint;
-        else if (DATE_TEST.test(value)) ++typeCounts[col].date;
-        else if (value) ++typeCounts[col].string;
+          ++colCount.number;
+          if (Number.isInteger(+value)) ++colCount.integer;
+        } else if (/^\d+n$/.test(value)) ++colCount.bigint;
+        else if (DATE_TEST.test(value)) ++colCount.date;
       }
     }
   }
   for (const col in typeCounts) {
-    let type = greatest(Object.keys(typeCounts[col]), d => typeCounts[col][d]);
-    const numDefined = sample.filter(
-      (d) =>
-        !(
-          d[col] == null ||
-          (typeof d[col] === "string" && d[col].trim() === "")
-        )
-    ).length;
-    // If over 90% of the sampled data counted as this type, use it. Otherwise,
-    // use "other."
-    type = typeCounts[col][type] / numDefined >= 0.9 ? type : "other";
+    const colCount = typeCounts[col];
+    // Chose the type with the greatest count that is also ≥90%; or, if no type
+    // meets that criterion, fallback to other.
+    const minCount = colCount.defined * 0.9;
+    const type =
+      greatest(types, (type) =>
+        colCount[type] >= minCount ? colCount[type] : NaN
+      ) ?? "other";
     schema.push({
       name: col,
       type: type,
