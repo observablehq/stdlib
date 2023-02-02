@@ -821,7 +821,30 @@ export function inferSchema(source, columns = getAllKeys(source)) {
   for (const d of sample) {
     for (const col of columns) {
       if (!typeCounts[col]) typeCounts[col] = initKey();
-      typeCounts[col][inferType(d[col])]++;
+      const type = typeof d[col];
+      const value = type === "string" ? d[col].trim() : d[col];
+      if (type !== "string") {
+        if (Array.isArray(value)) ++typeCounts[col].array;
+        else if (value instanceof Date) ++typeCounts[col].date;
+        else if (value instanceof ArrayBuffer) ++typeCounts[col].buffer;
+        else if (type === "number") {
+          ++typeCounts[col].number;
+          if (Number.isInteger(+value)) ++typeCounts[col].integer;
+        }
+        // bigint, boolean, or object
+        else if (type in typeCounts[col]) ++typeCounts[col][type];
+        else if (value !== null && value !== undefined) ++typeCounts[col].other;
+      } else {
+        if (value.toLowerCase() === "true" || value.toLowerCase() === "false") {
+          ++typeCounts[col].string;
+          ++typeCounts[col].boolean;
+        } else if (value && !isNaN(value)) {
+          ++typeCounts[col].number;
+          if (Number.isInteger(+value)) ++typeCounts[col].integer;
+        } else if (/^\d+n$/.test(value)) ++typeCounts[col].bigint;
+        else if (DATE_TEST.test(value)) ++typeCounts[col].date;
+        else if (value) ++typeCounts[col].string;
+      }
     }
   }
   for (const col in typeCounts) {
@@ -837,31 +860,4 @@ export function inferSchema(source, columns = getAllKeys(source)) {
     });
   }
   return schema;
-}
-
-function inferType(colValue) {
-  const type = typeof colValue;
-  const value = type === "string" ? colValue.trim() : colValue;
-  // for json and sqlite, we already have some types, but for csv and tsv, all
-  // columns are strings here.
-  const typedNonStrings = ["bigint", "boolean", "object"];
-  if (type !== "string") {
-    if (Array.isArray(value)) return "array";
-    else if (value instanceof Date) return "date";
-    else if (value instanceof ArrayBuffer) return "buffer";
-    else if (type === "number") {
-      if (Number.isInteger(+value)) return "integer";
-      else return "number";
-    } else if (typedNonStrings.includes(type)) return type;
-    else if (value) return "other";
-  } else {
-    if (value.toLowerCase() === "true" || value.toLowerCase() === "false")
-      return "boolean";
-    else if (value && !isNaN(value)) {
-      if (Number.isInteger(+value)) return "integer";
-      else return "number";
-    } else if (/^\d+n$/.test(value)) return "bigint";
-    else if (DATE_TEST.test(value)) return "date";
-    else if (value) return "string";
-  }
 }

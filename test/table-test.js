@@ -690,9 +690,9 @@ describe("__table", () => {
       sort: [{column: "a", direction: "desc"}]
     };
     const expectedDesc = [
-      {a: 20}, {a: 10}, {a: 5}, {a: 1}, {a: null}, {a: undefined}, {a: NaN}, {a: null}
+      {a: 20}, {a: 10}, {a: 5}, {a: 1}, {a: NaN}, {a: NaN}, {a: NaN}, {a: NaN}
     ];
-    expectedDesc.schema = [{name: "a", type: "other", inferred: "other"}];
+    expectedDesc.schema = [{name: "a", type: "number", inferred: "number"}];
     assert.deepStrictEqual(
       __table(sourceWithMissing, operationsDesc),
       expectedDesc
@@ -702,9 +702,9 @@ describe("__table", () => {
       sort: [{column: "a", direction: "asc"}]
     };
     const expectedAsc = [
-      {a: 1}, {a: 5}, {a: 10}, {a: 20}, {a: null}, {a: undefined}, {a: NaN}, {a: null}
+      {a: 1}, {a: 5}, {a: 10}, {a: 20}, {a: NaN}, {a: NaN}, {a: NaN}, {a: NaN}
     ];
-    expectedAsc.schema = [{name: "a", type: "other", inferred: "other"}];
+    expectedAsc.schema = [{name: "a", type: "number", inferred: "number"}];
     assert.deepStrictEqual(
       __table(sourceWithMissing, operationsAsc),
       expectedAsc
@@ -984,6 +984,27 @@ describe("inferSchema", () => {
     assert.deepStrictEqual(
       inferSchema([{a: Symbol("a")}, {a: Symbol("b")}]),
       [{name: "a", type: "other", inferred: "other"}]
+    );
+  });
+
+  it("infers mixed integers and numbers as numbers", () => {
+    assert.deepStrictEqual(
+      inferSchema([0.1, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5].map((x) => ({x}))),
+      [{name: "x", type: "number", inferred: "number"}]
+    );
+  });
+
+  it("infers mixed integers and NaNs as numbers", () => {
+    assert.deepStrictEqual(
+      inferSchema([NaN, NaN, NaN, 1, 2, 3, 4, 5].map((x) => ({x}))),
+      [{name: "x", type: "number", inferred: "number"}]
+    );
+  });
+
+  it("infers boolean-ish strings and strings as strings", () => {
+    assert.deepStrictEqual(
+      inferSchema(["true", "false", "pants on fire"].map((x) => ({x}))),
+      [{name: "x", type: "string", inferred: "string"}]
     );
   });
 });
