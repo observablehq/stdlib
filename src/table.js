@@ -851,7 +851,7 @@ function inferType(colValue) {
       else return "number";
     }
     else if (typedNonStrings.includes(type)) return type;
-    else return "other";
+    else if (value) return "other";
   } else {
     if (value === "true" || value === "false") return "boolean";
     else if (value && !isNaN(value)) {
@@ -860,6 +860,5 @@ function inferType(colValue) {
     } else if (/^\d+n$/.test(value)) return "bigint";
     else if (DATE_TEST.test(value)) return "date";
     else if (value) return "string";
-    else return "other";
   }
 }

@@ -911,7 +911,7 @@ describe("inferSchema", () => {
         ]
       ),
       [
-        {name: "a", type: "other", inferred: "other"},
+        {name: "a", type: "integer", inferred: "integer"},
         {name: "b", type: "integer", inferred: "integer"},
         {name: "c", type: "integer", inferred: "integer"}
       ]
