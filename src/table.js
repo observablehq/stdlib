@@ -819,9 +819,7 @@ export function inferSchema(source, columns = getAllKeys(source)) {
   for (const d of sample) {
     for (const col of columns) {
       if (!typeCounts[col]) typeCounts[col] = initKey();
-      const type = typeof d[col];
-      const value = type === "string" ? d[col].trim() : d[col];
-      typeCounts[col][inferType(type, value)]++;
+      typeCounts[col][inferType(d[col])]++;
     }
   }
   for (const col in typeCounts) {
@@ -839,7 +837,9 @@ export function inferSchema(source, columns = getAllKeys(source)) {
   return schema;
 }
 
-function inferType(type, value) {
+function inferType(colValue) {
+  const type = typeof colValue;
+  const value = type === "string" ? colValue.trim() : colValue;
   // for json and sqlite, we already have some types, but for csv and tsv, all
   // columns are strings here.
   const typedNonStrings = ["bigint", "boolean", "object"];
