@@ -1024,7 +1024,7 @@ describe("coerceToType", () => {
   });
 
   it("coerces to date", () => {
-    const invalidDate = new Date("");
+    const invalidDate = new Date(NaN);
     assert.deepStrictEqual(
       coerceToType("12/12/2020", "date"),
       new Date("12/12/2020")
@@ -1047,14 +1047,6 @@ describe("coerceToType", () => {
       invalidDate.toString()
     );
     assert.deepStrictEqual(
-      coerceToType(undefined, "date").toString(),
-      invalidDate.toString()
-    );
-    assert.deepStrictEqual(
-      coerceToType(null, "date").toString(),
-      invalidDate.toString()
-    );
-    assert.deepStrictEqual(
       coerceToType(true, "date").toString(),
       invalidDate.toString()
     );
@@ -1062,6 +1054,12 @@ describe("coerceToType", () => {
       coerceToType("2020-1-12", "date").toString(),
       invalidDate.toString()
     );
+    assert.deepStrictEqual(
+      coerceToType(1675356739000, "date"),
+      new Date(1675356739000)
+    );
+    assert.deepStrictEqual(coerceToType(undefined, "date"), undefined);
+    assert.deepStrictEqual(coerceToType(null, "date"), null);
   });
 
   it("coerces to string", () => {

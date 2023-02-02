@@ -583,11 +583,10 @@ export function coerceToType(value, type) {
         : Number(value);
     }
     case "date": {
-      if (value instanceof Date) return value;
-      const trimValue = typeof value === "string" ? value.trim() : value;
-      return DATE_TEST.test(trimValue)
-        ? new Date(trimValue)
-        : new Date("");
+      if (value instanceof Date || value == null) return value;
+      if (typeof value === "number") return new Date(value);
+      const trimValue = String(value).trim();
+      return new Date(DATE_TEST.test(trimValue) ? trimValue : NaN);
     }
     case "array":
     case "object":
