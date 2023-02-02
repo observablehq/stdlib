@@ -861,7 +861,8 @@ function inferType(type, value) {
       else return "number";
     } else if (/^\d+n$/.test(value)) return "bigint";
     else if (
-      /^(([-+]\d{2})?\d{4}(-\d{2}(-\d{2})?)|(\d{1,2})\/(\d{1,2})\/(\d{2,4}))?([T ]\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/.test(value)
+      value &&
+      /^(([-+]\d{2})?\d{4}(-\d{2}(-\d{2}))|(\d{1,2})\/(\d{1,2})\/(\d{2,4}))?([T ]\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/.test(value)
     )
       return "date";
     // the long regex accepts dates in the form of ISOString and
