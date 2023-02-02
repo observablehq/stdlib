@@ -829,7 +829,7 @@ export function inferSchema(source, columns = getAllKeys(source)) {
         else if (value instanceof ArrayBuffer) ++typeCounts[col].buffer;
         else if (type === "number") {
           ++typeCounts[col].number;
-          if (Number.isInteger(+value)) ++typeCounts[col].integer;
+          if (Number.isInteger(value)) ++typeCounts[col].integer;
         }
         // bigint, boolean, or object
         else if (type in typeCounts[col]) ++typeCounts[col][type];
