@@ -864,9 +864,6 @@ export function inferSchema(source, columns = getAllKeys(source)) {
         else if (DATE_TEST.test(value)) ++colCount.date;
       }
     }
-  }
-  for (const col in typeCounts) {
-    const colCount = typeCounts[col];
     // Chose the non-string, non-other type with the greatest count that is also
     // ≥90%; or if no such type meets that criterion, fallback to string if
     // ≥90%; and lastly fallback to other.
