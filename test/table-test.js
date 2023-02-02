@@ -1126,6 +1126,8 @@ describe("coerceToType", () => {
     assert.deepStrictEqual(coerceToType(null, "date"), null);
     assert.deepStrictEqual(coerceToType("", "date"), null);
     assert.deepStrictEqual(coerceToType(" ", "date"), null);
+    assert.deepStrictEqual(coerceToType({toString: () => " "}, "date").toString(), invalidDate.toString());
+    assert.deepStrictEqual(coerceToType({toString: () => "2020-01-01"}, "date"), new Date("2020-01-01"));
   });
 
   it("coerces to string", () => {
