@@ -585,6 +585,7 @@ export function coerceToType(value, type) {
     case "date": {
       if (value instanceof Date || value == null) return value;
       if (typeof value === "number") return new Date(value);
+      if (typeof value === "string" && !value) return null;
       const trimValue = String(value).trim();
       return new Date(DATE_TEST.test(trimValue) ? trimValue : NaN);
     }
