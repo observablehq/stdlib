@@ -1163,7 +1163,7 @@ describe("coerceToType", () => {
 
   it("coerces to array", () => {
     // "array" is not a target type for coercion, but can be inferred.
-    assert.deepStrictEqual(coerceToType([1, 2, 3], "array"), [1,2,3]);
+    assert.deepStrictEqual(coerceToType([1, 2, 3], "array"), [1, 2, 3]);
     assert.deepStrictEqual(coerceToType(null, "array"), null);
     assert.deepStrictEqual(coerceToType(undefined, "array"), undefined);
   });
