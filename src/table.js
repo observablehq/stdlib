@@ -560,10 +560,10 @@ export function coerceToType(value, type) {
       return typeof value === "string" || value == null ? value : String(value);
     case "boolean":
       if (typeof value === "string") {
-        const trimValue = value.trim();
-        return trimValue.toLowerCase() === "true"
+        const trimValue = value.trim().toLowerCase();
+        return trimValue === "true"
           ? true
-          : trimValue.toLowerCase() === "false"
+          : trimValue === "false"
           ? false
           : null;
       }
