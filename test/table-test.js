@@ -1039,7 +1039,7 @@ describe("coerceToType", () => {
       new Date("2022-01-01T12:34:00Z")
     );
     assert.deepStrictEqual(
-      coerceToType("B", "date").toString(),
+      coerceToType("", "date").toString(),
       invalidDate.toString()
     );
     assert.deepStrictEqual(
@@ -1047,7 +1047,15 @@ describe("coerceToType", () => {
       invalidDate.toString()
     );
     assert.deepStrictEqual(
+      coerceToType(undefined, "date").toString(),
+      invalidDate.toString()
+    );
+    assert.deepStrictEqual(
       coerceToType(null, "date").toString(),
+      invalidDate.toString()
+    );
+    assert.deepStrictEqual(
+      coerceToType(true, "date").toString(),
       invalidDate.toString()
     );
     assert.deepStrictEqual(

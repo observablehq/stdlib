@@ -582,7 +582,7 @@ export function coerceToType(value, type) {
     case "date": {
       if (value instanceof Date) return value;
       const trimValue = typeof value === "string" ? value.trim() : value;
-      return value && /^(([-+]\d{2})?\d{4}(-\d{2}(-\d{2}))|(\d{1,2})\/(\d{1,2})\/(\d{2,4}))?([T ]\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/.test(trimValue)
+      return /^(([-+]\d{2})?\d{4}(-\d{2}(-\d{2}))|(\d{1,2})\/(\d{1,2})\/(\d{2,4}))([T ]\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/.test(trimValue)
         ? new Date(trimValue)
         : new Date("");
     }
@@ -857,8 +857,7 @@ function inferType(type, value) {
       else return "number";
     } else if (/^\d+n$/.test(value)) return "bigint";
     else if (
-      value &&
-      /^(([-+]\d{2})?\d{4}(-\d{2}(-\d{2}))|(\d{1,2})\/(\d{1,2})\/(\d{2,4}))?([T ]\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/.test(value)
+      /^(([-+]\d{2})?\d{4}(-\d{2}(-\d{2}))|(\d{1,2})\/(\d{1,2})\/(\d{2,4}))([T ]\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/.test(value)
     )
       return "date";
     // the long regex accepts dates in the form of ISOString and
