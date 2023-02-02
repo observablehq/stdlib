@@ -1073,11 +1073,11 @@ describe("coerceToType", () => {
     assert.deepStrictEqual(coerceToType(0, "bigint"), 0n);
     assert.deepStrictEqual(coerceToType(false, "bigint"), 0n);
     assert.deepStrictEqual(coerceToType(true, "bigint"), 1n);
-    assert.deepStrictEqual(coerceToType(null, "bigint"), NaN);
-    assert.deepStrictEqual(coerceToType(undefined, "bigint"), NaN);
-    assert.deepStrictEqual(coerceToType(1.1, "bigint"), NaN);
-    assert.deepStrictEqual(coerceToType("A", "bigint"), NaN);
-    assert.deepStrictEqual(coerceToType(NaN, "bigint"), NaN);
+    assert.deepStrictEqual(coerceToType(null, "bigint"), null);
+    assert.deepStrictEqual(coerceToType(undefined, "bigint"), undefined);
+    assert.deepStrictEqual(coerceToType(1.1, "bigint"), undefined);
+    assert.deepStrictEqual(coerceToType("A", "bigint"), undefined);
+    assert.deepStrictEqual(coerceToType(NaN, "bigint"), undefined);
   });
 
   it("coerces to array", () => {

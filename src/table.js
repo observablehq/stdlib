@@ -566,15 +566,11 @@ export function coerceToType(value, type) {
         ? value
         : Boolean(value);
     case "bigint":
-      return typeof value === "bigint"
+      return typeof value === "bigint" || value == null
         ? value
-        : value === 0 || value === true || value === false
-        ? // eslint-disable-next-line no-undef
-          BigInt(value)
-        : !value || isNaN(value) || !Number.isInteger(+value)
-        ? NaN
-        : // eslint-disable-next-line no-undef
-          BigInt(value);
+        : Number.isInteger(typeof value === "string" && !value ? NaN : +value)
+        ? BigInt(value) // eslint-disable-line no-undef
+        : undefined;
     case "integer": // not a target type for coercion, but can be inferred
     case "number": {
       return typeof value === "number"
@@ -586,7 +582,7 @@ export function coerceToType(value, type) {
     case "date": {
       if (value instanceof Date) return value;
       const trimValue = typeof value === "string" ? value.trim() : value;
-      return value && /^(([-+]\d{2})?\d{4}(-\d{2}(-\d{2})?)|(\d{1,2})\/(\d{1,2})\/(\d{2,4}))?([T ]\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/.test(trimValue)
+      return value && /^(([-+]\d{2})?\d{4}(-\d{2}(-\d{2}))|(\d{1,2})\/(\d{1,2})\/(\d{2,4}))?([T ]\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/.test(trimValue)
         ? new Date(trimValue)
         : new Date("");
     }
