@@ -517,6 +517,7 @@ function descendingDefined(a, b) {
 
 // Functions for checking type validity
 const isValidNumber = (value) => typeof value === "number" && !Number.isNaN(value);
+const isValidInteger = (value) => Number.isInteger(value) && !Number.isNaN(value);
 const isValidString = (value) => typeof value === "string";
 const isValidBoolean = (value) => typeof value === "boolean";
 const isValidBigint = (value) => typeof value === "bigint";
@@ -537,6 +538,8 @@ export function getTypeValidator(colType) {
       return isValidBoolean;
     case "number":
       return isValidNumber;
+    case "integer":
+      return isValidInteger;
     case "date":
       return isValidDate;
     case "buffer":
