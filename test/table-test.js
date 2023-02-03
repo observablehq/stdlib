@@ -826,6 +826,7 @@ describe("getTypeValidator filters accurately", () => {
     {label: "boolean", value: true},
     {label: "array", value: [1, 2, 3]},
     {label: "number", value: 10},
+    {label: "integer", value: 10n},
     {label: "date", value: new Date(1)},
     // eslint-disable-next-line no-undef
     {label: "bigint", value: BigInt(10)},
@@ -847,6 +848,14 @@ describe("getTypeValidator filters accurately", () => {
   it("filters numbers", () => {
     const isValid = getTypeValidator("number");
     assert.deepStrictEqual(source.filter(d => isValid(d.value)), [{label: "number", value: 10}]);
+  });
+
+  it("filters integers", () => {
+    const isValid = getTypeValidator("integer");
+    assert.deepStrictEqual(
+      source.filter((d) => isValid(d.value)),
+      [{label: "integer", value: 10n}]
+    );
   });
 
   it("filters booleans", () => {
