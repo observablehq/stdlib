@@ -1,4 +1,4 @@
-import {reverse} from "d3-array";
+import {greatest, reverse} from "d3-array";
 import {FileAttachment} from "./fileAttachment.js";
 import {isArqueroTable} from "./arquero.js";
 import {isArrowTable, loadArrow} from "./arrow.js";
@@ -66,11 +66,18 @@ function objectHasEnumerableKeys(value) {
 }
 
 function isQueryResultSetSchema(schemas) {
-  return (Array.isArray(schemas) && schemas.every((s) => s && typeof s.name === "string"));
+  return (
+    Array.isArray(schemas) &&
+    schemas.every(isColumnSchema)
+  );
 }
 
 function isQueryResultSetColumns(columns) {
   return (Array.isArray(columns) && columns.every((name) => typeof name === "string"));
+}
+
+function isColumnSchema(schema) {
+  return schema && typeof schema.name === "string" && typeof schema.type === "string";
 }
 
 // Returns true if the value represents an array of primitives (i.e., a
@@ -191,8 +198,8 @@ function sourceCache(loadSource) {
 const loadTableDataSource = sourceCache(async (source, name) => {
   if (source instanceof FileAttachment) {
     switch (source.mimeType) {
-      case "text/csv": return source.csv({typed: true});
-      case "text/tab-separated-values": return source.tsv({typed: true});
+      case "text/csv": return source.csv();
+      case "text/tab-separated-values": return source.tsv();
       case "application/json": return source.json();
       case "application/x-sqlite3": return source.sqlite();
     }
@@ -200,6 +207,8 @@ const loadTableDataSource = sourceCache(async (source, name) => {
     throw new Error(`unsupported file type: ${source.mimeType}`);
   }
   if (isArrowTable(source) || isArqueroTable(source)) return loadDuckDBClient(source, name);
+  if (isDataArray(source) && arrayIsPrimitive(source))
+    return Array.from(source, (value) => ({value}));
   return source;
 });
 
@@ -542,6 +551,56 @@ export function getTypeValidator(colType) {
   }
 }
 
+// Accepts dates in the form of ISOString and LocaleDateString, with or without time
+const DATE_TEST = /^(([-+]\d{2})?\d{4}(-\d{2}(-\d{2}))|(\d{1,2})\/(\d{1,2})\/(\d{2,4}))([T ]\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/;
+
+export function coerceToType(value, type) {
+  switch (type) {
+    case "string":
+      return typeof value === "string" || value == null ? value : String(value);
+    case "boolean":
+      if (typeof value === "string") {
+        const trimValue = value.trim().toLowerCase();
+        return trimValue === "true"
+          ? true
+          : trimValue === "false"
+          ? false
+          : null;
+      }
+      return typeof value === "boolean" || value == null
+        ? value
+        : Boolean(value);
+    case "bigint":
+      return typeof value === "bigint" || value == null
+        ? value
+        : Number.isInteger(typeof value === "string" && !value.trim() ? NaN : +value)
+        ? BigInt(value) // eslint-disable-line no-undef
+        : undefined;
+    case "integer": // not a target type for coercion, but can be inferred
+    case "number": {
+      return typeof value === "number"
+        ? value
+        : value == null || (typeof value === "string" && !value.trim())
+        ? NaN
+        : Number(value);
+    }
+    case "date": {
+      if (value instanceof Date || value == null) return value;
+      if (typeof value === "number") return new Date(value);
+      const trimValue = String(value).trim();
+      if (typeof value === "string" && !trimValue) return null;
+      return new Date(DATE_TEST.test(trimValue) ? trimValue : NaN);
+    }
+    case "array":
+    case "object":
+    case "buffer":
+    case "other":
+      return value;
+    default:
+      throw new Error(`Unable to coerce to type: ${type}`);
+  }
+}
+
 // This function applies table cell operations to an in-memory table (array of
 // objects); it should be equivalent to the corresponding SQL query. TODO Use
 // DuckDBClient for data arrays, too, and then we wouldn’t need our own __table
@@ -549,8 +608,27 @@ export function getTypeValidator(colType) {
 export function __table(source, operations) {
   const input = source;
   let {schema, columns} = source;
-  let primitive = arrayIsPrimitive(source);
-  if (primitive) source = Array.from(source, (value) => ({value}));
+  let inferredSchema = false;
+  if (!isQueryResultSetSchema(schema)) {
+    schema = inferSchema(source, columns);
+    inferredSchema = true;
+  }
+  // Combine column types from schema with user-selected types in operations
+  const types = new Map(schema.map(({name, type}) => [name, type]));
+  if (operations.type) {
+    for (const {name, type} of operations.type) {
+      types.set(name, type);
+      // update schema with user-selected type
+      if (schema === input.schema) schema = schema.slice(); // copy on write
+      const colIndex = schema.findIndex((col) => col.name === name);
+      if (colIndex > -1) schema[colIndex] = {...schema[colIndex], type};
+    }
+    source = source.map(d => coerceRow(d, types, schema));
+  } else if (inferredSchema) {
+    // Coerce data according to new schema, unless that happened due to
+    // operations.type, above.
+    source = source.map(d => coerceRow(d, types, schema));
+  }
   for (const {type, operands} of operations.filter) {
     const [{value: column}] = operands;
     const values = operands.slice(1).map(({value}) => value);
@@ -663,7 +741,7 @@ export function __table(source, operations) {
       Object.fromEntries(operations.select.columns.map((c) => [c, d[c]]))
     );
   }
-  if (!primitive && operations.names) {
+  if (operations.names) {
     const overridesByName = new Map(operations.names.map((n) => [n.column, n]));
     if (schema) {
       schema = schema.map((s) => {
@@ -684,10 +762,120 @@ export function __table(source, operations) {
       }))
     );
   }
-  if (primitive) source = source.map((d) => d.value);
   if (source !== input) {
     if (schema) source.schema = schema;
     if (columns) source.columns = columns;
   }
   return source;
+}
+
+function coerceRow(object, types, schema) {
+  const coerced = {};
+  for (const col of schema) {
+    const type = types.get(col.name);
+    const value = object[col.name];
+    coerced[col.name] = type === "raw" ? value : coerceToType(value, type);
+  }
+  return coerced;
+}
+
+function createTypeCount() {
+  return {
+    boolean: 0,
+    integer: 0,
+    number: 0,
+    date: 0,
+    string: 0,
+    array: 0,
+    object: 0,
+    bigint: 0,
+    buffer: 0,
+    defined: 0
+  };
+}
+
+// Caution: the order below matters! 🌶️ The first one that passes the ≥90% test
+// should be the one that we chose, and therefore these types should be listed
+// from most specific to least specific.
+const types = [
+  "boolean",
+  "integer",
+  "number",
+  "date",
+  "bigint",
+  "array",
+  "object",
+  "buffer"
+  // Note: "other" and "string" are intentionally omitted; see below!
+];
+
+// We need to show *all* keys present in the array of Objects
+function getAllKeys(rows) {
+  const keys = new Set();
+  for (const row of rows) {
+    // avoid crash if row is null or undefined
+    if (row) {
+      // only enumerable properties
+      for (const key in row) {
+        // only own properties
+        if (Object.prototype.hasOwnProperty.call(row, key)) {
+          // unique properties, in the order they appear
+          keys.add(key);
+        }
+      }
+    }
+  }
+  return Array.from(keys);
+}
+
+export function inferSchema(source, columns = getAllKeys(source)) {
+  const schema = [];
+  const sampleSize = 100;
+  const sample = source.slice(0, sampleSize);
+  const typeCounts = {};
+  for (const col of columns) {
+    const colCount = typeCounts[col] = createTypeCount();
+    for (const d of sample) {
+      let value = d[col];
+      if (value == null) continue;
+      const type = typeof value;
+      if (type !== "string") {
+        ++colCount.defined;
+        if (Array.isArray(value)) ++colCount.array;
+        else if (value instanceof Date) ++colCount.date;
+        else if (value instanceof ArrayBuffer) ++colCount.buffer;
+        else if (type === "number") {
+          ++colCount.number;
+          if (Number.isInteger(value)) ++colCount.integer;
+        }
+        // bigint, boolean, or object
+        else if (type in colCount) ++colCount[type];
+      } else {
+        value = value.trim();
+        if (!value) continue;
+        ++colCount.defined;
+        ++colCount.string;
+        if (/^(true|false)$/i.test(value)) {
+          ++colCount.boolean;
+        } else if (value && !isNaN(value)) {
+          ++colCount.number;
+          if (Number.isInteger(+value)) ++colCount.integer;
+        } else if (DATE_TEST.test(value)) ++colCount.date;
+      }
+    }
+    // Chose the non-string, non-other type with the greatest count that is also
+    // ≥90%; or if no such type meets that criterion, fallback to string if
+    // ≥90%; and lastly fallback to other.
+    const minCount = Math.max(1, colCount.defined * 0.9);
+    const type =
+      greatest(types, (type) =>
+        colCount[type] >= minCount ? colCount[type] : NaN
+      ) ?? (colCount.string >= minCount ? "string" : "other");
+    schema.push({
+      name: col,
+      type: type,
+      inferred: type
+    });
+  }
+  return schema;
 }
