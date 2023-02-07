@@ -629,7 +629,7 @@ export function __table(source, operations) {
     source = source.map(d => coerceRow(d, types, schema));
   } else if (inferredSchema) {
     // Coerce data according to new schema, unless that happened due to
-    // operations.type, above.
+    // operations.types, above.
     source = source.map(d => coerceRow(d, types, schema));
   }
   for (const {type, operands} of operations.filter) {
