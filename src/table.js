@@ -618,8 +618,8 @@ export function __table(source, operations) {
   }
   // Combine column types from schema with user-selected types in operations
   const types = new Map(schema.map(({name, type}) => [name, type]));
-  if (operations.type) {
-    for (const {name, type} of operations.type) {
+  if (operations.types) {
+    for (const {name, type} of operations.types) {
       types.set(name, type);
       // update schema with user-selected type
       if (schema === input.schema) schema = schema.slice(); // copy on write
