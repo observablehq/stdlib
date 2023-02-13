@@ -287,7 +287,7 @@ async function* accumulateQuery(queryRequest) {
   values.schema = queryResponse.schema;
   try {
     for await (const rows of queryResponse.readRows()) {
-      if (performance.now() - then > 10 && values.length > 0) {
+      if (performance.now() - then > 150 && values.length > 0) {
         yield values;
         then = performance.now();
       }
