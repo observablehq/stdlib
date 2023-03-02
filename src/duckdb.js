@@ -183,6 +183,7 @@ async function insertFile(database, name, file, options) {
           if (error.toString().includes("Could not convert")) {
             return await insertUntypedCSV(connection, file, name);
           }
+          throw error;
         });
       }
       case "application/json":
