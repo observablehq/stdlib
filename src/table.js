@@ -169,6 +169,7 @@ export const __query = Object.assign(
 
 export async function loadDataSource(source, mode, name) {
   switch (mode) {
+    case "chart":
     case "table": return loadTableDataSource(source, name);
     case "sql": return loadSqlDataSource(source, name);
   }
