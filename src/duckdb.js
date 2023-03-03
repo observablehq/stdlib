@@ -126,6 +126,9 @@ export class DuckDBClient {
     if (config.query?.castTimestampToDate === undefined) {
       config = {...config, query: {...config.query, castTimestampToDate: true}};
     }
+    if (config.query?.castBigIntToDouble === undefined) {
+      config = {...config, query: {...config.query, castBigIntToDouble: true}};
+    }
     await db.open(config);
     await Promise.all(
       Object.entries(sources).map(async ([name, source]) => {
