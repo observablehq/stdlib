@@ -33,6 +33,8 @@ import {cdn} from "./require.js";
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+let promise;
+
 export class DuckDBClient {
   constructor(db) {
     Object.defineProperties(this, {
@@ -126,6 +128,9 @@ export class DuckDBClient {
     if (config.query?.castTimestampToDate === undefined) {
       config = {...config, query: {...config.query, castTimestampToDate: true}};
     }
+    if (config.query?.castBigIntToDouble === undefined) {
+      config = {...config, query: {...config.query, castBigIntToDouble: true}};
+    }
     await db.open(config);
     await Promise.all(
       Object.entries(sources).map(async ([name, source]) => {
@@ -166,7 +171,7 @@ async function insertFile(database, name, file, options) {
     const buffer = await file.arrayBuffer();
     await database.registerFileBuffer(file.name, new Uint8Array(buffer));
   } else {
-    await database.registerFileURL(file.name, url);
+    await database.registerFileURL(file.name, url, 4); // duckdb.DuckDBDataProtocol.HTTP
   }
   const connection = await database.connect();
   try {
@@ -179,7 +184,7 @@ async function insertFile(database, name, file, options) {
           ...options
         }).catch(async (error) => {
           // If initial attempt to insert CSV resulted in a conversion
-          // error, try again, this time treating all columns as strings. 
+          // error, try again, this time treating all columns as strings.
           if (error.toString().includes("Could not convert")) {
             return await insertUntypedCSV(connection, file, name);
           }
@@ -247,9 +252,9 @@ async function insertArray(database, name, array, options) {
   return await insertArrowTable(database, name, table, options);
 }
 
-async function createDuckDB() {
-  const duck = await import(`${cdn}${duckdb.resolve()}`);
-  const bundle = await duck.selectBundle({
+async function loadDuckDB() {
+  const module = await import(`${cdn}${duckdb.resolve()}`);
+  const bundle = await module.selectBundle({
     mvp: {
       mainModule: `${cdn}${duckdb.resolve("dist/duckdb-mvp.wasm")}`,
       mainWorker: `${cdn}${duckdb.resolve("dist/duckdb-browser-mvp.worker.js")}`
@@ -259,9 +264,15 @@ async function createDuckDB() {
       mainWorker: `${cdn}${duckdb.resolve("dist/duckdb-browser-eh.worker.js")}`
     }
   });
-  const logger = new duck.ConsoleLogger();
-  const worker = await duck.createWorker(bundle.mainWorker);
-  const db = new duck.AsyncDuckDB(logger, worker);
+  const logger = new module.ConsoleLogger();
+  return {module, bundle, logger};
+}
+
+async function createDuckDB() {
+  if (promise === undefined) promise = loadDuckDB();
+  const {module, bundle, logger} = await promise;
+  const worker = await module.createWorker(bundle.mainWorker);
+  const db = new module.AsyncDuckDB(logger, worker);
   await db.instantiate(bundle.mainModule);
   return db;
 }
