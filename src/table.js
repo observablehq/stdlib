@@ -169,7 +169,7 @@ export const __query = Object.assign(
 
 export async function loadDataSource(source, mode, name) {
   switch (mode) {
-    case "chart":
+    case "chart": return loadChartDataSource(source);
     case "table": return loadTableDataSource(source, name);
     case "sql": return loadSqlDataSource(source, name);
   }
@@ -195,6 +195,18 @@ function sourceCache(loadSource) {
     return promise;
   };
 }
+
+const loadChartDataSource = sourceCache(async (source) => {
+  if (source instanceof FileAttachment) {
+    switch (source.mimeType) {
+      case "text/csv": return source.csv({typed: true});
+      case "text/tab-separated-values": return source.tsv({typed: true});
+      case "application/json": return source.json();
+    }
+    throw new Error(`unsupported file type: ${source.mimeType}`);
+  }
+  return source;
+});
 
 const loadTableDataSource = sourceCache(async (source, name) => {
   if (source instanceof FileAttachment) {
