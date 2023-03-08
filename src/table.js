@@ -203,12 +203,8 @@ const loadChartDataSource = sourceCache(async (source) => {
       case "text/tab-separated-values": return source.tsv({typed: true});
       case "application/json": return source.json();
     }
-   
     throw new Error(`unsupported file type: ${source.mimeType}`);
   }
-
-  if (isDataArray(source) && arrayIsPrimitive(source))
-    return Array.from(source, (value) => ({value}));
   return source;
 });
 
