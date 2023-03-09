@@ -68,6 +68,10 @@ const mains = ["unpkg", "jsdelivr", "browser", "main"];
     console.log(`export const arrow9 = dependency("${info.name}", "${info.version}", "+esm");`);
   }
   {
+    const info = await resolve("apache-arrow@11");
+    console.log(`export const arrow11 = dependency("${info.name}", "${info.version}", "+esm");`);
+  }
+  {
     const info = await resolve("arquero");
     console.log(`export const arquero = dependency("${info.name}", "${info.version}", "${info.export}");`);
   }

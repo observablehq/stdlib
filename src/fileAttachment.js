@@ -1,5 +1,5 @@
 import {autoType, csvParse, csvParseRows, tsvParse, tsvParseRows} from "d3-dsv";
-import {arrow4, arrow9, jszip, exceljs} from "./dependencies.js";
+import {arrow4, arrow9, arrow11, jszip, exceljs} from "./dependencies.js";
 import {cdn, requireDefault} from "./require.js";
 import {SQLiteDatabaseClient} from "./sqlite.js";
 import {Workbook} from "./xlsx.js";
@@ -64,6 +64,10 @@ export class AbstractFile {
       }
       case 9: {
         const [Arrow, response] = await Promise.all([import(`${cdn}${arrow9.resolve()}`), remote_fetch(this)]);
+        return Arrow.tableFromIPC(response);
+      }
+      case 11: {
+        const [Arrow, response] = await Promise.all([import(`${cdn}${arrow11.resolve()}`), remote_fetch(this)]);
         return Arrow.tableFromIPC(response);
       }
       default: throw new Error(`unsupported arrow version: ${version}`);
