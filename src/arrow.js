@@ -1,4 +1,4 @@
-import {arrow9 as arrow} from "./dependencies.js";
+import {arrow11 as arrow} from "./dependencies.js";
 import {cdn} from "./require.js";
 
 // Returns true if the vaue is an Apache Arrow table. This uses a “duck” test
