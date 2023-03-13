@@ -155,12 +155,12 @@ export const __query = Object.assign(
     source = await loadTableDataSource(await source, name);
     if (isDatabaseClient(source)) return evaluateQuery(source, makeQueryTemplate(operations, source), invalidation);
     if (isDataArray(source)) {
-      source = __table(source, operations);
       if(operations.derive) {
         operations.derive.map(({name, value}) => {
           source = source.map((row, index, rows) => ({...row, [name]: value(row, index, rows)}));
         });
       }
+      source = __table(source, operations);
       return source;
     }
     if (!source) throw new Error("missing data source");
