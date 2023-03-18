@@ -13,16 +13,16 @@ async function remote_fetch(file) {
 
 async function dsv(file, delimiter, {array = false, typed = false} = {}) {
   const text = await file.text();
-  const parser = (delimiter === "\t"
+  const parse = (delimiter === "\t"
     ? (array ? tsvParseRows : tsvParse)
     : (array ? csvParseRows : csvParse));
   if (typed === "auto") {
-    const source = parser(text);
+    const source = parse(text);
     const schema = inferSchema(source);
     const types = new Map(schema.map(({name, type}) => [name, type]));
     return source.map(d => coerceRow(d, types, schema));
   }
-  return parser(text, typed && autoType);
+  return parse(text, typed && autoType);
 }
 
 export class AbstractFile {
