@@ -3,6 +3,7 @@ import {arrow4, arrow9, arrow11, jszip, exceljs} from "./dependencies.js";
 import {cdn, requireDefault} from "./require.js";
 import {SQLiteDatabaseClient} from "./sqlite.js";
 import {Workbook} from "./xlsx.js";
+import {inferSchema, coerceRow} from "./table.js";
 
 async function remote_fetch(file) {
   const response = await fetch(await file.url());
@@ -12,9 +13,16 @@ async function remote_fetch(file) {
 
 async function dsv(file, delimiter, {array = false, typed = false} = {}) {
   const text = await file.text();
-  return (delimiter === "\t"
-      ? (array ? tsvParseRows : tsvParse)
-      : (array ? csvParseRows : csvParse))(text, typed && autoType);
+  const parser = (delimiter === "\t"
+    ? (array ? tsvParseRows : tsvParse)
+    : (array ? csvParseRows : csvParse));
+  if (typed === "auto") {
+    const source = parser(text);
+    const schema = inferSchema(source);
+    const types = new Map(schema.map(({name, type}) => [name, type]));
+    return source.map(d => coerceRow(d, types, schema));
+  }
+  return parser(text, typed && autoType);
 }
 
 export class AbstractFile {
