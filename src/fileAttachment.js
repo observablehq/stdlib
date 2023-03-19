@@ -11,7 +11,7 @@ async function remote_fetch(file) {
   return response;
 }
 
-function enforceSchema(source, schema = inferSchema(source)) {
+export function enforceSchema(source, schema = inferSchema(source)) {
   const types = new Map(schema.map(({name, type}) => [name, type]));
   return Object.assign(source.map(d => coerceRow(d, types, schema)), {schema});
 }
