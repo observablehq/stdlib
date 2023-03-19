@@ -626,7 +626,7 @@ export function __table(source, operations) {
   let {schema, columns} = source;
   let inferredSchema = false;
   if (!isQueryResultSetSchema(schema)) {
-    schema = inferSchema(source, columns);
+    schema = inferSchema(source);
     inferredSchema = true;
   }
   // Combine column types from schema with user-selected types in operations
