@@ -16,7 +16,7 @@ async function dsv(file, delimiter, {array = false, typed = false} = {}) {
   const parse = (delimiter === "\t"
     ? (array ? tsvParseRows : tsvParse)
     : (array ? csvParseRows : csvParse));
-  if (typed === "auto") {
+  if (typed === "auto" && !array) {
     const source = parse(text);
     const schema = inferSchema(source);
     const types = new Map(schema.map(({name, type}) => [name, type]));
