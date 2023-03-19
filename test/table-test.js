@@ -1056,6 +1056,13 @@ describe("inferSchema", () => {
       [{name: "x", type: "number", inferred: "number"}]
     );
   });
+
+  it("looks at source.columns", () => {
+    assert.deepStrictEqual(
+      inferSchema(Object.assign([{a: "0", b: "1", c: "2"}], {columns: ["a", "b"]})),
+      [{name: "a", type: "integer", inferred: "integer"}, {name: "b", type: "integer", inferred: "integer"}]
+    );
+  });
 });
 
 describe("coerceToType", () => {
