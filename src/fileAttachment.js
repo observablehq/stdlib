@@ -21,7 +21,7 @@ async function dsv(file, delimiter, {array = false, typed = false} = {}) {
   const parse = (delimiter === "\t"
     ? (array ? tsvParseRows : tsvParse)
     : (array ? csvParseRows : csvParse));
-  return typed === "auto" 
+  return typed === "auto" && !array
     ? enforceSchema(parse(text)) 
     : parse(text, typed && autoType);
 }
