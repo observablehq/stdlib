@@ -2,8 +2,8 @@ import {autoType, csvParse, csvParseRows, tsvParse, tsvParseRows} from "d3-dsv";
 import {arrow4, arrow9, arrow11, jszip, exceljs} from "./dependencies.js";
 import {cdn, requireDefault} from "./require.js";
 import {SQLiteDatabaseClient} from "./sqlite.js";
-import {Workbook} from "./xlsx.js";
 import {inferSchema, coerceRow} from "./table.js";
+import {Workbook} from "./xlsx.js";
 
 async function remote_fetch(file) {
   const response = await fetch(await file.url());
@@ -11,18 +11,19 @@ async function remote_fetch(file) {
   return response;
 }
 
+function enforceSchema(source, schema = inferSchema(source)) {
+  const types = new Map(schema.map(({name, type}) => [name, type]));
+  return Object.assign(source.map(d => coerceRow(d, types, schema)), {schema});
+}
+
 async function dsv(file, delimiter, {array = false, typed = false} = {}) {
   const text = await file.text();
   const parse = (delimiter === "\t"
     ? (array ? tsvParseRows : tsvParse)
     : (array ? csvParseRows : csvParse));
-  if (typed === "auto") {
-    const source = parse(text);
-    const schema = inferSchema(source);
-    const types = new Map(schema.map(({name, type}) => [name, type]));
-    return source.map(d => coerceRow(d, types, schema));
-  }
-  return parse(text, typed && autoType);
+  return typed === "auto" 
+    ? enforceSchema(parse(text)) 
+    : parse(text, typed && autoType);
 }
 
 export class AbstractFile {

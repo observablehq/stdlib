@@ -844,7 +844,7 @@ function getAllKeys(rows) {
   return Array.from(keys);
 }
 
-export function inferSchema(source, columns = getAllKeys(source)) {
+export function inferSchema(source, columns = source.columns || getAllKeys(source)) {
   const schema = [];
   const sampleSize = 100;
   const sample = source.slice(0, sampleSize);
