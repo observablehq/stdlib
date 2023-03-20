@@ -332,7 +332,7 @@ Returns a promise to the file’s contents, parsed as tab-separated values (TSV)
 const data = await FileAttachment("cars.tsv").tsv();
 ```
 
-If <i>array</i> is true, an array of arrays is returned; otherwise, the first row is assumed to be the header row and an array of objects is returned, and the returned array has a <i>data</i>.columns property that is an array of column names. (See <a href="https://github.com/d3/d3-dsv/blob/main/README.md#dsv_parseRows">d3.tsvParseRows</a>.) If <i>typed</i> is true, [automatic type inference](https://observablehq.com/@d3/d3-autotype) is applied; only use this feature if you know your data is compatible.
+If <i>array</i> is true, an array of arrays is returned; otherwise, the first row is assumed to be the header row and an array of objects is returned, and the returned array has a <i>data</i>.columns property that is an array of column names. (See <a href="https://github.com/d3/d3-dsv/blob/main/README.md#dsv_parseRows">d3.tsvParseRows</a>.) If <i>typed</i> is true, [automatic type inference](https://observablehq.com/@d3/d3-autotype) is applied to each row independently; if <i>typed</i> is “auto”, the type inference is based on a sample of rows. Only use this feature if you know your data is compatible.
 
 <a href="#attachment_image" name="attachment_image">#</a> *attachment*.<b>image</b>(<i>options</i>) [<>](https://github.com/observablehq/stdlib/blob/main/src/fileAttachment.js "Source")
 

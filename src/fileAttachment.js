@@ -2,6 +2,7 @@ import {autoType, csvParse, csvParseRows, tsvParse, tsvParseRows} from "d3-dsv";
 import {arrow4, arrow9, arrow11, jszip, exceljs} from "./dependencies.js";
 import {cdn, requireDefault} from "./require.js";
 import {SQLiteDatabaseClient} from "./sqlite.js";
+import {inferSchema, coerceRow} from "./table.js";
 import {Workbook} from "./xlsx.js";
 
 async function remote_fetch(file) {
@@ -10,11 +11,21 @@ async function remote_fetch(file) {
   return response;
 }
 
+export function enforceSchema(source, schema) {
+  const types = new Map(schema.map(({name, type}) => [name, type]));
+  return Object.assign(source.map(d => coerceRow(d, types, schema)), {schema});
+}
+
 async function dsv(file, delimiter, {array = false, typed = false} = {}) {
   const text = await file.text();
-  return (delimiter === "\t"
-      ? (array ? tsvParseRows : tsvParse)
-      : (array ? csvParseRows : csvParse))(text, typed && autoType);
+  const parse = (delimiter === "\t"
+    ? (array ? tsvParseRows : tsvParse)
+    : (array ? csvParseRows : csvParse));
+  if (typed === "auto" && !array) {
+    const source = parse(text);
+    return enforceSchema(source, inferSchema(source, source.columns));
+  }
+  return parse(text, typed && autoType);
 }
 
 export class AbstractFile {
