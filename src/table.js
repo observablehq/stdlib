@@ -626,7 +626,7 @@ export function __table(source, operations) {
   let {schema, columns} = source;
   let inferredSchema = false;
   if (!isQueryResultSetSchema(schema)) {
-    schema = inferSchema(source);
+    schema = inferSchema(source, isQueryResultSetColumns(columns) ? columns : undefined);
     inferredSchema = true;
   }
   // Combine column types from schema with user-selected types in operations
@@ -844,7 +844,7 @@ function getAllKeys(rows) {
   return Array.from(keys);
 }
 
-export function inferSchema(source, columns = source.columns || getAllKeys(source)) {
+export function inferSchema(source, columns = getAllKeys(source)) {
   const schema = [];
   const sampleSize = 100;
   const sample = source.slice(0, sampleSize);

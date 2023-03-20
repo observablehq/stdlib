@@ -1,6 +1,7 @@
 import assert from "assert";
 import {enforceSchema} from "../src/fileAttachment.js";
 import {FileAttachments} from "../src/index.js";
+import {inferSchema} from "../src/table.js";
 
 it("FileAttachments is exported by stdlib", () => {
   assert.strictEqual(typeof FileAttachments, "function");
@@ -41,8 +42,9 @@ it("FileAttachment works with Promises that resolve to URLs", async () => {
 });
 
 it("enforceSchema coerces an array of objects", () => {
+  const source = [{a: "0", b: "1", c: "2"}];
   assert.deepStrictEqual(
-    enforceSchema([{a: "0", b: "1", c: "2"}]),
+    enforceSchema(source, inferSchema(source)),
     Object.assign(
       [{a: 0, b: 1, c: 2}],
       {schema: [

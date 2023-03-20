@@ -11,7 +11,7 @@ async function remote_fetch(file) {
   return response;
 }
 
-export function enforceSchema(source, schema = inferSchema(source)) {
+export function enforceSchema(source, schema) {
   const types = new Map(schema.map(({name, type}) => [name, type]));
   return Object.assign(source.map(d => coerceRow(d, types, schema)), {schema});
 }
@@ -21,9 +21,11 @@ async function dsv(file, delimiter, {array = false, typed = false} = {}) {
   const parse = (delimiter === "\t"
     ? (array ? tsvParseRows : tsvParse)
     : (array ? csvParseRows : csvParse));
-  return typed === "auto" && !array
-    ? enforceSchema(parse(text)) 
-    : parse(text, typed && autoType);
+  if (typed === "auto" && !array) {
+    const source = parse(text);
+    return enforceSchema(source, inferSchema(source, source.columns));
+  }
+  return parse(text, typed && autoType);
 }
 
 export class AbstractFile {
