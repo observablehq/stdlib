@@ -156,6 +156,7 @@ export const __query = Object.assign(
     if (isDatabaseClient(source)) return evaluateQuery(source, makeQueryTemplate(operations, source), invalidation);
     if (isDataArray(source)) {
       if(operations.derive) {
+        source = applyTypes(source, operations);
         operations.derive.map(({name, value}) => {
           source = source.map((row, index, rows) => ({...row, [name]: value(row, index, rows)}));
         });
@@ -612,11 +613,10 @@ export function coerceToType(value, type) {
   }
 }
 
-// This function applies table cell operations to an in-memory table (array of
-// objects); it should be equivalent to the corresponding SQL query. TODO Use
-// DuckDBClient for data arrays, too, and then we wouldn’t need our own __table
-// function to do table operations on in-memory data?
-export function __table(source, operations) {
+// This function uses schema information and user-asserted types to coerce table
+// values. This is a prerequisite to being able to derive columns.
+// TODO: Can we add a `typed` flag somewhere to prevent doing this twice?
+function applyTypes(source, operations) {
   const input = source;
   let {schema, columns} = source;
   let inferredSchema = false;
@@ -640,6 +640,30 @@ export function __table(source, operations) {
     // operations.types, above.
     source = source.map(d => coerceRow(d, types, schema));
   }
+  // TODO: not totally sure if this this the right way to handle this
+  if (source !== input) {
+    if (schema) source.schema = schema;
+  }
+  // TODO: is this a good way to track this? It seems like an alternative would
+  // be passing in an argument to __table indicating if types should be applied
+  // (default to true, could be set to false if calling from __query)
+  // source.typesApplied = true;
+  return source;
+}
+
+// This function applies table cell operations to an in-memory table (array of
+// objects); it should be equivalent to the corresponding SQL query. TODO Use
+// DuckDBClient for data arrays, too, and then we wouldn’t need our own __table
+// function to do table operations on in-memory data?
+export function __table(source, operations) {
+  const input = source;
+  // let {schema, columns, typesApplied} = source; // maybe?
+  let {schema, columns} = source;
+  if (!isQueryResultSetSchema(schema)) {
+    schema = inferSchema(source, columns);
+  }
+  // if(!typesApplied) source = applyTypes(source, operations);
+  source = applyTypes(source, operations);
   for (const {type, operands} of operations.filter) {
     const [{value: column}] = operands;
     const values = operands.slice(1).map(({value}) => value);
@@ -743,7 +767,7 @@ export function __table(source, operations) {
   if (operations.select.columns) {
     if (schema) {
       const schemaByName = new Map(schema.map((s) => [s.name, s]));
-      schema = operations.select.columns.map((c) => schemaByName.get(c));
+      schema = operations.select.columns.map((c) => schemaByName.get(c)); // this drop derived columns!
     }
     if (columns) {
       columns = operations.select.columns;
@@ -760,6 +784,7 @@ export function __table(source, operations) {
         return ({...s, ...(override ? {name: override.name} : null)});
       });
     }
+    // TODO: handle columns with derived columns
     if (columns) {
       columns = columns.map((c) => {
         const override = overridesByName.get(c);
