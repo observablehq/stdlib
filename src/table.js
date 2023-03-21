@@ -662,6 +662,7 @@ export function __table(source, operations) {
   if (!isQueryResultSetSchema(schema)) {
     schema = inferSchema(source, columns);
   }
+  const fullSchema = schema.slice();
   // if(!typesApplied) source = applyTypes(source, operations);
   source = applyTypes(source, operations);
   for (const {type, operands} of operations.filter) {
@@ -802,6 +803,7 @@ export function __table(source, operations) {
     if (schema) source.schema = schema;
     if (columns) source.columns = columns;
   }
+  source.fullSchema = fullSchema;
   return source;
 }
 
