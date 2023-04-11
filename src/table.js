@@ -152,7 +152,6 @@ function isTypedArray(value) {
 // __query is used by table cells; __query.sql is used by SQL cells.
 export const __query = Object.assign(
   async (source, operations, invalidation, name) => {
-    console.log({operations});
     source = await loadTableDataSource(await source, name, operations.types);
     if (isDatabaseClient(source)) return evaluateQuery(source, makeQueryTemplate(operations, source), invalidation);
     if (isDataArray(source)) return __table(source, operations);
@@ -185,9 +184,11 @@ function inferAndCoerce(source, types) {
     schema = inferSchema(source, isQueryResultSetColumns(columns) ? columns : undefined);
     inferredSchema = true;
   }
-  // Combine column types from schema with user-selected types in operations
   const columnTypes = new Map(schema.map(({name, type}) => [name, type]));
   if (types) {
+    // If there are user-asserted types, reconcile those with the column types
+    // from the schema, with asserted types taking priority. Then we coerce the
+    // data based on those reconciled types.
     for (const {name, type} of types) {
       columnTypes.set(name, type);
       // update schema with user-selected type
@@ -197,8 +198,8 @@ function inferAndCoerce(source, types) {
     }
     source = source.map(d => coerceRow(d, columnTypes, schema));
   } else if (inferredSchema) {
-    // Coerce data according to new schema, unless that happened due to
-    // operations.types, above.
+    // If we inferred a schema (i.e. the original source did not contain a
+    // schema), then we coerce the data based on that schema.
     source = source.map(d => coerceRow(d, columnTypes, schema));
   }
   if (source !== input) {
@@ -258,32 +259,6 @@ const loadTableDataSource = sourceCache(async (source, name) => {
     return Array.from(source, (value) => ({value}));
   return source;
 });
-
-// const loadTableDataSource = sourceCache(async (source, name, types) => {
-//   console.log({types});
-//   let rawSource;
-//   // We infer types and coerce values for arrays of objects and certain types of
-//   // file attachments.
-//   if (source instanceof FileAttachment) {
-//     switch (source.mimeType) {
-//       case "text/csv": rawSource = await source.csv(); break;
-//       case "text/tab-separated-values": rawSource = await source.tsv(); break;
-//       case "application/json": rawSource = await source.json(); break;
-//     }
-//   } else if (isDataArray(source)) {
-//     rawSource = arrayIsPrimitive(source) ? Array.from(source, (value) => ({value})) : source;
-//   }
-//   if (rawSource) return inferAndCoerce(rawSource, types);
-//   // For sources that we parse through a database client, we don't need to go
-//   // through the inference step.
-//   if (source instanceof FileAttachment) {
-//     if (source.mimeType === "application/x-sqlite3") return source.sqlite();
-//     if (/\.(arrow|parquet)$/i.test(source.name)) return loadDuckDBClient(source, name);
-//     throw new Error(`unsupported file type: ${source.mimeType}`);
-//   }
-//   if (isArrowTable(source) || isArqueroTable(source)) return loadDuckDBClient(source, name);
-//   return source;
-// });
 
 const loadSqlDataSource = sourceCache(async (source, name) => {
   if (source instanceof FileAttachment) {
