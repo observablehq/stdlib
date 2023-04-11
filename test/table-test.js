@@ -631,8 +631,9 @@ describe("__table", () => {
       {a: new Date("2021-01-02")},
       {a: new Date("2021-01-03")}
     ];
+    source.schema = [{name: "a", type: "date", inferred: "date"}];
     const expected = [{a: new Date("2021-01-02")}];
-    expected.schema = [{name: "a", type: "date", inferred: "date"}];
+    expected.schema = source.schema;
     assert.deepStrictEqual(__table(source, operationsEquals), expected);
   });
 
@@ -660,6 +661,7 @@ describe("__table", () => {
     expectedAsc.schema = source.schema;
     assert.deepStrictEqual(__table(source, operationsAsc), expectedAsc);
     const sourceExtended = [...source, {a: 1, b: 3, c: 3}, {a: 1, b: 5, c: 3}];
+    sourceExtended.schema = source.schema;
     const operationsMulti = {
       ...EMPTY_TABLE_DATA.operations,
       sort: [
@@ -685,14 +687,15 @@ describe("__table", () => {
     const sourceWithMissing = [
       {a: 1}, {a: null}, {a: undefined}, {a: 10}, {a: 5}, {a: NaN}, {a: null}, {a: 20}
     ];
+    sourceWithMissing.schema = [{name: "a", type: "number", inferred: "number"}];
     const operationsDesc = {
       ...EMPTY_TABLE_DATA.operations,
       sort: [{column: "a", direction: "desc"}]
     };
     const expectedDesc = [
-      {a: 20}, {a: 10}, {a: 5}, {a: 1}, {a: NaN}, {a: NaN}, {a: NaN}, {a: NaN}
+      {a: 20}, {a: 10}, {a: 5}, {a: 1}, {a: null}, {a: undefined}, {a: NaN}, {a: null}
     ];
-    expectedDesc.schema = [{name: "a", type: "number", inferred: "number"}];
+    expectedDesc.schema = sourceWithMissing.schema;
     assert.deepStrictEqual(
       __table(sourceWithMissing, operationsDesc),
       expectedDesc
@@ -702,9 +705,9 @@ describe("__table", () => {
       sort: [{column: "a", direction: "asc"}]
     };
     const expectedAsc = [
-      {a: 1}, {a: 5}, {a: 10}, {a: 20}, {a: NaN}, {a: NaN}, {a: NaN}, {a: NaN}
+      {a: 1}, {a: 5}, {a: 10}, {a: 20}, {a: null}, {a: undefined}, {a: NaN}, {a: null}
     ];
-    expectedAsc.schema = [{name: "a", type: "number", inferred: "number"}];
+    expectedAsc.schema = sourceWithMissing.schema;
     assert.deepStrictEqual(
       __table(sourceWithMissing, operationsAsc),
       expectedAsc
