@@ -182,7 +182,7 @@ function inferAndCoerce(source, types) {
   let inferredSchema = false;
   let {schema, columns} = source;
   if (!isQueryResultSetSchema(schema)) {
-    schema = inferSchema(source, columns);
+    schema = inferSchema(source, isQueryResultSetColumns(columns) ? columns : undefined);
     inferredSchema = true;
   }
   // Combine column types from schema with user-selected types in operations
@@ -233,8 +233,8 @@ function sourceCache(loadSource) {
 const loadChartDataSource = sourceCache(async (source) => {
   if (source instanceof FileAttachment) {
     switch (source.mimeType) {
-      case "text/csv": return source.csv({typed: true});
-      case "text/tab-separated-values": return source.tsv({typed: true});
+      case "text/csv": return source.csv({typed: "auto"});
+      case "text/tab-separated-values": return source.tsv({typed: "auto"});
       case "application/json": return source.json();
     }
     throw new Error(`unsupported file type: ${source.mimeType}`);
@@ -824,7 +824,7 @@ export function __table(source, operations) {
   return source;
 }
 
-function coerceRow(object, types, schema) {
+export function coerceRow(object, types, schema) {
   const coerced = {};
   for (const col of schema) {
     const type = types.get(col.name);
