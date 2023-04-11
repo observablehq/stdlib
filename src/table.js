@@ -152,7 +152,8 @@ function isTypedArray(value) {
 // __query is used by table cells; __query.sql is used by SQL cells.
 export const __query = Object.assign(
   async (source, operations, invalidation, name) => {
-    source = await loadTableDataSource(await source, name);
+    console.log({operations});
+    source = await loadTableDataSource(await source, name, operations.types);
     if (isDatabaseClient(source)) return evaluateQuery(source, makeQueryTemplate(operations, source), invalidation);
     if (isDataArray(source)) return __table(source, operations);
     if (!source) throw new Error("missing data source");
@@ -167,11 +168,42 @@ export const __query = Object.assign(
   }
 );
 
-export async function loadDataSource(source, mode, name) {
+export async function loadDataSource(source, mode, name, types) {
   switch (mode) {
     case "chart": return loadChartDataSource(source);
-    case "table": return loadTableDataSource(source, name);
+    case "table": return loadTableDataSource(source, name, types);
     case "sql": return loadSqlDataSource(source, name);
+  }
+  return source;
+}
+
+function inferAndCoerce(source, types) {
+  const input = source;
+  let inferredSchema = false;
+  let {schema, columns} = source;
+  if (!isQueryResultSetSchema(schema)) {
+    schema = inferSchema(source, columns);
+    inferredSchema = true;
+  }
+  // Combine column types from schema with user-selected types in operations
+  const columnTypes = new Map(schema.map(({name, type}) => [name, type]));
+  if (types) {
+    for (const {name, type} of types) {
+      columnTypes.set(name, type);
+      // update schema with user-selected type
+      if (schema === input.schema) schema = schema.slice(); // copy on write
+      const colIndex = schema.findIndex((col) => col.name === name);
+      if (colIndex > -1) schema[colIndex] = {...schema[colIndex], type};
+    }
+    source = source.map(d => coerceRow(d, columnTypes, schema));
+  } else if (inferredSchema) {
+    // Coerce data according to new schema, unless that happened due to
+    // operations.types, above.
+    source = source.map(d => coerceRow(d, columnTypes, schema));
+  }
+  if (source !== input) {
+    if (schema) source.schema = schema;
+    if (columns) source.columns = columns;
   }
   return source;
 }
@@ -183,16 +215,18 @@ export async function loadDataSource(source, mode, name) {
 // be consistent, as it is not part of the cache key!
 function sourceCache(loadSource) {
   const cache = new WeakMap();
-  return (source, name) => {
+  return async (source, name, types) => {
     if (!source) throw new Error("data source not found");
     let promise = cache.get(source);
     if (!promise || (isDataArray(source) && source.length !== promise._numRows)) {
       // Warning: do not await here! We need to populate the cache synchronously.
-      promise = loadSource(source, name);
+      promise = loadSource(source, name, types);
       promise._numRows = source.length; // This will be undefined for DatabaseClients
       cache.set(source, promise);
     }
-    return promise;
+    const resolvedSource = await promise;
+    if (isDataArray(resolvedSource)) return inferAndCoerce(resolvedSource, types);
+    return resolvedSource;
   };
 }
 
@@ -224,6 +258,32 @@ const loadTableDataSource = sourceCache(async (source, name) => {
     return Array.from(source, (value) => ({value}));
   return source;
 });
+
+// const loadTableDataSource = sourceCache(async (source, name, types) => {
+//   console.log({types});
+//   let rawSource;
+//   // We infer types and coerce values for arrays of objects and certain types of
+//   // file attachments.
+//   if (source instanceof FileAttachment) {
+//     switch (source.mimeType) {
+//       case "text/csv": rawSource = await source.csv(); break;
+//       case "text/tab-separated-values": rawSource = await source.tsv(); break;
+//       case "application/json": rawSource = await source.json(); break;
+//     }
+//   } else if (isDataArray(source)) {
+//     rawSource = arrayIsPrimitive(source) ? Array.from(source, (value) => ({value})) : source;
+//   }
+//   if (rawSource) return inferAndCoerce(rawSource, types);
+//   // For sources that we parse through a database client, we don't need to go
+//   // through the inference step.
+//   if (source instanceof FileAttachment) {
+//     if (source.mimeType === "application/x-sqlite3") return source.sqlite();
+//     if (/\.(arrow|parquet)$/i.test(source.name)) return loadDuckDBClient(source, name);
+//     throw new Error(`unsupported file type: ${source.mimeType}`);
+//   }
+//   if (isArrowTable(source) || isArqueroTable(source)) return loadDuckDBClient(source, name);
+//   return source;
+// });
 
 const loadSqlDataSource = sourceCache(async (source, name) => {
   if (source instanceof FileAttachment) {
@@ -624,27 +684,6 @@ export function coerceToType(value, type) {
 export function __table(source, operations) {
   const input = source;
   let {schema, columns} = source;
-  let inferredSchema = false;
-  if (!isQueryResultSetSchema(schema)) {
-    schema = inferSchema(source, columns);
-    inferredSchema = true;
-  }
-  // Combine column types from schema with user-selected types in operations
-  const types = new Map(schema.map(({name, type}) => [name, type]));
-  if (operations.types) {
-    for (const {name, type} of operations.types) {
-      types.set(name, type);
-      // update schema with user-selected type
-      if (schema === input.schema) schema = schema.slice(); // copy on write
-      const colIndex = schema.findIndex((col) => col.name === name);
-      if (colIndex > -1) schema[colIndex] = {...schema[colIndex], type};
-    }
-    source = source.map(d => coerceRow(d, types, schema));
-  } else if (inferredSchema) {
-    // Coerce data according to new schema, unless that happened due to
-    // operations.types, above.
-    source = source.map(d => coerceRow(d, types, schema));
-  }
   for (const {type, operands} of operations.filter) {
     const [{value: column}] = operands;
     const values = operands.slice(1).map(({value}) => value);
