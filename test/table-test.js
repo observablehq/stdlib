@@ -1255,15 +1255,15 @@ describe("getSchema", () => {
 
 
   it("respects schema from source, if one exists", () => {
-    const {schema, shouldCoerce} = getSchema(source);
-    assert.strictEqual(shouldCoerce, false);
+    const {schema, inferred} = getSchema(source);
+    assert.strictEqual(inferred, false);
     assert.strictEqual(schema, source.schema);
   });
 
   it("infers schema if source has no schema", () => {
     source.schema = undefined;
-    const {schema, shouldCoerce} = getSchema(source);
-    assert.strictEqual(shouldCoerce, true);
+    const {schema, inferred} = getSchema(source);
+    assert.strictEqual(inferred, true);
     assert.deepStrictEqual(schema,[
       {name: "a", type: "integer", inferred: "integer"},
       {name: "b", type: "string", inferred: "string"}
@@ -1272,8 +1272,8 @@ describe("getSchema", () => {
 
   it("infers schema if schema is invalid", () => {
     source.schema = ["number"];
-    const {schema, shouldCoerce} = getSchema(source);
-    assert.strictEqual(shouldCoerce, true);
+    const {schema, inferred} = getSchema(source);
+    assert.strictEqual(inferred, true);
     assert.deepStrictEqual(schema,[
       {name: "a", type: "integer", inferred: "integer"},
       {name: "b", type: "string", inferred: "string"}
