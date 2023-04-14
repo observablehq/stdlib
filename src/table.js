@@ -622,9 +622,9 @@ export function getSchema(source) {
   let {schema} = source;
   if (!isQueryResultSetSchema(schema)) {
     schema = inferSchema(source, isQueryResultSetColumns(columns) ? columns : undefined);
-    return {schema, shouldCoerce: true};
+    return {schema, inferred: true};
   }
-  return {schema, shouldCoerce: false};
+  return {schema, inferred: false};
 }
 
 // This function applies table cell operations to an in-memory table (array of
@@ -635,20 +635,23 @@ export function __table(source, operations) {
   const input = source;
   const schemaInfo = getSchema(source);
   let {columns} = source;
-  let {schema, shouldCoerce} = schemaInfo;
+  let {schema, inferred} = schemaInfo;
   // Combine column types from schema with user-selected types in operations
   const types = new Map(schema.map(({name, type}) => [name, type]));
   if (operations.types) {
     for (const {name, type} of operations.types) {
       types.set(name, type);
       // update schema with user-selected type
-      if (schema === source.schema) schema = schema.slice(); // copy on write
+      if (schema === input.schema) schema = schema.slice(); // copy on write
       const colIndex = schema.findIndex((col) => col.name === name);
       if (colIndex > -1) schema[colIndex] = {...schema[colIndex], type};
     }
-    shouldCoerce = true;
+    source = source.map(d => coerceRow(d, types, schema));
+  } else if (inferred) {
+    // Coerce data according to new schema, unless that happened due to
+    // operations.types, above.
+    source = source.map(d => coerceRow(d, types, schema));
   }
-  if (shouldCoerce) source = source.map(d => coerceRow(d, types, schema));
   for (const {type, operands} of operations.filter) {
     const [{value: column}] = operands;
     const values = operands.slice(1).map(({value}) => value);
