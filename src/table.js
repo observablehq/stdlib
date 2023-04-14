@@ -617,26 +617,14 @@ export function coerceToType(value, type) {
   }
 }
 
-export function getSchema(source, savedTypes) {
+export function getSchema(source) {
+  const {columns} = source;
   let {schema} = source;
-  let shouldCoerce = false;
   if (!isQueryResultSetSchema(schema)) {
-    schema = inferSchema(source, isQueryResultSetColumns(source.columns) ? source.columns : undefined);
-    shouldCoerce = true;
+    schema = inferSchema(source, isQueryResultSetColumns(columns) ? columns : undefined);
+    return {schema, shouldCoerce: true};
   }
-  const types = new Map(schema.map(({name, type}) => [name, type]));
-  // Combine column types from schema with user-selected types in operations
-  if (savedTypes) {
-    for (const {name, type} of savedTypes) {
-      types.set(name, type);
-      // update schema with user-selected type
-      if (schema === source.schema) schema = schema.slice(); // copy on write
-      const colIndex = schema.findIndex((col) => col.name === name);
-      if (colIndex > -1) schema[colIndex] = {...schema[colIndex], type};
-    }
-    shouldCoerce = true;
-  }
-  return {schema, types, shouldCoerce};
+  return {schema, shouldCoerce: false};
 }
 
 // This function applies table cell operations to an in-memory table (array of
@@ -645,10 +633,21 @@ export function getSchema(source, savedTypes) {
 // function to do table operations on in-memory data?
 export function __table(source, operations) {
   const input = source;
-  const schemaInfo = getSchema(source, operations.types);
+  const schemaInfo = getSchema(source);
   let {columns} = source;
-  let {schema} = schemaInfo;
-  const {types, shouldCoerce} = schemaInfo;
+  let {schema, shouldCoerce} = schemaInfo;
+  const types = new Map(schema.map(({name, type}) => [name, type]));
+  // Combine column types from schema with user-selected types in operations
+  if (operations.types) {
+    for (const {name, type} of operations.types) {
+      types.set(name, type);
+      // update schema with user-selected type
+      if (schema === source.schema) schema = schema.slice(); // copy on write
+      const colIndex = schema.findIndex((col) => col.name === name);
+      if (colIndex > -1) schema[colIndex] = {...schema[colIndex], type};
+    }
+    shouldCoerce = true;
+  }
   if (shouldCoerce) source = source.map(d => coerceRow(d, types, schema));
   for (const {type, operands} of operations.filter) {
     const [{value: column}] = operands;

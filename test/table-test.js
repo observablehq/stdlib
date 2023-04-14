@@ -1244,33 +1244,20 @@ describe("getSchema", () => {
 
   beforeEach(() => {
     source = [
-      {a: 1, b: 2, c: 3},
-      {a: 2, b: 4, c: 6},
-      {a: 3, b: 6, c: 9}
+      {a: 1, b: "foo"},
+      {a: 2, b: "bar"}
     ];
     source.schema = [
       {name: "a", type: "integer", inferred: "integer"},
-      {name: "b", type: "integer", inferred: "integer"},
-      {name: "c", type: "integer", inferred: "integer"}
+      {name: "b", type: "string", inferred: "string"}
     ];
   });
 
 
-  it("respects schema from source if one exists and there are no type assertions", () => {
+  it("respects schema from source, if one exists", () => {
     const {schema, shouldCoerce} = getSchema(source);
     assert.strictEqual(shouldCoerce, false);
     assert.strictEqual(schema, source.schema);
-  });
-
-  it("respects type assertions", () => {
-    const types = [{name: "a", type: "string"}];
-    const {schema, shouldCoerce} = getSchema(source, types);
-    assert.strictEqual(shouldCoerce, true);
-    assert.deepStrictEqual(schema, [
-      {name: "a", type: "string", inferred: "integer"},
-      {name: "b", type: "integer", inferred: "integer"},
-      {name: "c", type: "integer", inferred: "integer"}
-    ]);
   });
 
   it("infers schema if source has no schema", () => {
@@ -1279,8 +1266,7 @@ describe("getSchema", () => {
     assert.strictEqual(shouldCoerce, true);
     assert.deepStrictEqual(schema,[
       {name: "a", type: "integer", inferred: "integer"},
-      {name: "b", type: "integer", inferred: "integer"},
-      {name: "c", type: "integer", inferred: "integer"}
+      {name: "b", type: "string", inferred: "string"}
     ]);
   });
 
@@ -1290,8 +1276,7 @@ describe("getSchema", () => {
     assert.strictEqual(shouldCoerce, true);
     assert.deepStrictEqual(schema,[
       {name: "a", type: "integer", inferred: "integer"},
-      {name: "b", type: "integer", inferred: "integer"},
-      {name: "c", type: "integer", inferred: "integer"}
+      {name: "b", type: "string", inferred: "string"}
     ]);
   });
 });
