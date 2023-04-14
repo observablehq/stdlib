@@ -617,18 +617,24 @@ export function coerceToType(value, type) {
   }
 }
 
+export function getSchema(source) {
+  const {columns} = source;
+  let {schema} = source;
+  if (!isQueryResultSetSchema(schema)) {
+    schema = inferSchema(source, isQueryResultSetColumns(columns) ? columns : undefined);
+    return {schema, inferred: true};
+  }
+  return {schema, inferred: false};
+}
+
 // This function applies table cell operations to an in-memory table (array of
 // objects); it should be equivalent to the corresponding SQL query. TODO Use
 // DuckDBClient for data arrays, too, and then we wouldn’t need our own __table
 // function to do table operations on in-memory data?
 export function __table(source, operations) {
   const input = source;
-  let {schema, columns} = source;
-  let inferredSchema = false;
-  if (!isQueryResultSetSchema(schema)) {
-    schema = inferSchema(source, isQueryResultSetColumns(columns) ? columns : undefined);
-    inferredSchema = true;
-  }
+  let {columns} = source;
+  let {schema, inferred} = getSchema(source);
   // Combine column types from schema with user-selected types in operations
   const types = new Map(schema.map(({name, type}) => [name, type]));
   if (operations.types) {
@@ -640,7 +646,7 @@ export function __table(source, operations) {
       if (colIndex > -1) schema[colIndex] = {...schema[colIndex], type};
     }
     source = source.map(d => coerceRow(d, types, schema));
-  } else if (inferredSchema) {
+  } else if (inferred) {
     // Coerce data according to new schema, unless that happened due to
     // operations.types, above.
     source = source.map(d => coerceRow(d, types, schema));

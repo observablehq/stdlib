@@ -10,5 +10,6 @@ export {
   isDatabaseClient,
   __table as applyDataTableOperations,
   getTypeValidator,
-  inferSchema
+  inferSchema,
+  getSchema
 } from "./table.js";
