@@ -617,34 +617,39 @@ export function coerceToType(value, type) {
   }
 }
 
+export function getSchema(source, savedTypes) {
+  let {schema} = source;
+  let shouldCoerce = false;
+  if (!isQueryResultSetSchema(schema)) {
+    schema = inferSchema(source, isQueryResultSetColumns(source.columns) ? source.columns : undefined);
+    shouldCoerce = true;
+  }
+  const types = new Map(schema.map(({name, type}) => [name, type]));
+  // Combine column types from schema with user-selected types in operations
+  if (savedTypes) {
+    for (const {name, type} of savedTypes) {
+      types.set(name, type);
+      // update schema with user-selected type
+      if (schema === source.schema) schema = schema.slice(); // copy on write
+      const colIndex = schema.findIndex((col) => col.name === name);
+      if (colIndex > -1) schema[colIndex] = {...schema[colIndex], type};
+    }
+    shouldCoerce = true;
+  }
+  return {schema, types, shouldCoerce};
+}
+
 // This function applies table cell operations to an in-memory table (array of
 // objects); it should be equivalent to the corresponding SQL query. TODO Use
 // DuckDBClient for data arrays, too, and then we wouldn’t need our own __table
 // function to do table operations on in-memory data?
 export function __table(source, operations) {
   const input = source;
-  let {schema, columns} = source;
-  let inferredSchema = false;
-  if (!isQueryResultSetSchema(schema)) {
-    schema = inferSchema(source, isQueryResultSetColumns(columns) ? columns : undefined);
-    inferredSchema = true;
-  }
-  // Combine column types from schema with user-selected types in operations
-  const types = new Map(schema.map(({name, type}) => [name, type]));
-  if (operations.types) {
-    for (const {name, type} of operations.types) {
-      types.set(name, type);
-      // update schema with user-selected type
-      if (schema === input.schema) schema = schema.slice(); // copy on write
-      const colIndex = schema.findIndex((col) => col.name === name);
-      if (colIndex > -1) schema[colIndex] = {...schema[colIndex], type};
-    }
-    source = source.map(d => coerceRow(d, types, schema));
-  } else if (inferredSchema) {
-    // Coerce data according to new schema, unless that happened due to
-    // operations.types, above.
-    source = source.map(d => coerceRow(d, types, schema));
-  }
+  const schemaInfo = getSchema(source, operations.types);
+  let {columns} = source;
+  let {schema} = schemaInfo;
+  const {types, shouldCoerce} = schemaInfo;
+  if (shouldCoerce) source = source.map(d => coerceRow(d, types, schema));
   for (const {type, operands} of operations.filter) {
     const [{value: column}] = operands;
     const values = operands.slice(1).map(({value}) => value);
