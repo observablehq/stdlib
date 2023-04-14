@@ -636,8 +636,8 @@ export function __table(source, operations) {
   const schemaInfo = getSchema(source);
   let {columns} = source;
   let {schema, shouldCoerce} = schemaInfo;
-  const types = new Map(schema.map(({name, type}) => [name, type]));
   // Combine column types from schema with user-selected types in operations
+  const types = new Map(schema.map(({name, type}) => [name, type]));
   if (operations.types) {
     for (const {name, type} of operations.types) {
       types.set(name, type);
