@@ -633,9 +633,8 @@ export function getSchema(source) {
 // function to do table operations on in-memory data?
 export function __table(source, operations) {
   const input = source;
-  const schemaInfo = getSchema(source);
   let {columns} = source;
-  let {schema, inferred} = schemaInfo;
+  let {schema, inferred} = getSchema(source);
   // Combine column types from schema with user-selected types in operations
   const types = new Map(schema.map(({name, type}) => [name, type]));
   if (operations.types) {
