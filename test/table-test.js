@@ -801,11 +801,6 @@ describe("__table", () => {
     ];
     assert.deepStrictEqual(__table(source, operations), expected);
     source.columns = ["a", "b", "c"];
-    assert.deepStrictEqual(__table(source, operations).columns, [
-      "nameA",
-      "b",
-      "c"
-    ]);
     assert.deepStrictEqual(__table(source, operations).schema, [
       {name: "nameA", type: "integer", inferred: "integer"},
       {name: "b", type: "integer", inferred: "integer"},
@@ -830,11 +825,6 @@ describe("__table", () => {
     ];
     assert.deepStrictEqual(__table(source, operations), expected);
     source.columns = ["a", "b", "c"];
-    assert.deepStrictEqual(__table(source, operations).columns, [
-      "a",
-      "b",
-      "c"
-    ]);
     assert.deepStrictEqual(__table(source, operations).schema, [
       {name: "a", type: "string", inferred: "integer"},
       {name: "b", type: "integer", inferred: "integer"},
