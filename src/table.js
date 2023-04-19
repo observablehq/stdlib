@@ -178,6 +178,7 @@ export const __query = Object.assign(
 
 export async function loadDataSource(source, mode, name) {
   switch (mode) {
+    case "chart": return loadChartDataSource(source);
     case "table": return loadTableDataSource(source, name);
     case "sql": return loadSqlDataSource(source, name);
   }
@@ -203,6 +204,18 @@ function sourceCache(loadSource) {
     return promise;
   };
 }
+
+const loadChartDataSource = sourceCache(async (source) => {
+  if (source instanceof FileAttachment) {
+    switch (source.mimeType) {
+      case "text/csv": return source.csv({typed: "auto"});
+      case "text/tab-separated-values": return source.tsv({typed: "auto"});
+      case "application/json": return source.json();
+    }
+    throw new Error(`unsupported file type: ${source.mimeType}`);
+  }
+  return source;
+});
 
 const loadTableDataSource = sourceCache(async (source, name) => {
   if (source instanceof FileAttachment) {
@@ -296,7 +309,7 @@ async function* accumulateQuery(queryRequest) {
   values.schema = queryResponse.schema;
   try {
     for await (const rows of queryResponse.readRows()) {
-      if (performance.now() - then > 10 && values.length > 0) {
+      if (performance.now() - then > 150 && values.length > 0) {
         yield values;
         then = performance.now();
       }
@@ -613,17 +626,22 @@ export function coerceToType(value, type) {
   }
 }
 
+export function getSchema(source) {
+  const {columns} = source;
+  let {schema} = source;
+  if (!isQueryResultSetSchema(schema)) {
+    schema = inferSchema(source, isQueryResultSetColumns(columns) ? columns : undefined);
+    return {schema, inferred: true};
+  }
+  return {schema, inferred: false};
+}
+
 // This function uses schema information and user-asserted types to coerce table
 // values. This is a prerequisite to being able to derive columns.
 // TODO: Can we add a `typed` flag somewhere to prevent doing this twice?
 function applyTypes(source, operations) {
   const input = source;
-  let {schema, columns} = source;
-  let inferredSchema = false;
-  if (!isQueryResultSetSchema(schema)) {
-    schema = inferSchema(source, columns);
-    inferredSchema = true;
-  }
+  let {schema, inferred} = getSchema(source);
   // Combine column types from schema with user-selected types in operations
   const types = new Map(schema.map(({name, type}) => [name, type]));
   if (operations.types) {
@@ -635,7 +653,7 @@ function applyTypes(source, operations) {
       if (colIndex > -1) schema[colIndex] = {...schema[colIndex], type};
     }
     source = source.map(d => coerceRow(d, types, schema));
-  } else if (inferredSchema) {
+  } else if (inferred) {
     // Coerce data according to new schema, unless that happened due to
     // operations.types, above.
     source = source.map(d => coerceRow(d, types, schema));
@@ -807,7 +825,7 @@ export function __table(source, operations) {
   return source;
 }
 
-function coerceRow(object, types, schema) {
+export function coerceRow(object, types, schema) {
   const coerced = {};
   for (const col of schema) {
     const type = types.get(col.name);

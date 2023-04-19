@@ -3,7 +3,8 @@ import {
   getTypeValidator,
   inferSchema,
   makeQueryTemplate,
-  __table
+  __table,
+  getSchema
 } from "../src/table.js";
 import assert from "assert";
 
@@ -805,13 +806,37 @@ describe("__table", () => {
       "b",
       "c"
     ]);
-    source.schema = [
-      {name: "a", type: "integer", inferred: "integer"},
+    assert.deepStrictEqual(__table(source, operations).schema, [
+      {name: "nameA", type: "integer", inferred: "integer"},
+      {name: "b", type: "integer", inferred: "integer"},
+      {name: "c", type: "integer", inferred: "integer"}
+    ]);
+  });
+
+  it("__table type assertions", () => {
+    const operations = {
+      ...EMPTY_TABLE_DATA.operations,
+      types: [{name: "a", type: "string"}]
+    };
+    const expected = [
+      {a: "1", b: 2, c: 3},
+      {a: "2", b: 4, c: 6},
+      {a: "3", b: 6, c: 9}
+    ];
+    expected.schema = [
+      {name: "a", type: "string", inferred: "integer"},
       {name: "b", type: "integer", inferred: "integer"},
       {name: "c", type: "integer", inferred: "integer"}
     ];
+    assert.deepStrictEqual(__table(source, operations), expected);
+    source.columns = ["a", "b", "c"];
+    assert.deepStrictEqual(__table(source, operations).columns, [
+      "a",
+      "b",
+      "c"
+    ]);
     assert.deepStrictEqual(__table(source, operations).schema, [
-      {name: "nameA", type: "integer", inferred: "integer"},
+      {name: "a", type: "string", inferred: "integer"},
       {name: "b", type: "integer", inferred: "integer"},
       {name: "c", type: "integer", inferred: "integer"}
     ]);
@@ -1212,4 +1237,46 @@ describe("coerceToType", () => {
 
   // Note: if type is "raw", coerceToType() will not be called. Instead, values
   // will be returned from coerceRow().
+});
+
+describe("getSchema", () => {
+  let source;
+
+  beforeEach(() => {
+    source = [
+      {a: 1, b: "foo"},
+      {a: 2, b: "bar"}
+    ];
+    source.schema = [
+      {name: "a", type: "integer", inferred: "integer"},
+      {name: "b", type: "string", inferred: "string"}
+    ];
+  });
+
+
+  it("respects schema from source, if one exists", () => {
+    const {schema, inferred} = getSchema(source);
+    assert.strictEqual(inferred, false);
+    assert.strictEqual(schema, source.schema);
+  });
+
+  it("infers schema if source has no schema", () => {
+    source.schema = undefined;
+    const {schema, inferred} = getSchema(source);
+    assert.strictEqual(inferred, true);
+    assert.deepStrictEqual(schema,[
+      {name: "a", type: "integer", inferred: "integer"},
+      {name: "b", type: "string", inferred: "string"}
+    ]);
+  });
+
+  it("infers schema if schema is invalid", () => {
+    source.schema = ["number"];
+    const {schema, inferred} = getSchema(source);
+    assert.strictEqual(inferred, true);
+    assert.deepStrictEqual(schema,[
+      {name: "a", type: "integer", inferred: "integer"},
+      {name: "b", type: "string", inferred: "string"}
+    ]);
+  });
 });

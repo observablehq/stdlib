@@ -1,7 +1,7 @@
 import {dependency} from "./dependency.js";
-export const d3 = dependency("d3", "7.8.2", "dist/d3.min.js");
+export const d3 = dependency("d3", "7.8.4", "dist/d3.min.js");
 export const inputs = dependency("@observablehq/inputs", "0.10.4", "dist/inputs.min.js");
-export const plot = dependency("@observablehq/plot", "0.6.3", "dist/plot.umd.min.js");
+export const plot = dependency("@observablehq/plot", "0.6.5", "dist/plot.umd.min.js");
 export const graphviz = dependency("@observablehq/graphviz", "0.2.1", "dist/graphviz.min.js");
 export const highlight = dependency("@observablehq/highlight.js", "2.0.0", "highlight.min.js");
 export const katex = dependency("@observablehq/katex", "0.11.1", "dist/katex.min.js");
@@ -15,9 +15,10 @@ export const vegalite = dependency("vega-lite", "5.6.0", "build/vega-lite.min.js
 export const vegaliteApi = dependency("vega-lite-api", "5.0.0", "build/vega-lite-api.min.js");
 export const arrow4 = dependency("apache-arrow", "4.0.1", "Arrow.es2015.min.js");
 export const arrow9 = dependency("apache-arrow", "9.0.0", "+esm");
+export const arrow11 = dependency("apache-arrow", "11.0.0", "+esm");
 export const arquero = dependency("arquero", "4.8.8", "dist/arquero.min.js");
 export const topojson = dependency("topojson-client", "3.1.0", "dist/topojson-client.min.js");
 export const exceljs = dependency("exceljs", "4.3.0", "dist/exceljs.min.js");
 export const mermaid = dependency("mermaid", "9.2.2", "dist/mermaid.min.js");
 export const leaflet = dependency("leaflet", "1.9.3", "dist/leaflet.js");
-export const duckdb = dependency("@duckdb/duckdb-wasm", "1.17.0", "+esm");
+export const duckdb = dependency("@duckdb/duckdb-wasm", "1.24.0", "+esm");
