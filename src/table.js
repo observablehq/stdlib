@@ -154,16 +154,7 @@ export const __query = Object.assign(
   async (source, operations, invalidation, name) => {
     source = await loadTableDataSource(await source, name);
     if (isDatabaseClient(source)) return evaluateQuery(source, makeQueryTemplate(operations, source), invalidation);
-    if (isDataArray(source)) {
-      if(operations.derive) {
-        source = applyTypes(source, operations);
-        operations.derive.map(({name, value}) => {
-          source = source.map((row, index, rows) => ({...row, [name]: value(row, index, rows)}));
-        });
-      }
-      source = __table(source, operations);
-      return source;
-    }
+    if (isDataArray(source)) return __table(source, operations);
     if (!source) throw new Error("missing data source");
     throw new Error("invalid data source");
   },
@@ -636,13 +627,9 @@ export function getSchema(source) {
   return {schema, inferred: false};
 }
 
-// This function uses schema information and user-asserted types to coerce table
-// values. This is a prerequisite to being able to derive columns.
-// TODO: Can we add a `typed` flag somewhere to prevent doing this twice?
 function applyTypes(source, operations) {
   const input = source;
   let {schema, inferred} = getSchema(source);
-  // Combine column types from schema with user-selected types in operations
   const types = new Map(schema.map(({name, type}) => [name, type]));
   if (operations.types) {
     for (const {name, type} of operations.types) {
@@ -658,15 +645,7 @@ function applyTypes(source, operations) {
     // operations.types, above.
     source = source.map(d => coerceRow(d, types, schema));
   }
-  // TODO: not totally sure if this this the right way to handle this
-  if (source !== input) {
-    if (schema) source.schema = schema;
-  }
-  // TODO: is this a good way to track this? It seems like an alternative would
-  // be passing in an argument to __table indicating if types should be applied
-  // (default to true, could be set to false if calling from __query)
-  // source.typesApplied = true;
-  return source;
+  return {source, schema};
 }
 
 // This function applies table cell operations to an in-memory table (array of
@@ -675,14 +654,34 @@ function applyTypes(source, operations) {
 // function to do table operations on in-memory data?
 export function __table(source, operations) {
   const input = source;
-  // let {schema, columns, typesApplied} = source; // maybe?
-  let {schema, columns} = source;
-  if (!isQueryResultSetSchema(schema)) {
-    schema = inferSchema(source, columns);
+  let {columns} = source;
+  const applied = applyTypes(source, operations);
+  // TODO_ANNIE make this more elegant?
+  source = applied.source;
+  let schema = applied.schema;
+  // TODO_ANNIE add tests for __table derive
+  if (operations.derive) {
+    let derivedSource = [];
+    operations.derive.map(({name, value}) => {
+      source.map((row, index, rows) => {
+        let resolved = value(row, index, rows);
+        if (derivedSource[index]) {
+          derivedSource[index] = {...derivedSource[index], [name]: resolved};
+        } else {
+          derivedSource.push({[name]: resolved});
+        }
+      });
+    });
+    let {schema: derivedSchema} = getSchema(derivedSource);
+    const appliedDerived = applyTypes(derivedSource, operations);
+    // TODO_ANNIE make this more elegant?
+    derivedSource = appliedDerived.source;
+    derivedSchema = appliedDerived.schema;
+    // Merge derived source and schema with the larger dataset
+    source = source.map((row, i) => ({...row, ...derivedSource[i]}));
+    schema = [...schema, ...derivedSchema];
   }
   const fullSchema = schema.slice();
-  // if(!typesApplied) source = applyTypes(source, operations);
-  source = applyTypes(source, operations);
   for (const {type, operands} of operations.filter) {
     const [{value: column}] = operands;
     const values = operands.slice(1).map(({value}) => value);
