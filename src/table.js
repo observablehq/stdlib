@@ -627,6 +627,10 @@ export function getSchema(source) {
   return {schema, inferred: false};
 }
 
+// This function infers a schema from the source data, if one doesn't already
+// exist, and merges type assertions into that schema. If the schema was
+// inferred or if there are type assertions, it then coerces the rows in the
+// source data to the types specified in the schema.
 function applyTypes(source, operations) {
   const input = source;
   let {schema, inferred} = getSchema(source);
@@ -655,12 +659,14 @@ function applyTypes(source, operations) {
 export function __table(source, operations) {
   const input = source;
   let {columns} = source;
-  const applied = applyTypes(source, operations);
-  // TODO_ANNIE make this more elegant?
-  source = applied.source;
-  let schema = applied.schema;
+  const typed = applyTypes(source, operations);
+  source = typed.source;
+  let schema = typed.schema;
   // TODO_ANNIE add tests for __table derive
   if (operations.derive) {
+    // Derived columns may depend on coerced values from the original data source,
+    // so we must evaluate derivations after the initial inference and coercion
+    // step.
     let derivedSource = [];
     operations.derive.map(({name, value}) => {
       source.map((row, index, rows) => {
@@ -672,14 +678,12 @@ export function __table(source, operations) {
         }
       });
     });
-    let {schema: derivedSchema} = getSchema(derivedSource);
-    const appliedDerived = applyTypes(derivedSource, operations);
-    // TODO_ANNIE make this more elegant?
-    derivedSource = appliedDerived.source;
-    derivedSchema = appliedDerived.schema;
-    // Merge derived source and schema with the larger dataset
-    source = source.map((row, i) => ({...row, ...derivedSource[i]}));
-    schema = [...schema, ...derivedSchema];
+    // We perform an additional round of type inference and coercion on derived
+    // columns here.
+    const typedDerived = applyTypes(derivedSource, operations);
+    // Merge derived source and schema with the larger dataset.
+    source = source.map((row, i) => ({...row, ...typedDerived.source[i]}));
+    schema = [...schema, ...typedDerived.schema];
   }
   const fullSchema = schema.slice();
   for (const {type, operands} of operations.filter) {
@@ -785,7 +789,7 @@ export function __table(source, operations) {
   if (operations.select.columns) {
     if (schema) {
       const schemaByName = new Map(schema.map((s) => [s.name, s]));
-      schema = operations.select.columns.map((c) => schemaByName.get(c)); // this drop derived columns!
+      schema = operations.select.columns.map((c) => schemaByName.get(c));
     }
     if (columns) {
       columns = operations.select.columns;
@@ -802,7 +806,6 @@ export function __table(source, operations) {
         return ({...s, ...(override ? {name: override.name} : null)});
       });
     }
-    // TODO: handle columns with derived columns
     if (columns) {
       columns = columns.map((c) => {
         const override = overridesByName.get(c);
