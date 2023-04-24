@@ -685,7 +685,6 @@ export function __table(source, operations) {
     source = source.map((row, i) => ({...row, ...typedDerived.source[i]}));
     schema = [...schema, ...typedDerived.schema];
   }
-  const fullSchema = schema.slice();
   for (const {type, operands} of operations.filter) {
     const [{value: column}] = operands;
     const values = operands.slice(1).map(({value}) => value);
@@ -788,8 +787,8 @@ export function __table(source, operations) {
   }
   if (operations.select.columns) {
     if (schema) {
-      const schemaByName = new Map(schema.map((s) => [s.name, s]));
-      schema = operations.select.columns.map((c) => schemaByName.get(c));
+      const columnsSet = new Set(operations.select.columns);
+      schema = schema.map((s) => ({...s, hidden: !columnsSet.has(s.name)}));
     }
     if (columns) {
       columns = operations.select.columns;
@@ -823,7 +822,6 @@ export function __table(source, operations) {
     if (schema) source.schema = schema;
     if (columns) source.columns = columns;
   }
-  source.fullSchema = fullSchema;
   return source;
 }
 
