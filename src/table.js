@@ -662,7 +662,6 @@ export function __table(source, operations) {
   const typed = applyTypes(source, operations);
   source = typed.source;
   let schema = typed.schema;
-  // TODO_ANNIE add tests for __table derive
   if (operations.derive) {
     // Derived columns may depend on coerced values from the original data source,
     // so we must evaluate derivations after the initial inference and coercion
@@ -788,7 +787,7 @@ export function __table(source, operations) {
   if (operations.select.columns) {
     if (schema) {
       const columnsSet = new Set(operations.select.columns);
-      schema = schema.map((s) => ({...s, hidden: !columnsSet.has(s.name)}));
+      schema = schema.map((s) => ({...s, ...(!columnsSet.has(s.name) ? {hidden: true} : null)}));
     }
     if (columns) {
       columns = operations.select.columns;

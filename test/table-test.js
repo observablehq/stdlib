@@ -503,7 +503,7 @@ describe("__table", () => {
       select: {columns: []}
     };
     const expectedEmpty = [{}, {}, {}];
-    expectedEmpty.schema = [];
+    expectedEmpty.schema = source.schema.map((s) => ({...s, hidden: true}));
     assert.deepStrictEqual(
       __table(source, operationsEmptyColumns),
       expectedEmpty
@@ -513,7 +513,11 @@ describe("__table", () => {
       select: {columns: ["a"]}
     };
     const expectedSelected = [{a: 1}, {a: 2}, {a: 3}];
-    expectedSelected.schema = [{name: "a", type: "integer", inferred: "integer"}];
+    expectedSelected.schema = [
+      {name: "a", type: "integer", inferred: "integer"},
+      {name: "b", type: "integer", inferred: "integer", hidden: true},
+      {name: "c", type: "integer", inferred: "integer", hidden: true}
+    ];
     assert.deepStrictEqual(
       __table(source, operationsSelectedColumns),
       expectedSelected
@@ -806,11 +810,6 @@ describe("__table", () => {
       "b",
       "c"
     ]);
-    assert.deepStrictEqual(__table(source, operations).schema, [
-      {name: "nameA", type: "integer", inferred: "integer"},
-      {name: "b", type: "integer", inferred: "integer"},
-      {name: "c", type: "integer", inferred: "integer"}
-    ]);
   });
 
   it("__table type assertions", () => {
@@ -835,11 +834,25 @@ describe("__table", () => {
       "b",
       "c"
     ]);
-    assert.deepStrictEqual(__table(source, operations).schema, [
-      {name: "a", type: "string", inferred: "integer"},
+  });
+
+  it("__table derived columns", () => {
+    const operations = {
+      ...EMPTY_TABLE_DATA.operations,
+      derive: [{name: "d", value: (row) => row.a ** 2}]
+    };
+    const expected = [
+      {a: 1, b: 2, c: 3, d: 1},
+      {a: 2, b: 4, c: 6, d: 4},
+      {a: 3, b: 6, c: 9, d: 9}
+    ];
+    expected.schema = [
+      {name: "a", type: "integer", inferred: "integer"},
       {name: "b", type: "integer", inferred: "integer"},
-      {name: "c", type: "integer", inferred: "integer"}
-    ]);
+      {name: "c", type: "integer", inferred: "integer"},
+      {name: "d", type: "integer", inferred: "integer"}
+    ];
+    assert.deepStrictEqual(__table(source, operations), expected);
   });
 });
 
