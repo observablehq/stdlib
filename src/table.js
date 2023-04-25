@@ -666,9 +666,13 @@ export function __table(source, operations) {
     // Derived columns may depend on coerced values from the original data source,
     // so we must evaluate derivations after the initial inference and coercion
     // step.
-    let derivedSource = [];
+    let derivedSource = source.slice();
     operations.derive.map(({name, value}) => {
-      source.map((row, index, rows) => {
+      // TODO Allow derived columns to reference one another, regardless of the
+      // order in which they are created. In the current implementation, a
+      // derived column can only reference derived columns that come before it
+      // in operations.derive.
+      derivedSource.map((row, index, rows) => {
         let resolved = value(row, index, rows);
         if (derivedSource[index]) {
           derivedSource[index] = {...derivedSource[index], [name]: resolved};
