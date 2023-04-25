@@ -503,7 +503,7 @@ describe("__table", () => {
       select: {columns: []}
     };
     const expectedEmpty = [{}, {}, {}];
-    expectedEmpty.schema = source.schema.map((s) => ({...s, hidden: true}));
+    expectedEmpty.schema = [];
     assert.deepStrictEqual(
       __table(source, operationsEmptyColumns),
       expectedEmpty
@@ -515,8 +515,8 @@ describe("__table", () => {
     const expectedSelected = [{a: 1}, {a: 2}, {a: 3}];
     expectedSelected.schema = [
       {name: "a", type: "integer", inferred: "integer"},
-      {name: "b", type: "integer", inferred: "integer", hidden: true},
-      {name: "c", type: "integer", inferred: "integer", hidden: true}
+      {name: "b", type: "integer", inferred: "integer"},
+      {name: "c", type: "integer", inferred: "integer"}
     ];
     assert.deepStrictEqual(
       __table(source, operationsSelectedColumns),

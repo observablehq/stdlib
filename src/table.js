@@ -788,18 +788,6 @@ export function __table(source, operations) {
   if (from > 0 || to < Infinity) {
     source = source.slice(Math.max(0, from), Math.max(0, to));
   }
-  if (operations.select.columns) {
-    if (schema) {
-      const columnsSet = new Set(operations.select.columns);
-      schema = schema.map((s) => ({...s, ...(!columnsSet.has(s.name) ? {hidden: true} : null)}));
-    }
-    if (columns) {
-      columns = operations.select.columns;
-    }
-    source = source.map((d) =>
-      Object.fromEntries(operations.select.columns.map((c) => [c, d[c]]))
-    );
-  }
   if (operations.names) {
     const overridesByName = new Map(operations.names.map((n) => [n.column, n]));
     if (schema) {
@@ -819,6 +807,20 @@ export function __table(source, operations) {
         const override = overridesByName.get(k);
         return [override?.name ?? k, d[k]];
       }))
+    );
+  }
+  // Preserve the schema for all columns, before filtering on selected columns.
+  source.fullSchema = schema;
+  if (operations.select.columns) {
+    if (schema) {
+      const schemaByName = new Map(schema.map((s) => [s.name, s]));
+      schema = operations.select.columns.map((c) => schemaByName.get(c));
+    }
+    if (columns) {
+      columns = operations.select.columns;
+    }
+    source = source.map((d) =>
+      Object.fromEntries(operations.select.columns.map((c) => [c, d[c]]))
     );
   }
   if (source !== input) {
