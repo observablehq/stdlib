@@ -681,8 +681,8 @@ export function __table(source, operations) {
         }
       });
     });
-    // We perform an additional round of type inference and coercion on derived
-    // columns here.
+    // Since derived columns are untyped by default, we do a pass of type
+    // inference and coercion after computing the derived values.
     const typedDerived = applyTypes(derivedSource, operations);
     // Merge derived source and schema with the larger dataset.
     source = source.map((row, i) => ({...row, ...typedDerived.source[i]}));
