@@ -504,6 +504,7 @@ describe("__table", () => {
     };
     const expectedEmpty = [{}, {}, {}];
     expectedEmpty.schema = [];
+    expectedEmpty.fullSchema = source.schema;
     assert.deepStrictEqual(
       __table(source, operationsEmptyColumns),
       expectedEmpty
@@ -513,11 +514,8 @@ describe("__table", () => {
       select: {columns: ["a"]}
     };
     const expectedSelected = [{a: 1}, {a: 2}, {a: 3}];
-    expectedSelected.schema = [
-      {name: "a", type: "integer", inferred: "integer"},
-      {name: "b", type: "integer", inferred: "integer"},
-      {name: "c", type: "integer", inferred: "integer"}
-    ];
+    expectedSelected.schema = [{name: "a", type: "integer", inferred: "integer"}];
+    expectedSelected.fullSchema = source.schema;
     assert.deepStrictEqual(
       __table(source, operationsSelectedColumns),
       expectedSelected
@@ -550,6 +548,7 @@ describe("__table", () => {
     };
     const expectedEq = [{a: 1, b: 2, c: 3}];
     expectedEq.schema = source.schema;
+    expectedEq.fullSchema = source.schema;
     assert.deepStrictEqual(__table(source, operationsEquals), expectedEq);
     const operationsComparison = {
       ...EMPTY_TABLE_DATA.operations,
@@ -572,6 +571,7 @@ describe("__table", () => {
     };
     const expectedLtGt = [{a: 2, b: 4, c: 6}];
     expectedLtGt.schema = source.schema;
+    expectedLtGt.fullSchema = source.schema;
     assert.deepStrictEqual(__table(source, operationsComparison), expectedLtGt);
   });
 
@@ -590,6 +590,7 @@ describe("__table", () => {
     };
     const expectedEq = [{a: 1, b: 2, c: 3}];
     expectedEq.schema = source.schema;
+    expectedEq.fullSchema = source.schema;
     assert.deepStrictEqual(__table(source, operationsEquals), expectedEq);
     const operationsComparison = {
       ...EMPTY_TABLE_DATA.operations,
@@ -612,6 +613,7 @@ describe("__table", () => {
     };
     const expectedLteGte = [{a: 2, b: 4, c: 6}];
     expectedLteGte.schema = source.schema;
+    expectedLteGte.fullSchema = source.schema;
     assert.deepStrictEqual(
       __table(source, operationsComparison),
       expectedLteGte
@@ -638,6 +640,7 @@ describe("__table", () => {
     ];
     const expected = [{a: new Date("2021-01-02")}];
     expected.schema = [{name: "a", type: "date", inferred: "date"}];
+    expected.fullSchema = expected.schema;
     assert.deepStrictEqual(__table(source, operationsEquals), expected);
   });
 
@@ -652,6 +655,7 @@ describe("__table", () => {
       {a: 1, b: 2, c: 3}
     ];
     expectedDesc.schema = source.schema;
+    expectedDesc.fullSchema = source.schema;
     assert.deepStrictEqual(__table(source, operationsDesc), expectedDesc);
     const operationsAsc = {
       ...EMPTY_TABLE_DATA.operations,
@@ -663,6 +667,7 @@ describe("__table", () => {
       {a: 3, b: 6, c: 9}
     ];
     expectedAsc.schema = source.schema;
+    expectedAsc.fullSchema = source.schema;
     assert.deepStrictEqual(__table(source, operationsAsc), expectedAsc);
     const sourceExtended = [...source, {a: 1, b: 3, c: 3}, {a: 1, b: 5, c: 3}];
     const operationsMulti = {
@@ -680,6 +685,7 @@ describe("__table", () => {
       {a: 1, b: 2, c: 3}
     ];
     expectedExtended.schema = source.schema;
+    expectedExtended.fullSchema = source.schema;
     assert.deepStrictEqual(
       __table(sourceExtended, operationsMulti),
       expectedExtended
@@ -698,6 +704,7 @@ describe("__table", () => {
       {a: 20}, {a: 10}, {a: 5}, {a: 1}, {a: NaN}, {a: NaN}, {a: NaN}, {a: NaN}
     ];
     expectedDesc.schema = [{name: "a", type: "number", inferred: "number"}];
+    expectedDesc.fullSchema = expectedDesc.schema;
     assert.deepStrictEqual(
       __table(sourceWithMissing, operationsDesc),
       expectedDesc
@@ -710,6 +717,7 @@ describe("__table", () => {
       {a: 1}, {a: 5}, {a: 10}, {a: 20}, {a: NaN}, {a: NaN}, {a: NaN}, {a: NaN}
     ];
     expectedAsc.schema = [{name: "a", type: "number", inferred: "number"}];
+    expectedAsc.fullSchema = expectedAsc.schema;
     assert.deepStrictEqual(
       __table(sourceWithMissing, operationsAsc),
       expectedAsc
@@ -727,6 +735,7 @@ describe("__table", () => {
       {a: 1, b: 2, c: 3}
     ];
     sorted.schema = source.schema;
+    sorted.fullSchema = source.schema;
     assert.deepStrictEqual(__table(source, operations), sorted);
     const originalOrder = [
       {a: 1, b: 2, c: 3},
@@ -747,6 +756,7 @@ describe("__table", () => {
       {a: 3, b: 6, c: 9}
     ];
     expectedToNull.schema = source.schema;
+    expectedToNull.fullSchema = source.schema;
     assert.deepStrictEqual(__table(source, operationsToNull), expectedToNull);
     const operationsFromNull = {
       ...EMPTY_TABLE_DATA.operations,
@@ -754,6 +764,7 @@ describe("__table", () => {
     };
     const expectedFromNull = [{a: 1, b: 2, c: 3}];
     expectedFromNull.schema = source.schema;
+    expectedFromNull.fullSchema = source.schema;
     assert.deepStrictEqual(
       __table(source, operationsFromNull),
       expectedFromNull
@@ -764,6 +775,7 @@ describe("__table", () => {
     };
     const expectedSlice = [{a: 2, b: 4, c: 6}];
     expectedSlice.schema = source.schema;
+    expectedSlice.fullSchema = source.schema;
     assert.deepStrictEqual(__table(source, operations), expectedSlice);
   });
 
@@ -798,11 +810,13 @@ describe("__table", () => {
       {nameA: 2, b: 4, c: 6},
       {nameA: 3, b: 6, c: 9}
     ];
-    expected.schema = [
+    const schema = [
       {name: "nameA", type: "integer", inferred: "integer"},
       {name: "b", type: "integer", inferred: "integer"},
       {name: "c", type: "integer", inferred: "integer"}
     ];
+    expected.schema = schema;
+    expected.fullSchema = schema;
     assert.deepStrictEqual(__table(source, operations), expected);
     source.columns = ["a", "b", "c"];
     assert.deepStrictEqual(__table(source, operations).columns, [
@@ -827,6 +841,7 @@ describe("__table", () => {
       {name: "b", type: "integer", inferred: "integer"},
       {name: "c", type: "integer", inferred: "integer"}
     ];
+    expected.fullSchema = expected.schema;
     assert.deepStrictEqual(__table(source, operations), expected);
     source.columns = ["a", "b", "c"];
     assert.deepStrictEqual(__table(source, operations).columns, [
@@ -852,6 +867,7 @@ describe("__table", () => {
       {name: "c", type: "integer", inferred: "integer"},
       {name: "d", type: "integer", inferred: "integer"}
     ];
+    expected.fullSchema = expected.schema;
     assert.deepStrictEqual(__table(source, operations), expected);
   });
 });

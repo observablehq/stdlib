@@ -666,13 +666,10 @@ export function __table(source, operations) {
     // Derived columns may depend on coerced values from the original data source,
     // so we must evaluate derivations after the initial inference and coercion
     // step.
-    let derivedSource = source.slice();
+    const derivedSource = [];
     operations.derive.map(({name, value}) => {
-      // TODO Allow derived columns to reference one another, regardless of the
-      // order in which they are created. In the current implementation, a
-      // derived column can only reference derived columns that come before it
-      // in operations.derive.
-      derivedSource.map((row, index, rows) => {
+      // TODO Allow derived columns to reference other derived columns.
+      source.map((row, index, rows) => {
         let resolved = value(row, index, rows);
         if (derivedSource[index]) {
           derivedSource[index] = {...derivedSource[index], [name]: resolved};
@@ -684,7 +681,7 @@ export function __table(source, operations) {
     // Since derived columns are untyped by default, we do a pass of type
     // inference and coercion after computing the derived values.
     const typedDerived = applyTypes(derivedSource, operations);
-    // Merge derived source and schema with the larger dataset.
+    // Merge derived source and schema with the source dataset.
     source = source.map((row, i) => ({...row, ...typedDerived.source[i]}));
     schema = [...schema, ...typedDerived.schema];
   }
@@ -788,10 +785,30 @@ export function __table(source, operations) {
   if (from > 0 || to < Infinity) {
     source = source.slice(Math.max(0, from), Math.max(0, to));
   }
+  // Preserve the schema for all columns.
+  let fullSchema = schema.slice();
+  if (operations.select.columns) {
+    if (schema) {
+      const schemaByName = new Map(schema.map((s) => [s.name, s]));
+      schema = operations.select.columns.map((c) => schemaByName.get(c));
+    }
+    if (columns) {
+      columns = operations.select.columns;
+    }
+    source = source.map((d) =>
+      Object.fromEntries(operations.select.columns.map((c) => [c, d[c]]))
+    );
+  }
   if (operations.names) {
     const overridesByName = new Map(operations.names.map((n) => [n.column, n]));
     if (schema) {
       schema = schema.map((s) => {
+        const override = overridesByName.get(s.name);
+        return ({...s, ...(override ? {name: override.name} : null)});
+      });
+    }
+    if (fullSchema) {
+      fullSchema = fullSchema.map((s) => {
         const override = overridesByName.get(s.name);
         return ({...s, ...(override ? {name: override.name} : null)});
       });
@@ -809,24 +826,11 @@ export function __table(source, operations) {
       }))
     );
   }
-  // Preserve the schema for all columns, before filtering on selected columns.
-  source.fullSchema = schema;
-  if (operations.select.columns) {
-    if (schema) {
-      const schemaByName = new Map(schema.map((s) => [s.name, s]));
-      schema = operations.select.columns.map((c) => schemaByName.get(c));
-    }
-    if (columns) {
-      columns = operations.select.columns;
-    }
-    source = source.map((d) =>
-      Object.fromEntries(operations.select.columns.map((c) => [c, d[c]]))
-    );
-  }
   if (source !== input) {
     if (schema) source.schema = schema;
     if (columns) source.columns = columns;
   }
+  source.fullSchema = fullSchema;
   return source;
 }
 
