@@ -652,6 +652,17 @@ function applyTypes(source, operations) {
   return {source, schema};
 }
 
+function applyNames(source, operations) {
+  if (!operations.names) return source;
+  const overridesByName = new Map(operations.names.map((n) => [n.column, n]));
+  return source.map((d) =>
+    Object.fromEntries(Object.keys(d).map((k) => {
+      const override = overridesByName.get(k);
+      return [override?.name ?? k, d[k]];
+    }))
+  );
+}
+
 // This function applies table cell operations to an in-memory table (array of
 // objects); it should be equivalent to the corresponding SQL query. TODO Use
 // DuckDBClient for data arrays, too, and then we wouldn’t need our own __table
@@ -668,9 +679,11 @@ export function __table(source, operations) {
     // step.
     const derivedSource = [];
     operations.derive.map(({name, value}) => {
+      // Derived column formulas may reference renamed columns, so we must
+      // compute derivations on the renamed source.
       // TODO Allow derived columns to reference other derived columns.
-      source.map((row, index, rows) => {
-        let resolved = value(row, index, rows);
+      applyNames(source, operations).map((row, index, rows) => {
+        const resolved = value(row, index, rows);
         if (derivedSource[index]) {
           derivedSource[index] = {...derivedSource[index], [name]: resolved};
         } else {
@@ -819,12 +832,7 @@ export function __table(source, operations) {
         return override?.name ?? c;
       });
     }
-    source = source.map((d) =>
-      Object.fromEntries(Object.keys(d).map((k) => {
-        const override = overridesByName.get(k);
-        return [override?.name ?? k, d[k]];
-      }))
-    );
+    source = applyNames(source, operations);
   }
   if (source !== input) {
     if (schema) source.schema = schema;
