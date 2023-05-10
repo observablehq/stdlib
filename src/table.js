@@ -668,6 +668,7 @@ function applyNames(source, operations) {
 // DuckDBClient for data arrays, too, and then we wouldn’t need our own __table
 // function to do table operations on in-memory data?
 export function __table(source, operations) {
+  const errors = new Map();
   const input = source;
   let {columns} = source;
   const typed = applyTypes(source, operations);
@@ -679,17 +680,28 @@ export function __table(source, operations) {
     // step.
     const derivedSource = [];
     operations.derive.map(({name, value}) => {
+      let columnErrors = new Map();
       // Derived column formulas may reference renamed columns, so we must
-      // compute derivations on the renamed source.
+      // compute derivations on the renamed source. However, we don't modify the
+      // source itself with renamed names until after the other operations are
+      // applied, because operations like filter and sort reference original
+      // column names.
       // TODO Allow derived columns to reference other derived columns.
       applyNames(source, operations).map((row, index, rows) => {
-        const resolved = value(row, index, rows);
+        let resolved;
+        try {
+          resolved = value(row, index, rows);
+        } catch (error) {
+          columnErrors.set(index, error);
+          resolved = undefined;
+        }
         if (derivedSource[index]) {
           derivedSource[index] = {...derivedSource[index], [name]: resolved};
         } else {
           derivedSource.push({[name]: resolved});
         }
       });
+      errors.set(name, columnErrors);
     });
     // Since derived columns are untyped by default, we do a pass of type
     // inference and coercion after computing the derived values.
@@ -839,6 +851,7 @@ export function __table(source, operations) {
     if (columns) source.columns = columns;
   }
   source.fullSchema = fullSchema;
+  source.errors = errors;
   return source;
 }
 
