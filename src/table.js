@@ -670,7 +670,6 @@ function applyNames(source, operations) {
 export function __table(source, operations) {
   const errors = new Map();
   const input = source;
-  let {columns} = source;
   const typed = applyTypes(source, operations);
   source = typed.source;
   let schema = typed.schema;
@@ -817,9 +816,6 @@ export function __table(source, operations) {
       const schemaByName = new Map(schema.map((s) => [s.name, s]));
       schema = operations.select.columns.map((c) => schemaByName.get(c));
     }
-    if (columns) {
-      columns = operations.select.columns;
-    }
     source = source.map((d) =>
       Object.fromEntries(operations.select.columns.map((c) => [c, d[c]]))
     );
@@ -838,17 +834,10 @@ export function __table(source, operations) {
         return ({...s, ...(override ? {name: override.name} : null)});
       });
     }
-    if (columns) {
-      columns = columns.map((c) => {
-        const override = overridesByName.get(c);
-        return override?.name ?? c;
-      });
-    }
     source = applyNames(source, operations);
   }
   if (source !== input) {
     if (schema) source.schema = schema;
-    if (columns) source.columns = columns;
   }
   source.fullSchema = fullSchema;
   source.errors = errors;

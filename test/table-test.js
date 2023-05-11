@@ -836,11 +836,6 @@ describe("__table", () => {
     expected.errors = new Map();
     assert.deepStrictEqual(__table(source, operations), expected);
     source.columns = ["a", "b", "c"];
-    assert.deepStrictEqual(__table(source, operations).columns, [
-      "nameA",
-      "b",
-      "c"
-    ]);
   });
 
   it("__table type assertions", () => {
@@ -862,11 +857,6 @@ describe("__table", () => {
     expected.errors = new Map();
     assert.deepStrictEqual(__table(source, operations), expected);
     source.columns = ["a", "b", "c"];
-    assert.deepStrictEqual(__table(source, operations).columns, [
-      "a",
-      "b",
-      "c"
-    ]);
   });
 
   it("__table derived columns", () => {
