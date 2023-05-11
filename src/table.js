@@ -627,14 +627,13 @@ export function getSchema(source) {
   return {schema, inferred: false};
 }
 
-// This function applies table cell operations to an in-memory table (array of
-// objects); it should be equivalent to the corresponding SQL query. TODO Use
-// DuckDBClient for data arrays, too, and then we wouldn’t need our own __table
-// function to do table operations on in-memory data?
-export function __table(source, operations) {
+// This function infers a schema from the source data, if one doesn't already
+// exist, and merges type assertions into that schema. If the schema was
+// inferred or if there are type assertions, it then coerces the rows in the
+// source data to the types specified in the schema.
+function applyTypes(source, operations) {
   const input = source;
   let {schema, inferred} = getSchema(source);
-  // Combine column types from schema with user-selected types in operations
   const types = new Map(schema.map(({name, type}) => [name, type]));
   if (operations.types) {
     for (const {name, type} of operations.types) {
@@ -649,6 +648,66 @@ export function __table(source, operations) {
     // Coerce data according to new schema, unless that happened due to
     // operations.types, above.
     source = source.map(d => coerceRow(d, types, schema));
+  }
+  return {source, schema};
+}
+
+function applyNames(source, operations) {
+  if (!operations.names) return source;
+  const overridesByName = new Map(operations.names.map((n) => [n.column, n]));
+  return source.map((d) =>
+    Object.fromEntries(Object.keys(d).map((k) => {
+      const override = overridesByName.get(k);
+      return [override?.name ?? k, d[k]];
+    }))
+  );
+}
+
+// This function applies table cell operations to an in-memory table (array of
+// objects); it should be equivalent to the corresponding SQL query. TODO Use
+// DuckDBClient for data arrays, too, and then we wouldn’t need our own __table
+// function to do table operations on in-memory data?
+export function __table(source, operations) {
+  const errors = new Map();
+  const input = source;
+  const typed = applyTypes(source, operations);
+  source = typed.source;
+  let schema = typed.schema;
+  if (operations.derive) {
+    // Derived columns may depend on coerced values from the original data source,
+    // so we must evaluate derivations after the initial inference and coercion
+    // step.
+    const derivedSource = [];
+    operations.derive.map(({name, value}) => {
+      let columnErrors = [];
+      // Derived column formulas may reference renamed columns, so we must
+      // compute derivations on the renamed source. However, we don't modify the
+      // source itself with renamed names until after the other operations are
+      // applied, because operations like filter and sort reference original
+      // column names.
+      // TODO Allow derived columns to reference other derived columns.
+      applyNames(source, operations).map((row, index, rows) => {
+        let resolved;
+        try {
+          resolved = value(row, index, rows);
+        } catch (error) {
+          columnErrors.push({index, error});
+          resolved = undefined;
+        }
+        if (derivedSource[index]) {
+          derivedSource[index] = {...derivedSource[index], [name]: resolved};
+        } else {
+          derivedSource.push({[name]: resolved});
+        }
+      });
+      if (columnErrors.length) errors.set(name, columnErrors);
+    });
+    // Since derived columns are untyped by default, we do a pass of type
+    // inference and coercion after computing the derived values.
+    const typedDerived = applyTypes(derivedSource, operations);
+    // Merge derived source and schema with the source dataset.
+    source = source.map((row, i) => ({...row, ...typedDerived.source[i]}));
+    schema = [...schema, ...typedDerived.schema];
   }
   for (const {type, operands} of operations.filter) {
     const [{value: column}] = operands;
@@ -750,6 +809,8 @@ export function __table(source, operations) {
   if (from > 0 || to < Infinity) {
     source = source.slice(Math.max(0, from), Math.max(0, to));
   }
+  // Preserve the schema for all columns.
+  let fullSchema = schema.slice();
   if (operations.select.columns) {
     if (schema) {
       const schemaByName = new Map(schema.map((s) => [s.name, s]));
@@ -767,16 +828,19 @@ export function __table(source, operations) {
         return ({...s, ...(override ? {name: override.name} : null)});
       });
     }
-    source = source.map((d) =>
-      Object.fromEntries(Object.keys(d).map((k) => {
-        const override = overridesByName.get(k);
-        return [override?.name ?? k, d[k]];
-      }))
-    );
+    if (fullSchema) {
+      fullSchema = fullSchema.map((s) => {
+        const override = overridesByName.get(s.name);
+        return ({...s, ...(override ? {name: override.name} : null)});
+      });
+    }
+    source = applyNames(source, operations);
   }
   if (source !== input) {
     if (schema) source.schema = schema;
   }
+  source.fullSchema = fullSchema;
+  source.errors = errors;
   return source;
 }
 
