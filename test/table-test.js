@@ -505,6 +505,7 @@ describe("__table", () => {
     const expectedEmpty = [{}, {}, {}];
     expectedEmpty.schema = [];
     expectedEmpty.fullSchema = source.schema;
+    expectedEmpty.errors = new Map();
     assert.deepStrictEqual(
       __table(source, operationsEmptyColumns),
       expectedEmpty
@@ -516,6 +517,7 @@ describe("__table", () => {
     const expectedSelected = [{a: 1}, {a: 2}, {a: 3}];
     expectedSelected.schema = [{name: "a", type: "integer", inferred: "integer"}];
     expectedSelected.fullSchema = source.schema;
+    expectedSelected.errors = new Map();
     assert.deepStrictEqual(
       __table(source, operationsSelectedColumns),
       expectedSelected
@@ -549,6 +551,7 @@ describe("__table", () => {
     const expectedEq = [{a: 1, b: 2, c: 3}];
     expectedEq.schema = source.schema;
     expectedEq.fullSchema = source.schema;
+    expectedEq.errors = new Map();
     assert.deepStrictEqual(__table(source, operationsEquals), expectedEq);
     const operationsComparison = {
       ...EMPTY_TABLE_DATA.operations,
@@ -572,6 +575,7 @@ describe("__table", () => {
     const expectedLtGt = [{a: 2, b: 4, c: 6}];
     expectedLtGt.schema = source.schema;
     expectedLtGt.fullSchema = source.schema;
+    expectedLtGt.errors = new Map();
     assert.deepStrictEqual(__table(source, operationsComparison), expectedLtGt);
   });
 
@@ -591,6 +595,7 @@ describe("__table", () => {
     const expectedEq = [{a: 1, b: 2, c: 3}];
     expectedEq.schema = source.schema;
     expectedEq.fullSchema = source.schema;
+    expectedEq.errors = new Map();
     assert.deepStrictEqual(__table(source, operationsEquals), expectedEq);
     const operationsComparison = {
       ...EMPTY_TABLE_DATA.operations,
@@ -614,6 +619,7 @@ describe("__table", () => {
     const expectedLteGte = [{a: 2, b: 4, c: 6}];
     expectedLteGte.schema = source.schema;
     expectedLteGte.fullSchema = source.schema;
+    expectedLteGte.errors = new Map();
     assert.deepStrictEqual(
       __table(source, operationsComparison),
       expectedLteGte
@@ -641,6 +647,7 @@ describe("__table", () => {
     const expected = [{a: new Date("2021-01-02")}];
     expected.schema = [{name: "a", type: "date", inferred: "date"}];
     expected.fullSchema = expected.schema;
+    expected.errors = new Map();
     assert.deepStrictEqual(__table(source, operationsEquals), expected);
   });
 
@@ -656,6 +663,7 @@ describe("__table", () => {
     ];
     expectedDesc.schema = source.schema;
     expectedDesc.fullSchema = source.schema;
+    expectedDesc.errors = new Map();
     assert.deepStrictEqual(__table(source, operationsDesc), expectedDesc);
     const operationsAsc = {
       ...EMPTY_TABLE_DATA.operations,
@@ -668,6 +676,7 @@ describe("__table", () => {
     ];
     expectedAsc.schema = source.schema;
     expectedAsc.fullSchema = source.schema;
+    expectedAsc.errors = new Map();
     assert.deepStrictEqual(__table(source, operationsAsc), expectedAsc);
     const sourceExtended = [...source, {a: 1, b: 3, c: 3}, {a: 1, b: 5, c: 3}];
     const operationsMulti = {
@@ -686,6 +695,7 @@ describe("__table", () => {
     ];
     expectedExtended.schema = source.schema;
     expectedExtended.fullSchema = source.schema;
+    expectedExtended.errors = new Map();
     assert.deepStrictEqual(
       __table(sourceExtended, operationsMulti),
       expectedExtended
@@ -705,6 +715,7 @@ describe("__table", () => {
     ];
     expectedDesc.schema = [{name: "a", type: "number", inferred: "number"}];
     expectedDesc.fullSchema = expectedDesc.schema;
+    expectedDesc.errors = new Map();
     assert.deepStrictEqual(
       __table(sourceWithMissing, operationsDesc),
       expectedDesc
@@ -718,6 +729,7 @@ describe("__table", () => {
     ];
     expectedAsc.schema = [{name: "a", type: "number", inferred: "number"}];
     expectedAsc.fullSchema = expectedAsc.schema;
+    expectedAsc.errors = new Map();
     assert.deepStrictEqual(
       __table(sourceWithMissing, operationsAsc),
       expectedAsc
@@ -736,6 +748,7 @@ describe("__table", () => {
     ];
     sorted.schema = source.schema;
     sorted.fullSchema = source.schema;
+    sorted.errors = new Map();
     assert.deepStrictEqual(__table(source, operations), sorted);
     const originalOrder = [
       {a: 1, b: 2, c: 3},
@@ -757,6 +770,7 @@ describe("__table", () => {
     ];
     expectedToNull.schema = source.schema;
     expectedToNull.fullSchema = source.schema;
+    expectedToNull.errors = new Map();
     assert.deepStrictEqual(__table(source, operationsToNull), expectedToNull);
     const operationsFromNull = {
       ...EMPTY_TABLE_DATA.operations,
@@ -765,6 +779,7 @@ describe("__table", () => {
     const expectedFromNull = [{a: 1, b: 2, c: 3}];
     expectedFromNull.schema = source.schema;
     expectedFromNull.fullSchema = source.schema;
+    expectedFromNull.errors = new Map();
     assert.deepStrictEqual(
       __table(source, operationsFromNull),
       expectedFromNull
@@ -776,6 +791,7 @@ describe("__table", () => {
     const expectedSlice = [{a: 2, b: 4, c: 6}];
     expectedSlice.schema = source.schema;
     expectedSlice.fullSchema = source.schema;
+    expectedSlice.errors = new Map();
     assert.deepStrictEqual(__table(source, operations), expectedSlice);
   });
 
@@ -817,6 +833,7 @@ describe("__table", () => {
     ];
     expected.schema = schema;
     expected.fullSchema = schema;
+    expected.errors = new Map();
     assert.deepStrictEqual(__table(source, operations), expected);
     source.columns = ["a", "b", "c"];
     assert.deepStrictEqual(__table(source, operations).columns, [
@@ -842,6 +859,7 @@ describe("__table", () => {
       {name: "c", type: "integer", inferred: "integer"}
     ];
     expected.fullSchema = expected.schema;
+    expected.errors = new Map();
     assert.deepStrictEqual(__table(source, operations), expected);
     source.columns = ["a", "b", "c"];
     assert.deepStrictEqual(__table(source, operations).columns, [
@@ -868,6 +886,35 @@ describe("__table", () => {
       {name: "d", type: "integer", inferred: "integer"}
     ];
     expected.fullSchema = expected.schema;
+    expected.errors = new Map();
+    assert.deepStrictEqual(__table(source, operations), expected);
+  });
+
+  it("__table derived columns with errors", () => {
+    const functionWithError = (row) => row.a.b.c;
+    const operations = {
+      ...EMPTY_TABLE_DATA.operations,
+      derive: [{name: "d", value: functionWithError}]
+    };
+    let error;
+    try {
+      functionWithError(source[0]);
+    } catch (e) {
+      error = e;
+    }
+    const expected = [
+      {a: 1, b: 2, c: 3, d: undefined},
+      {a: 2, b: 4, c: 6, d: undefined},
+      {a: 3, b: 6, c: 9, d: undefined}
+    ];
+    expected.schema = [
+      {name: "a", type: "integer", inferred: "integer"},
+      {name: "b", type: "integer", inferred: "integer"},
+      {name: "c", type: "integer", inferred: "integer"},
+      {name: "d", type: "other", inferred: "other"}
+    ];
+    expected.fullSchema = expected.schema;
+    expected.errors = new Map([["d", [{index: 0, error}, {index: 1, error}, {index: 2, error}]]]);
     assert.deepStrictEqual(__table(source, operations), expected);
   });
 });

@@ -680,7 +680,7 @@ export function __table(source, operations) {
     // step.
     const derivedSource = [];
     operations.derive.map(({name, value}) => {
-      let columnErrors = new Map();
+      let columnErrors = [];
       // Derived column formulas may reference renamed columns, so we must
       // compute derivations on the renamed source. However, we don't modify the
       // source itself with renamed names until after the other operations are
@@ -692,7 +692,7 @@ export function __table(source, operations) {
         try {
           resolved = value(row, index, rows);
         } catch (error) {
-          columnErrors.set(index, error);
+          columnErrors.push({index, error});
           resolved = undefined;
         }
         if (derivedSource[index]) {
@@ -701,7 +701,7 @@ export function __table(source, operations) {
           derivedSource.push({[name]: resolved});
         }
       });
-      errors.set(name, columnErrors);
+      if (columnErrors.length) errors.set(name, columnErrors);
     });
     // Since derived columns are untyped by default, we do a pass of type
     // inference and coercion after computing the derived values.
