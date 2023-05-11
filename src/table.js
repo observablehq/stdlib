@@ -633,7 +633,6 @@ export function getSchema(source) {
 // function to do table operations on in-memory data?
 export function __table(source, operations) {
   const input = source;
-  let {columns} = source;
   let {schema, inferred} = getSchema(source);
   // Combine column types from schema with user-selected types in operations
   const types = new Map(schema.map(({name, type}) => [name, type]));
@@ -756,9 +755,6 @@ export function __table(source, operations) {
       const schemaByName = new Map(schema.map((s) => [s.name, s]));
       schema = operations.select.columns.map((c) => schemaByName.get(c));
     }
-    if (columns) {
-      columns = operations.select.columns;
-    }
     source = source.map((d) =>
       Object.fromEntries(operations.select.columns.map((c) => [c, d[c]]))
     );
@@ -771,12 +767,6 @@ export function __table(source, operations) {
         return ({...s, ...(override ? {name: override.name} : null)});
       });
     }
-    if (columns) {
-      columns = columns.map((c) => {
-        const override = overridesByName.get(c);
-        return override?.name ?? c;
-      });
-    }
     source = source.map((d) =>
       Object.fromEntries(Object.keys(d).map((k) => {
         const override = overridesByName.get(k);
@@ -786,7 +776,6 @@ export function __table(source, operations) {
   }
   if (source !== input) {
     if (schema) source.schema = schema;
-    if (columns) source.columns = columns;
   }
   return source;
 }
