@@ -686,10 +686,11 @@ export function __table(source, operations) {
       // applied, because operations like filter and sort reference original
       // column names.
       // TODO Allow derived columns to reference other derived columns.
-      applyNames(source, operations).map((row, index, rows) => {
+      applyNames(source, operations).map((row, index) => {
         let resolved;
         try {
-          resolved = value(row, index, rows);
+          // TODO Support referencing `index` and `rows` in the derive function.
+          resolved = value(row);
         } catch (error) {
           columnErrors.push({index, error});
           resolved = undefined;
