@@ -184,7 +184,7 @@ export async function loadDataSource(source, mode, name) {
 function sourceCache(loadSource) {
   const cache = new WeakMap();
   return (source, name) => {
-    if (!source || !(source instanceof Object)) throw new Error("invalid data source");
+    if (!source || typeof source !== "object") throw new Error("invalid data source");
     let promise = cache.get(source);
     if (!promise || (isDataArray(source) && source.length !== promise._numRows)) {
       // Warning: do not await here! We need to populate the cache synchronously.
