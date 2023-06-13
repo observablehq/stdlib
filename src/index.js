@@ -13,3 +13,4 @@ export {
   inferSchema,
   getSchema
 } from "./table.js";
+export {observe} from "./generators/observe.js";
