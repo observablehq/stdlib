@@ -1,7 +1,7 @@
 import {dependency} from "./dependency.js";
 export const d3 = dependency("d3", "7.8.5", "dist/d3.min.js");
-export const inputs = dependency("@observablehq/inputs", "0.10.5", "dist/inputs.min.js");
-export const plot = dependency("@observablehq/plot", "0.6.9", "dist/plot.umd.min.js");
+export const inputs = dependency("@observablehq/inputs", "0.10.6", "dist/inputs.min.js");
+export const plot = dependency("@observablehq/plot", "0.6.10", "dist/plot.umd.min.js");
 export const graphviz = dependency("@observablehq/graphviz", "0.2.1", "dist/graphviz.min.js");
 export const highlight = dependency("@observablehq/highlight.js", "2.0.0", "highlight.min.js");
 export const katex = dependency("@observablehq/katex", "0.11.1", "dist/katex.min.js");
@@ -21,4 +21,4 @@ export const topojson = dependency("topojson-client", "3.1.0", "dist/topojson-cl
 export const exceljs = dependency("exceljs", "4.3.0", "dist/exceljs.min.js");
 export const mermaid = dependency("mermaid", "9.2.2", "dist/mermaid.min.js");
 export const leaflet = dependency("leaflet", "1.9.3", "dist/leaflet.js");
-export const duckdb = dependency("@duckdb/duckdb-wasm", "1.27.0", "+esm");
+export const duckdb = dependency("@duckdb/duckdb-wasm", "1.24.0", "+esm");
