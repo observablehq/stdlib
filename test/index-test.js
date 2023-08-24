@@ -36,6 +36,7 @@ it("new Library returns a library with the expected keys", () => {
     "now",
     "olympians",
     "penguins",
+    "pizza",
     "require",
     "resolve",
     "svg",
