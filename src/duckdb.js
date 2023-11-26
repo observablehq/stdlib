@@ -208,7 +208,7 @@ async function insertFile(database, name, file, options) {
         }
         if (/\.parquet$/i.test(file.name)) {
           return await connection.query(
-            `CREATE VIEW '${name}' AS FROM parquet_scan('${file.name}')`
+            `CREATE VIEW '${name}' AS SELECT * FROM parquet_scan('${file.name}')`
           );
         }
         throw new Error(`unknown file type: ${file.mimeType}`);
@@ -220,7 +220,7 @@ async function insertFile(database, name, file, options) {
 
 async function insertUntypedCSV(connection, file, name) {
   const statement = await connection.prepare(
-    `CREATE TABLE '${name}' AS FROM read_csv_auto(?, ALL_VARCHAR=TRUE)`
+    `CREATE TABLE '${name}' AS SELECT * FROM read_csv_auto(?, ALL_VARCHAR=TRUE)`
   );
   return await statement.send(file.name);
 }
