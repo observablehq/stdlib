@@ -171,7 +171,7 @@ async function insertFile(database, name, file, options) {
     const buffer = await file.arrayBuffer();
     await database.registerFileBuffer(file.name, new Uint8Array(buffer));
   } else {
-    await database.registerFileURL(file.name, url, 4); // duckdb.DuckDBDataProtocol.HTTP
+    await database.registerFileURL(file.name, new URL(url, location).href, 4); // duckdb.DuckDBDataProtocol.HTTP
   }
   const connection = await database.connect();
   try {
