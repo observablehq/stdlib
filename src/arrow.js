@@ -1,7 +1,7 @@
 import {arrow11 as arrow} from "./dependencies.js";
 import {cdn} from "./require.js";
 
-// Returns true if the vaue is an Apache Arrow table. This uses a “duck” test
+// Returns true if the value is an Apache Arrow table. This uses a “duck” test
 // (instead of strict instanceof) because we want it to work with a range of
 // Apache Arrow versions at least 7.0.0 or above.
 // https://arrow.apache.org/docs/7.0/js/classes/Arrow_dom.Table.html
