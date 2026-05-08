@@ -1,4 +1,4 @@
-export function download(value, name = "untitled", label = "Save") {
+export function download(value, name = "untitled", label = "Save", labelSaving = "Saving…", labelDownload = "Download") {
   const a = document.createElement("a");
   const b = a.appendChild(document.createElement("button"));
   b.textContent = label;
@@ -15,10 +15,10 @@ export function download(value, name = "untitled", label = "Save") {
   a.onclick = async event => {
     b.disabled = true;
     if (a.href) return reset(); // Already saved.
-    b.textContent = "Saving…";
+    b.textContent = labelSaving;
     try {
       const object = await (typeof value === "function" ? value() : value);
-      b.textContent = "Download";
+      b.textContent = labelDownload;
       a.href = URL.createObjectURL(object); // eslint-disable-line require-atomic-updates
     } catch (ignore) {
       b.textContent = label;
