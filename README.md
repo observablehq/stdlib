@@ -2,7 +2,9 @@
 
 [![Node CI](https://github.com/observablehq/stdlib/workflows/Node%20CI/badge.svg)](https://github.com/observablehq/stdlib/actions?workflow=Node+CI)
 
-The Observable standard library.
+This is the Observable standard library for Notebooks 1.0.
+
+For the standard library in Notebooks 2.0, see [Notebook Kit](https://github.com/observablehq/notebook-kit).
 
 For examples, see https://observablehq.com/@observablehq/stdlib.
 
